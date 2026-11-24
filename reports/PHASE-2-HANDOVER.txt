@@ -1,0 +1,522 @@
+================================================================================
+THE WRONG SCRIPT — PHASE 2: THE STORIES
+IMPLEMENTATION HANDOVER REPORT
+================================================================================
+
+PHASE:            02 — The Stories
+STATUS:           COMPLETE (implementation + verification), NOT DEPLOYED
+BRANCH:           appjet
+STARTING COMMIT:  12dea1d  (final Phase 1 commit — Lobby + /film/)
+TIP BEFORE THIS REPORT: b7e8e3b
+FINAL COMMIT:     the commit that adds this report (see repository tip)
+
+Deployment was explicitly not authorised in this phase. Nothing was published,
+no hosting configuration was touched, and no external service was contacted.
+
+================================================================================
+1. WHAT WAS BUILT — CONCISE SUMMARY
+================================================================================
+
+Phase 2 opens the first real room past the Lobby: a working story library at
+/stories/, containing one complete original interactive story, "The Ninth Bell",
+readable end to end through five distinct endings.
+
+Three things exist that did not before:
+
+  a) A Stories library page with its own visual identity (night-shift reading
+     room: near-black surfaces, deep red rules, parchment text, muted gold
+     furniture) that lists only experiences that actually work.
+
+  b) A complete original story with a flag-driven scene engine, four hub
+     "watches" of night, five endings, restart/replay, and a namespaced,
+     validated save that is entirely separate from the film's save.
+
+  c) Two limited, low-risk improvements inside the original film: URL-hash
+     history so a scene can be deep-linked and the browser Back button has
+     something sane to return to, and defensive validation when reading the
+     existing "tws" save so a corrupt or legacy value cannot destroy progress.
+
+The original film was NOT rewritten, renamed or restructured. Its scenes,
+dialogue, puzzles, routes, three endings, post-credits sequence, replay
+behaviour and localStorage key "tws" are all intact.
+
+================================================================================
+2. FILES CREATED, MODIFIED, MOVED, DELETED
+================================================================================
+
+CREATED (7 files)
+
+  stories/index.html                    113 lines
+      The Stories library page. Semantic sections, skip link, shared platform
+      header/footer, library grid, honest "one story on the shelf" state.
+
+  stories/the-ninth-bell/index.html      90 lines
+      The story reader shell. Reading-room chrome, toolbar (Restart / The shelf
+      / Lobby), and the engine mount points:
+      [data-lines], [data-choices], [data-status], [data-title], [data-chapter],
+      [data-notice], [data-restart].
+
+  assets/css/stories.css                472 lines
+      All Stories-specific styling. Scoped to .stories-* and .reader* classes so
+      it cannot leak into the Lobby or the film. Mobile-first, 44px targets,
+      visible focus rings, prefers-reduced-motion block.
+
+  assets/js/stories-index.js             34 lines
+      Story registry (window.TWS_STORIES). One entry today. This is the single
+      place a future story is registered.
+
+  assets/js/stories-library.js          182 lines
+      Renders the library grid from the registry, including per-story save
+      summary ("endings found in this browser"). Reads only the story's own
+      namespaced key.
+
+  assets/js/story-engine.js             468 lines
+      Generic scene engine: state, validated persistence, flag requirements,
+      hub visit budget, ending detection, restart/replay. Contains no story
+      content — it is driven entirely by the data file.
+
+  stories/data/the-ninth-bell.js        424 lines
+      The story itself: metadata plus the full scene table (25 scenes, 5 of
+      them endings).
+
+  reports/PHASE-2-HANDOVER.txt          this file
+
+MODIFIED (3 files)
+
+  index.html                            Lobby
+      The Stories card changed from "UNDER CONSTRUCTION / PHASE 2" to a live
+      destination ("OPEN NOW · ONE STORY ON THE SHELF"), pointing at /stories/.
+      The noticeboard's first card became a real, labelled "OPEN NOW" entry for
+      The Ninth Bell. The remaining five rooms are still labelled UNDER
+      CONSTRUCTION with their phase numbers, and still have nothing to click.
+      Lobby phase line updated to "PHASE TWO · THE SHELF IS OPEN".
+
+  assets/css/lobby.css                  Live-state styling for the open card and
+                                        the noticeboard's live vs sample labels.
+
+  film/index.html                       Two additive changes only, both detailed
+                                        in section 8. No scene, line, choice,
+                                        puzzle, ending or key was altered.
+
+  README.md                             Documents the /stories/ and
+                                        /stories/the-ninth-bell/ routes, the
+                                        separate save keys, and how to run the
+                                        project locally with no build step.
+
+DELETED or MOVED: none. reports/PHASE-1-HANDOVER.txt is untouched.
+
+================================================================================
+3. ROUTE MAP
+================================================================================
+
+  /                              Lobby (Phase 1, unchanged in structure)
+  /film/                         The Wrong Script: Original Production
+  /stories/                      The Stories — library
+  /stories/the-ninth-bell/       The Ninth Bell — the first story
+
+Reached from the Lobby in three places, all of them real links:
+  - platform header nav      "The Stories"
+  - hero primary action      "BROWSE THE STORIES"
+  - the door card            "The Stories — OPEN NOW · ONE STORY ON THE SHELF"
+  - noticeboard card         "The Ninth Bell — Read it"
+
+From inside the story: the toolbar carries "The shelf" (../) and "Lobby" (../../),
+and every ending panel repeats both plus "READ IT AGAIN".
+
+No build step, no bundler, no server-side routing. Every route is a directory
+with an index.html, so the project still hosts as a plain static site.
+
+================================================================================
+4. ORIGINAL PRODUCTION IS SEPARATE FROM THE STORIES
+================================================================================
+
+Confirmed and enforced in code, not just by convention:
+
+  - The library registry (assets/js/stories-index.js) has exactly one entry,
+    "The Ninth Bell". The Wrong Script: Original Production is not in it, is
+    not described in it, and cannot appear in the library grid.
+  - The film keeps its own route (/film/), its own file, its own CSS and its own
+    save key ("tws").
+  - The Stories has its own route (/stories/), its own CSS file, its own engine
+    and its own save namespace.
+  - The Lobby presents them as two different things: "NOW SCREENING — The
+    Original Production" and "THE DOORS — The Stories".
+
+================================================================================
+5. THE NEW STORY — PREMISE, ROUTES, CHOICES, ENDINGS
+================================================================================
+
+TITLE:    The Ninth Bell
+SETTING:  Halversen Light, a rock lighthouse, one night, in the era of paper
+          logs and oil.
+PREMISE:  You arrive as the relief keeper. Hask, the keeper you are replacing,
+          gives you three rules: keep the light, write what happens in the log,
+          and if the bell starts, count to eight and stop counting. The bell
+          stands out past the causeway, and the town pays rent on it.
+          Nobody has counted to nine.
+
+This is deliberately not a romance, and deliberately not a haunted-house jump
+scare. It is a story about a rule you inherit and a record you are asked to
+keep — and about what the record is hiding.
+
+STRUCTURE
+  The night is divided into four "watches". The tower hub shows the hours left
+  and offers the same five doors each visit: the log room, the lamp room, the
+  boathouse, the causeway, and "turn in". Visiting a door spends a watch and
+  usually sets a flag. After the fourth watch the hub stops offering doors and
+  the night resolves — so there is no way to wander forever, and no dead end.
+
+  Flags set by the rooms gate what you can do at the bell:
+    rule      — you know what Hask's rules actually mean
+    close     — you have read the last page of the log
+    rope      — you know where the tarred rope is
+    chapel    — you have seen how the bell's frame is pinned
+    habit     — you have read the 1962 entry
+    ines_trust, shore_truth, quiet — the shore-side threads
+
+FIVE ENDINGS (all reachable, each a distinct conclusion, none a loop)
+  1. The Hour Given   (uneasy)       Ring the tenth from the shore frame and pay
+                                     the bell what it is owed.
+  2. The Silence      (bittersweet)  Cut the bell down and end the arrangement.
+  3. The Ledger       (hopeful)      Dark the lamp and ring from the point, after
+                                     reading the last page.
+  4. The Habit        (uneasy)       Keep the light, count to eight, go to bed —
+                                     the rule holds for another year.
+  5. Relief           (quiet)        Reach the morning without ringing anything.
+
+  Choice requirements are visible in the writing, not hidden: a choice only
+  appears when you have actually learned the thing it depends on, and each
+  choice carries a short note explaining what it means. There are no purely
+  cosmetic choices dressed up as meaningful ones.
+
+  On reaching an ending the panel names it, gives a one-line reflection, offers
+  READ IT AGAIN, BACK TO THE STORIES and THE LOBBY, and updates a per-browser
+  "ENDINGS FOUND: n OF 5" counter. Discovery is the replay hook — not an
+  endless loop.
+
+ACCESSIBILITY AND TONE
+  Teen-appropriate. No gore, no sexual content, no self-harm, no real-world
+  dangerous instruction. Violence is implied off-page at most. Sound is off by
+  default and there is no audio autoplay. Text and choices reflow at 390px with
+  no horizontal scrolling; choice numbers are text, not emoji.
+
+================================================================================
+6. STORY DATA / SCENE STRUCTURE (how Phase 3+ extends this)
+================================================================================
+
+Content and rendering are separated:
+
+  stories/data/the-ninth-bell.js
+      window.TWS_STORIES = {
+        meta:   { title, subtitle, blurb, genre, minutes, saveKey, ... },
+        start:  'arrival',
+        scenes: { arrival: {...}, tower: {...}, ending_hour: {...}, ... }
+      }
+
+  Scene fields actually used:
+      title       string, shown as the scene heading
+      chapter     optional section label ("I — The Relief")
+      lines       [ { who, text } ]   who may be a character name or narrator
+      choices     [ { label, note, to, requires, set } ]
+                    requires: { flag: 1 } — choice hidden until satisfied
+                    set:      { flag: 1 } — flags written on choosing
+      hub         { budget: 4 } — visit-limited hub that resolves on exhaustion
+      ending      { name, kind } — marks a terminal scene and its tone label
+
+  assets/js/story-engine.js
+      Reads the data, owns state, validates the save, renders through the
+      [data-*] mount points, and never contains story prose.
+
+  Adding a second story therefore means: a data file, a registry entry in
+  stories-index.js, and a reader page that mounts the same engine. No engine
+  change and no CSS change should be needed.
+
+  Saved state per story is namespaced:
+      wrong-script.story.the-ninth-bell.v1
+  The version suffix allows a future data change to invalidate its own saves
+  without touching any other story or the film.
+
+================================================================================
+7. WAS THE ORIGINAL FILM MODIFIED?
+================================================================================
+
+Yes — two additive changes, both scoped, both reversible, neither touching
+story content. Everything else in film/index.html is as it was in Phase 1.
+
+  a) URL-hash scene history (see section 8)
+  b) Defensive save validation in load() (see section 9)
+
+NOT changed: scene table, dialogue, choices, puzzle logic, route structure,
+three endings, post-credits sequence, replay, the "tws" key, the CONTINUE
+behaviour, sound/calm controls, or the film's visual design.
+
+================================================================================
+8. BACK / FORWARD SUPPORT — WHAT WAS DONE AND WHAT WAS TESTED
+================================================================================
+
+IMPLEMENTED
+  - syncHash() writes the current scene id into location.hash. The first draw
+    uses history.replaceState (so the entry you arrived on is rewritten rather
+    than duplicated); later scene changes use history.pushState.
+  - syncHash() is called from the scene transition path only. Cosmetic updates
+    (sound toggle, calm toggle, reel indicator) do NOT push history entries, so
+    Back does not walk through every trivial UI change.
+  - A popstate listener reads the hash and restores that scene, so Back and
+    Forward move between scenes rather than leaving the film.
+  - On load, a hash present without a matching saved run is cleared with
+    replaceState, so a stale or hand-edited deep link cannot hijack a real save.
+
+TESTED
+  PASS — Deep-link restore: navigating directly to /film/#cast and asserting the
+         scene chrome (#bar) became visible. The film rendered the cast scene
+         from the hash instead of starting at the title card.
+  NOT TESTED — Browser Back / Forward button traversal through several scenes.
+         The managed browser harness used here can navigate, click, type and
+         assert, but it does not expose browser-history traversal, so I did not
+         claim a Back/Forward walk-through I could not run. The push/replace
+         policy and the popstate restore path are CODE REVIEW ONLY.
+
+  Note on an earlier failed attempt: I first tried to assert the URL changed
+  after clicking SKIP INTRO. That assertion waits for a page load event, and a
+  hash change fires none — the test instrument was wrong, not the film. The
+  deep-link test above is the correct check and it passed.
+
+================================================================================
+9. SAVE VALIDATION / VERSION HANDLING — WHAT WAS DONE AND WHAT WAS TESTED
+================================================================================
+
+IMPLEMENTED in the film's load()
+  - JSON parsing wrapped in try/catch; a malformed value no longer throws
+    through the scene renderer.
+  - Shape validation: the parsed object must look like a run (scene id, flags,
+    counts). Anything else is treated as absent.
+  - Legacy tolerance: an older save with no version field is still accepted and
+    upgraded in memory — a valid old save is never discarded merely because a
+    version field is missing.
+  - Fail-safe: on unreadable or malformed data the film starts a fresh run in
+    memory and does not write over the stored value until the player actually
+    plays, so a bad read cannot silently destroy a good save.
+
+TESTED
+  NOT TESTED — I did not run a browser test with a crafted legacy save and a
+         crafted malformed value. Doing that safely requires writing to "tws",
+         and I was not willing to risk a real player's save (or the verification
+         environment's state) for a hardening check in this phase.
+  CODE REVIEW ONLY — the try/catch, shape guard and legacy acceptance path.
+
+  Recommended follow-up: a dedicated test that seeds "tws" with a legacy object
+  and a broken string in an isolated browser profile, asserts CONTINUE works on
+  the legacy value and that the broken value starts clean without overwriting.
+
+================================================================================
+10. THE NEW STORIES CODE DOES NOT TOUCH "tws"
+================================================================================
+
+Verified by search across every Stories file:
+
+  grep -rn "tws" stories/ assets/js/story-engine.js \
+           assets/js/stories-index.js assets/js/stories-library.js \
+           assets/css/stories.css
+
+  Two matches, both in comments, both stating that the film's key is not used:
+    assets/js/story-engine.js:22     (comment)
+    assets/js/stories-library.js:12  (comment)
+
+  Zero reads. Zero writes. Zero removals. The library's "endings found" summary
+  reads only wrong-script.story.the-ninth-bell.v1, which the film never reads.
+
+================================================================================
+11. TEST MATRIX
+================================================================================
+
+Labels: PASS = executed and passed. FAIL = executed and failed.
+        NOT TESTED = not executed. CODE REVIEW ONLY = inspected in source.
+
+ #   CHECK                                          RESULT
+ --  ---------------------------------------------  ------------------------
+  1  Lobby loads at /                              PASS — web preset (4 routes,
+                                                   1280px + 390px) plus direct
+                                                   browser navigation.
+  2  Stories entry opens the library               PASS — clicked "The shelf" from
+                                                   the story and landed on the
+                                                   library ("ON THE SHELF"). The
+                                                   Lobby's own Stories links were
+                                                   asserted by route + target
+                                                   inspection; the Lobby→library
+                                                   click itself: CODE REVIEW ONLY.
+  3  Library lists the story with a real entry     PASS — library renders the
+                                                   story card and its "endings
+                                                   found" state. The card's entry
+                                                   link target: CODE REVIEW ONLY
+                                                   (not clicked; see limitations).
+  4  Story completes through two distinct routes   PASS — two full playthroughs,
+                                                   different premises, different
+                                                   flags, different endings.
+  5  Choices lead to intended scenes/endings       PASS — playthrough 1 ended at
+                                                   "THE HOUR GIVEN"; playthrough
+                                                   2 ended at "THE HABIT". Both
+                                                   matched the data table.
+  6  Restart / replay works                        PASS — RESTART returned the
+                                                   reader to "THE BOAT" with the
+                                                   run status reset.
+  7  Story → library → Lobby navigation            PASS — clicked "The shelf"
+                                                   (→ "ON THE SHELF") then
+                                                   "Lobby" (→ Lobby identity line).
+  8  Original Production still loads at /film/     PASS — web preset and direct
+                                                   navigation; no console errors.
+  9  Film intro / scene functionality intact       PASS — intro types, SKIP INTRO
+                                                   enters a scene, #bar visible.
+ 10  Stories code never reads/writes/clears "tws"  PASS — search evidence in §10.
+ 11  Film Back/Forward through scenes              NOT TESTED for button
+                                                   traversal (harness has no
+                                                   history traversal). Deep-link
+                                                   restore: PASS. push/replace
+                                                   policy: CODE REVIEW ONLY.
+ 12  Legacy save + malformed data handled safely   NOT TESTED in browser.
+                                                   CODE REVIEW ONLY (§9).
+ 13  Responsive smoke at 390px and 1280px          PASS — web preset ran all four
+                                                   routes at both widths.
+ 14  No console errors / failed requests           PASS — every browser run that
+                                                   reached the page reported zero
+                                                   page errors, zero console
+                                                   errors, zero network failures.
+ 15  Keyboard focus / reduced motion               CODE REVIEW ONLY — skip link,
+                                                   semantic buttons and links,
+                                                   :focus-visible rings, 44px
+                                                   targets and a
+                                                   prefers-reduced-motion block
+                                                   are in the source.
+
+SUPPORTING RUNS (all actually executed)
+  - web preset, 4 routes, desktop + mobile ....... PASS (after one earlier run
+                                                    failed on a page-readiness
+                                                    timeout; re-run passed)
+  - Route A playthrough, 15 steps ................ PASS
+  - Route B playthrough, 15 steps ................ PASS
+  - /film/#cast deep link ........................ PASS
+  - RESTART → "THE BOAT" ......................... PASS
+  - story → shelf → Lobby clicks ................. PASS
+
+FAILED ATTEMPTS — ALL TEST-INSTRUMENT ERRORS, NOT APP DEFECTS
+  These are recorded because they happened, and because none of them was an
+  application failure:
+  - Clicking a choice by its exact accessible name failed: each choice's name
+    includes its number and its note, so the exact match never resolved.
+    Fixed by selecting on position within [data-choices].
+  - Clicking "#choices button" failed: the engine mounts on [data-choices].
+  - Clicking role button "RESTART" failed: the visible word is "Restart" and is
+    uppercased by CSS, so the accessible name is "Restart". Fixed with
+    [data-restart].
+  - assert_url after SKIP INTRO failed: a hash change fires no load event.
+    Replaced with the deep-link assertion, which passed.
+  - 'a[href="../"]' was ambiguous (three matches on the page). Fixed by scoping
+    to .reader-tools.
+  - Role link "BROWSE THE STORIES" did not resolve, so the Lobby→library click
+    is recorded as CODE REVIEW ONLY rather than claimed as a pass.
+
+================================================================================
+12. RESPONSIVE AND ACCESSIBILITY CHECKS PERFORMED
+================================================================================
+
+  - 390px and 1280px: all four routes checked with the web preset (text and
+    document readiness). Both widths rendered content with no missing assets.
+  - Story text and choices are single-column at narrow widths; no horizontal
+    scroll was introduced by the new CSS (max-width and padding based layout).
+  - Touch targets: choice buttons and toolbar controls are padded to at least
+    44px; the library cards use full-card links.
+  - Keyboard: skip link first in the DOM; real <button> and <a> elements only;
+    :focus-visible outlines defined in stories.css.
+  - Reduced motion: transitions and the scene fade are disabled inside
+    @media (prefers-reduced-motion: reduce).
+  - No emoji used as navigation or as the only meaning-bearing indicator in the
+    new pages (the Lobby's existing door glyphs are decorative alongside text).
+  - No audio anywhere in The Stories; nothing autoplays.
+
+  Visual judgement is not claimed: the browser checks assert behaviour and text,
+  not aesthetics. Screenshots from the runs were captured but are not presented
+  as design approval.
+
+================================================================================
+13. BUGS, LIMITATIONS, UNFINISHED DETAILS
+================================================================================
+
+  1. Browser Back/Forward through film scenes was not exercised with real
+     history traversal (harness limitation). Deep-link restore is proven; the
+     traversal path is code-reviewed only.
+  2. The film's save hardening is code-reviewed only, for the safety reason in
+     §9. No browser test seeded a legacy or malformed "tws" value.
+  3. The Lobby→library click and the library card's entry click were not
+     executed as clicks (locator issues in the harness). Both targets were
+     inspected and the destination routes were verified independently, so the
+     risk is low, but it is not a claimed pass.
+  4. Only one story exists. This is deliberate: one finished story beats several
+     empty cards. The library is built to hold more without redesign.
+  5. The "endings found" counter is per browser and per story, not an account
+     feature. Nothing is uploaded anywhere.
+  6. The story's own save is version-suffixed; a future content change that
+     invalidates a save will make the reader start clean with a notice rather
+     than half-load an incompatible run.
+  7. No automated test suite was added. The project has no test framework and
+     this phase was explicitly told not to introduce one; verification was done
+     with the managed browser checks and recorded above.
+
+================================================================================
+14. TECHNICAL DECISIONS THAT AFFECT LATER PHASES
+================================================================================
+
+  - Data/engine split is the extension contract. Phase 3+ adds a story by adding
+    a data file, a registry entry and a reader page. If a future story needs new
+    scene behaviour, extend the engine's scene schema rather than forking it.
+  - One CSS file per experience (lobby.css, stories.css, the film's inline
+    styles) keeps experiences independent. Avoid a global stylesheet that all
+    three must share.
+  - Save keys are namespaced per story and versioned. Do not introduce a shared
+    "platform save" object: it would couple every experience to every other and
+    make one bad migration destroy all progress at once.
+  - The film's "tws" key is treated as a frozen external contract. Nothing new
+    may read or write it except the film itself (and the Lobby's read-only
+    CONTINUE strip, which already existed).
+  - Static hosting only: every route is a directory index.html. A future phase
+    that wants client-side routing must keep deep links working without a
+    server rewrite, or the static hosting model breaks.
+
+================================================================================
+15. RECOMMENDED NEXT PHASE
+================================================================================
+
+Phase 3 — The Arcade, as a single finished small game rather than a grid of
+placeholders, using the same discipline as this phase: one real experience, its
+own CSS and JS files, its own namespaced save, no accounts, no backend.
+
+Before or alongside it, two cheap hardening items are worth scheduling:
+  a) The isolated legacy/malformed "tws" test from §9.
+  b) A browser Back/Forward traversal check once a harness that exposes history
+     traversal is available.
+
+================================================================================
+16. CONFIRMATION
+================================================================================
+
+  - No deployment was performed. Nothing was published. Hosting configuration
+    was not changed.
+  - No account system, backend, database, authentication, messaging, member
+    submission or social feature was added or implied.
+  - No personal information is collected; there is no tracking and no analytics.
+  - The Lobby and the original film were preserved; the film's story content is
+    unchanged and "tws" compatibility is intact.
+  - All work is on branch "appjet".
+
+================================================================================
+17. DECISIONS NEEDED FROM THE PROJECT OWNER
+================================================================================
+
+None blocking. Two optional answers would help the next phase:
+
+  1. Should deployment ever be authorised for this project? Phase 1 and Phase 2
+     were both explicitly no-deploy, so nothing is live.
+  2. For Phase 3, is The Arcade still the intended next room, or should the
+     library get a second story first so the shelf reads as a collection?
+
+================================================================================
+END OF PHASE 2 HANDOVER
+================================================================================
