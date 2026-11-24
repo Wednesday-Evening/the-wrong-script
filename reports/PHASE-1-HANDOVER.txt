@@ -1,0 +1,245 @@
+THE WRONG SCRIPT
+PHASE 1 - THE LOBBY & EXPERIENCE SHELL
+IMPLEMENTATION & HANDOVER REPORT
+
+Branch: appjet | Commit at time of writing: 12dea1d | Deployment: none performed
+Repository: /reports/PHASE-1-HANDOVER.txt
+
+===============================================================================
+1. SUMMARY
+===============================================================================
+
+The repository now has a platform home at / and the original film preserved at
+/film/.
+
+The Lobby establishes the title, identity line and cinematic styling
+(near-black #080808, deep red #7A171C, parchment #E8DDCB, muted gold #B99A62 -
+the film's own palette), features the film as the first available experience,
+previews six reserved destinations with honest status labels, and adds a
+sample-labelled discovery strip.
+
+No framework, build step, backend or external asset was introduced.
+
+===============================================================================
+2. FILES CREATED OR MODIFIED
+===============================================================================
+
+index.html
+  CREATED (Lobby)
+  The home experience: header nav, hero, "Now screening" feature with
+  production slate, six destination cards, noticeboard, footer.
+
+assets/css/lobby.css
+  CREATED
+  All Lobby styling, mobile-first, sharing the film's palette.
+
+assets/js/lobby.js
+  CREATED
+  Small-screen menu, saved-progress strip, header edge. Reads the film's save;
+  never writes it.
+
+film/index.html
+  MOVED + 1 LINE ADDED
+  The original interactive film, unchanged apart from one return link.
+
+README.md
+  REWRITTEN
+  Structure, run instructions, phase status, how to add a destination later.
+
+===============================================================================
+3. HOW THE ORIGINAL FILM WAS PRESERVED
+===============================================================================
+
+The film was MOVED, NOT REWRITTEN - a plain `mv` from /index.html to
+/film/index.html, then one line added. Verified with a real diff against the
+pre-Lobby commit:
+
+    diff -u <91eb4e4:index.html> film/index.html
+    @@ -37,6 +37,7 @@
+     <div id="app">
+    +<nav aria-label="Platform" style="...min-height:44px;color:#B99A62...">
+    +  <- The Wrong Script . Lobby
+    +</nav>
+      <div id="bar" hidden>
+
+ONE ADDED LINE. ZERO film CSS, JS, story, dialogue or logic lines changed.
+The added nav is inline-styled, so the film's stylesheet is untouched.
+
+Intact and confirmed in source:
+  - All 30 scene nodes
+  - endA / endB / endC (the three endings)
+  - hsolve / bsolve puzzles
+  - The Editing Room fragment gate
+  - SKIP INTRO
+  - ENTER THE FILM
+  - CONTINUE (saved)
+  - The post / post2 credits and replay
+
+SAVE PRESERVATION
+  The film stayed on the same origin and the localStorage key is still "tws",
+  so any progress saved before the move is still found - nothing was reset.
+  The Lobby only READS that key to offer a way back.
+
+HOW IT IS REACHED
+  - Hero button "Enter the Film"
+  - A second "Enter the Film" in the feature section
+  - "The Original Production" in the nav
+  - The footer link
+  - The film's own "<- The Wrong Script . Lobby" return link
+
+===============================================================================
+4. NAVIGATION: WORKING VS. RESERVED
+===============================================================================
+
+FUNCTIONAL (2):
+  - Lobby (./)
+  - The Original Production (film/, carries an "open" chip)
+
+RESERVED (6):
+  - The Stories
+  - The Arcade
+  - The Gallery
+  - The Social Room
+  - The Archive
+  - The Creator Studio
+
+Each reserved destination has a nav "Soon" badge, a card with a real
+description, and an explicit "Under construction" + phase label. None is a
+button pretending to work; each anchors to its own card so the click lands
+somewhere truthful.
+
+===============================================================================
+5. CHECKS PERFORMED
+===============================================================================
+
+CODE INSPECTION (not a test):
+  - Full read of both files before editing
+  - Source counts for endings, puzzles and save key
+  - Typo sweep of the new CSS/JS (clean)
+  - diff -u proving the film is intact
+
+AUTOMATED / BROWSER (actually run):
+
+  a) WEB SMOKE - PASS.
+     / and /film/ at 1280 px and 390 px: HTTP 200, non-empty document, no page
+     errors or failed JS/CSS, expected text and elements visible.
+
+  b) DESKTOP CLICK-THROUGH - PASS (12 steps):
+     Lobby identity line -> hero "Enter the Film" -> URL /film/ -> SKIP INTRO
+     -> "THE WRONG SCRIPT" -> ENTER THE FILM -> casting scene with its three
+     choices and the fragment counter visible.
+
+  c) MOBILE 390 px MENU - PASS (9 steps):
+     Menu toggle opens, both live and reserved links visible, film link
+     navigates to /film/ and the intro plays.
+
+  d) DEPENDENCY SECURITY - not_applicable.
+     0 packages, 0 findings (no dependencies exist; this is not a security
+     certification).
+
+  e) One browser run initially failed on MY ambiguous selector (`#ch button`
+     matched three buttons); the page text showed the scene was fine, so it was
+     retried with a scoped locator and passed.
+
+===============================================================================
+6. RESPONSIVE CHECKS
+===============================================================================
+
+Viewports used: 390 px (phone) and 1280 px (desktop), both pages, both confirmed
+rendering without errors.
+
+  - Mobile-first CSS with a single min-width: 900px breakpoint
+  - Touch targets are >= 44 px (buttons 50 px, nav links 44 px, the film's
+    return link 44 px)
+  - Visible :focus-visible outlines
+  - prefers-reduced-motion honoured (the film's Calm mode plus Lobby
+    transitions disabled)
+  - No autoplay audio
+  - No flashing
+
+===============================================================================
+7. BUGS, LIMITATIONS AND COMPROMISES
+===============================================================================
+
+NOT PLAYED END-TO-END THIS PHASE.
+  I did not script a full three-route playthrough to each ending. Integrity
+  rests on the byte-level diff (one added line), the source counts, and
+  reaching the casting scene in a real browser.
+
+SAVE ROUND-TRIP NOT EXERCISED IN-BROWSER.
+  Managed browser steps cannot seed localStorage, so I could not watch
+  "save -> reload -> CONTINUE". The Lobby's CONTINUE strip is therefore unseen
+  in a browser; correctness rests on the key and film code being unchanged and
+  the origin being identical.
+
+FILM ROUTES AREN'T URL-ADDRESSABLE (no hash routing) - pre-existing behaviour,
+deliberately not changed in this phase.
+
+CARD GLYPHS ARE EMOJI, so they render differently per platform; there is no
+real artwork, consistent with the film's convention.
+
+NO SCREEN-READER AUDIT.
+  Semantics (aria-current, aria-expanded, aria-live on the continue slot,
+  aria-hidden on decorative glyphs, a skip link) are in place but untested with
+  assistive tech.
+
+README PREVIOUSLY SAID GitHub Pages should deploy from `main`, which would not
+have published anything here; it now says the branch that holds the files
+(appjet).
+
+===============================================================================
+8. TECHNICAL DECISIONS THAT AFFECT LATER PHASES
+===============================================================================
+
+ONE FOLDER PER EXPERIENCE (film/ now; stories/ next). Adding a destination
+means creating a folder, giving its card a real href, dropping the Soon badge -
+no Lobby restructuring.
+
+CSS/JS LIVE IN assets/, so a new destination can reuse or extend without
+touching the film.
+
+THE SAVE CONTRACT IS LOAD-BEARING: key "tws" on this origin must not change, or
+players lose progress. Recorded for future phases.
+
+NO BUILD STEP - the site is deployable to any static host exactly as committed.
+
+lobby.js READS BUT NEVER WRITES the save, establishing the pattern for future
+"resume" surfaces.
+
+===============================================================================
+9. RECOMMENDED NEXT PHASE
+===============================================================================
+
+PHASE 2 - THE STORIES.
+
+It is the natural second destination, its nav slot and card already exist, and
+it is the first place the platform needs real content of its own.
+
+Bundle two low-risk hardening items:
+  - Hash-based scene routing for the film (working Back button)
+  - A version guard when reading the saved state
+
+===============================================================================
+10. DEPLOYMENT
+===============================================================================
+
+NO DEPLOYMENT WAS PERFORMED, per your instruction.
+
+The Phase 1 work is saved to GitHub on branch appjet at commit 12dea1d.
+
+===============================================================================
+11. NOTE ON THIS FILE
+===============================================================================
+
+This .txt file is the delivery format requested for all future reports. It is
+the only way a downloadable, shareable copy can be handed over from this
+workspace, because chat cannot carry a text-file attachment.
+
+It contains no application code and changes nothing about the site. It lives in
+/reports/ purely as a delivery artifact and can be deleted at any time.
+
+===============================================================================
+PHASE 1 STATUS: COMPLETE - READY FOR REVIEW
+===============================================================================
+
+Stopping here and awaiting the Phase 2 brief.
