@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Wrong Script</title>
+<style>
+:root{--bg:#080808;--red:#7A171C;--cr:#E8DDCB;--gold:#B99A62;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--cr);font:17px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow-x:hidden}
+.serif{font-family:Georgia,'Times New Roman',serif}.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+#app{max-width:520px;margin:0 auto;padding:12px 16px 40px;min-height:100vh;position:relative}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;opacity:.09;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");animation:gr .8s steps(4) infinite}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65))}
+@keyframes gr{25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fl{0%,100%{opacity:1}48%{opacity:.82}52%{opacity:1}}
+@keyframes flare{0%{opacity:0}40%{opacity:.95}100%{opacity:0}}
+.calm *,.calm::before{animation:none!important;transition:none!important}.calm .ln{opacity:1!important}
+#bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;position:relative;z-index:6}
+#bar span{font-size:14px;color:var(--gold)}
+button{font:inherit;color:var(--cr);background:#161616;border:1px solid var(--gold);border-radius:6px;min-height:48px;padding:10px 16px;cursor:pointer;width:100%;text-align:left;margin:6px 0;position:relative;z-index:6}
+button:active{background:var(--red);transform:scale(.98)}button:focus-visible{outline:2px solid var(--cr);outline-offset:2px}
+button.sm{width:auto;min-height:44px;margin:0;padding:6px 12px;font-size:14px}
+button.ghost{background:transparent;border-style:dashed;color:var(--gold);font-size:15px}
+button.main{background:var(--red);text-align:center;letter-spacing:.12em}
+.art{height:140px;border:1px solid var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:58px;margin:12px 0;box-shadow:inset 0 0 40px #000}
+h1{font-size:clamp(34px,11vw,56px);letter-spacing:.08em;text-align:center;margin:30px 0 6px;line-height:1.05}
+h2{font-size:22px;letter-spacing:.1em;color:var(--gold);margin:8px 0}
+.ln{opacity:0;animation:in .6s forwards}.nar{font-style:italic;color:#cfc3ae}
+.ln b{font:600 12px ui-monospace,Menlo,monospace;color:var(--gold);letter-spacing:.1em}
+p{margin:.5em 0}.beat{min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;font-size:26px;transition:opacity 1s;opacity:0;padding:0 8px}
+.slate{border:1px solid var(--gold);padding:10px 14px;margin:18px 0;font-size:14px;background:#111}
+.slate div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dotted #333}
+.c{text-align:center}.flick{animation:fl 3s infinite}
+#flare{position:fixed;inset:0;background:#fff3d6;opacity:0;pointer-events:none;z-index:9}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(92vw,480px);background:#000;border:1px solid var(--gold);padding:12px 14px;border-radius:6px;z-index:10;opacity:0;transition:opacity .3s;pointer-events:none;font-size:15px}
+.v{color:var(--gold)}
+#md{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:11;display:none;align-items:center;justify-content:center;padding:20px}#md>div{background:#121212;border:1px solid var(--gold);padding:18px;max-width:380px;width:100%}
+</style></head><body>
+<div id="app">
+ <div id="bar" hidden><span id="reel" class="mono" aria-label="Script fragments found"></span>
+  <span><button class="sm" id="snd" aria-pressed="false">Sound: off</button> <button class="sm" id="calm" aria-pressed="false">Calm</button> <button class="sm" id="new">New</button></span></div>
+ <main id="stage" aria-live="polite"></main>
+</div>
+<div id="flare"></div><div id="toast" role="status"></div>
+<div id="md" role="dialog" aria-modal="true"><div><p id="mq"></p><button id="my">Yes, do it</button><button id="mn" class="ghost">Cancel</button></div></div>
+<script>
+/* THE WRONG SCRIPT — single-file interactive film. Systems: state+save, scene renderer, node table N, intro/title, interludes, endings. */
+const $=s=>document.querySelector(s);
+let T=[],snd=false,AC,S=fresh();
+function fresh(){return{v:{},c:{},f:{},sc:'cast',h:0}}
+function save(){try{localStorage.setItem('tws',JSON.stringify(S))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem('tws'))}catch(e){return null}}
+function blip(f=140){if(!snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.value=.05;g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.4);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.4)}catch(e){}}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,4500)}
+const go=id=>{S.sc=id;S.h=0;draw()};
+/* in-page confirm dialog (browser confirm() can be blocked in embeds) */
+const ask=(q,y)=>{$('#mq').textContent=q;$('#md').style.display='flex';$('#my').onclick=()=>{$('#md').style.display='none';y()};$('#mn').onclick=()=>{$('#md').style.display='none'}};
+const crewN=()=>Object.keys(S.f.cm||{}).length;
+/* crew members: [name, icon, dialogue, credit line] */
+const CREW={d:['DOLORES, PROPS','🧰',[['DOLORES','Quills? We never stocked quills. Quills are for people with plots.'],['DOLORES','If anyone asks, the castle fire was a lighting choice.']],'Props: Dolores (denies everything).'],t:['TEO, SOUND','🎧',[['TEO','I’ve recorded the same creak for three films. It’s still the best one.'],['TEO','Switch sound on up top. I’ll try not to ruin it.']],'Sound: Teo (one creak, three films).'],p:['MR. PELL, FACILITIES','🧹',[['MR. PELL','I’ve swept up four genres this week. Horror leaves the most glitter.'],['MR. PELL','Room 13? Don’t ask. I just mop around it.']],'Facilities: Mr. Pell (mops around Room 13).'],b:['BEA, INTERN','📋',[['BEA','My title changes by scene. I was a ghost earlier. Unpaid.'],['BEA','If the script’s blank, you write the ending. I’ll bring snacks.']],'Intern: Bea (currently a ghost).']};
+const D=t=>['DIRECTOR',t],R=t=>['RECEPTIONIST',t],A=t=>['ARTIST',t],X=t=>['ACTOR',t],SY=t=>['SYSTEM',t];
+const nv=()=>Object.keys(S.v).length;
+const skip=['Skip the genre chaos',()=>go('hub')];
+const done=(t,i,g)=>({t,i,g,l:['You’ve already been through this place.','Something small has changed since you left. It is probably nothing.'],c:[['Back to the doors',()=>go('hub')]]});
+const PAINT={1:['a red door','🚪'],2:['a golden moon','🌕'],3:['a blue ladder','🪜']};
+const STORY={1:'The Queen Who Lost Her Crown in a Supermarket',2:'The Dragon Afraid of Butterflies',3:'The Witch Whose Spells Only Work on Mondays'};
+
+const N={
+cast:()=>({t:'CASTING ERROR',i:'🎬',g:'radial-gradient(circle at 50% 20%,#4a3a1c,#080808 70%)',l:[D('Wait. You’re not the actress we hired.'),'…',D('Well… you’re here now. We have already spent the budget.'),'A single spotlight. One chair. A curtain far away, breathing slightly.','WHO ARE YOU?'],
+ c:[['“The actress you hired.”',()=>{S.f.cast='A';go('cast2')}],['“The person who’s about to ruin your production.”',()=>{S.f.cast='B';go('cast2')}],['“I don’t know. Your casting department seems incompetent.”',()=>{S.f.cast='C';go('cast2')}]]}),
+cast2:()=>({t:'CASTING ERROR',i:'🎬',g:'radial-gradient(circle at 50% 20%,#4a3a1c,#080808 70%)',l:[D({A:'Excellent. Finally, someone professional. Please tell me you read the script.',B:'Wonderful. The last person said that and set the castle on fire.',C:'…I’m going to pretend I didn’t hear that. We have deadlines.'}[S.f.cast]),D('Anyway, your script is missing.'),'MISSION: find the original script before the production collapses.'],c:[['Start searching',()=>go('hub')]]}),
+hub:()=>{if(nv()>=2&&!S.f.gl){S.f.gl=1;return N.glitch()}
+ const r=(k,l,e)=>[(S.v[k]?'✓ ':'')+l,()=>go(e)];
+ return{t:'THE DOORS',i:'🚪🚪🚪',g:'linear-gradient(#201010,#080808)',l:['Three doors. Each is labelled in handwriting that keeps getting corrected.',nv()<3?'A fourth door waits, locked, until you’ve seen all three.':'The fourth door is unlocked. A lamp glows behind it.'],
+ c:[r('hotel','The Hotel','hotel'),r('studio','The Art Studio','studio'),r('backstage','Backstage','backstage')].concat([['☕ The Crew Lounge'+(crewN()?' ('+crewN()+'/4 met)':''),()=>go('crew')]]).concat(S.f.gl?[['🎞 Replay the genre chaos',()=>go('horror')]]:[]).concat(nv()>=3?[['★ The Editing Room',()=>go('editing')]]:[])}},
+glitch:()=>({t:'FILM ERROR 04',m:1,i:'⚠️',g:'repeating-linear-gradient(0deg,#111,#111 3px,#1c1c1c 3px,#1c1c1c 6px)',l:[SY('Genre instability detected.'),SY('Attempting to restore original genre…'),SY('Genre restoration unsuccessful.'),SY('Viewer may continue at own discretion.')],c:[['CONTINUE ANYWAY',()=>go('horror')]]}),
+
+/* ROUTE 1 */
+hotel:()=>{if(S.v.hotel)return done('THE HOTEL','🏨');return{t:'THE HOTEL',i:'🏨',g:'linear-gradient(#3a2410,#080808)',l:[R('Your room is ready.'),R('Room 13.'),R('Although technically, we don’t have a Room 13.'),R('Your key, madam.'),'The key reads 13. Above the desk, a red EXIT sign hums.'],
+ c:[['TAKE THE KEY',()=>{S.f.key='t';go('hp')}],['ASK QUESTIONS',()=>{S.f.key='a';go('hp')}]]}},
+hp:()=>{const s=S.f.seen=S.f.seen||{},all=s.c&&s.k&&s.r;
+ const L=[S.f.key==='t'?'Somewhere upstairs, a door closes by itself. You haven’t even reached your room.':R('You’re asking too many questions for someone who hasn’t even checked in.')];
+ if(S.f.cast==='B')L.push(R('You have the look of someone who sets castles on fire.'));
+ L.push('The lobby has three oddly deliberate objects, and a small safe that wants a number.');
+ if(s.c)L.push('🪟 Curtain: only 2 tassels hang here. Just two.');if(s.k)L.push('🕓 Clock: stopped at 4 o’clock.');if(s.r)L.push('🟥 Carpet: a pattern of 8 diamonds.');
+ const c=[];[['c','Inspect the curtain'],['k','Inspect the clock'],['r','Inspect the carpet']].forEach(([k,l])=>{if(!s[k])c.push([l,()=>{s[k]=1;draw()}])});
+ if(all){L.push('Safe display: 2 — 4 — 8 — ?');[6,12,16,32].forEach(n=>c.push(['Enter '+n,()=>{if(n===16)return go('hsolve');toast({6:'Close, in the way a sock is close to a shoe.',12:'The safe laughs politely. Hotels do that.',32:'Ambitious. The safe is not on that kind of budget.'}[n])}]))}
+ return{t:'THE HOTEL',i:'🔐',g:'linear-gradient(#3a2410,#080808)',l:L,c,hint:['Hotels love patterns. This one is not subtle.','Look at the three numbers you found. How do they relate?','Each number is double the last. What is double 8?']}},
+hsolve:()=>{S.v.hotel=1;S.c.hotel=1;return{t:'THE HOTEL',i:'📜',g:'linear-gradient(#3a2410,#080808)',l:['Click. The safe opens with the sigh of a tired employee.','SCRIPT FRAGMENT 1: “INT. HOTEL – NIGHT. A door closes. (Ominous?)”','Under it, a name tag: “Ask the actor. He knows who stopped writing.”'],c:[['Back to the doors',()=>go('hub')]]}},
+
+/* ROUTE 2 */
+studio:()=>{if(S.v.studio)return{...done('THE ART STUDIO','🎨'),l:['The painting has changed again. A tiny figure on it now holds a clipboard.',PAINT[S.f.paint]?'Your '+PAINT[S.f.paint][0]+' is still there. It looks proud.':'']};
+ return{t:'THE ART STUDIO',i:'🎨',g:'linear-gradient(#1c2a3a,#080808)',l:[A('You’re late.'),['YOU','Late for what?'],A('That depends. Have you seen the ending?'),'The artist turns a canvas. It shows a scene that looks very much like this film.',S.c.hotel?A('Room 13? Yes. I painted it. It was a mistake. It’s been a mistake ever since.'):''].filter(Boolean),
+ c:[['ASK ABOUT THE PAINTING',()=>go('s2')],['LEAVE THE STUDIO',()=>go('hub')]]}},
+s2:()=>({t:'THE ART STUDIO',i:'🖼️',g:'linear-gradient(#1c2a3a,#080808)',l:[A('Don’t worry. Paintings are usually harmless.'),A('Usually.'),'A blank canvas waits on a spare easel. The artist nods at it. Add one thing.'],c:[1,2,3].map(k=>[PAINT[k][1]+' Paint '+PAINT[k][0],()=>{S.f.paint=k;go('s3')}])}),
+s3:()=>{S.v.studio=1;S.c.studio=1;const p=PAINT[S.f.paint];return{t:'THE ART STUDIO',i:p[1],g:S.f.paint==1?'linear-gradient(#4a1010,#080808)':S.f.paint==2?'linear-gradient(#4a4010,#080808)':'linear-gradient(#10284a,#080808)',l:['You add '+p[0]+'. The whole canvas quietly rearranges itself around it.',A('Hm. Nobody’s ever picked that one. Interesting.'),'SCRIPT FRAGMENT 2, in wet paint: “The story keeps changing genres.”',A('Everyone keeps asking where the script is. Nobody asks who’s editing it.')],c:[['Back to the doors',()=>go('hub')]]}},
+
+/* ROUTE 3 */
+backstage:()=>{if(S.v.backstage)return done('BACKSTAGE','🎭');return{t:'BACKSTAGE',i:'🎭',g:'linear-gradient(#2a1030,#080808)',l:[X('None of this is real.'),X('None of this is real.'),'He notices you in the mirror.',X('Oh. You’re not supposed to be here.'),'WHO SENT YOU?'],
+ c:[['THE DIRECTOR',()=>{S.f.who='d';go('bp')}],['NOBODY',()=>{S.f.who='n';go('bp')}],['“I AM BEGINNING TO REGRET THIS ENTIRE EXPERIENCE.”',()=>{S.f.who='r';go('bp')}]]}},
+bp:()=>{const L=[X({d:'That explains everything. He’s been making questionable decisions since Tuesday.',n:'That’s either very concerning or very impressive. I haven’t decided.',r:'That’s fair. I regret the entire production too.'}[S.f.who])];
+ if(S.c.hotel)L.push(X('You have a hotel key. Don’t ask what’s on the other side of 13. I did, once.'));
+ if(S.c.studio)L.push(X('Paint on your sleeve. The artist sent you, didn’t they.'));
+ L.push(X('I’ll tell you what I know if you can tell me which prop is missing from my reflection.'),'In the mirror: 👑 🎭. On the prop table: 👑 🎭 🪶.');
+ return{t:'BACKSTAGE',i:'🪞',g:'linear-gradient(#2a1030,#080808)',l:L,c:[['👑 The crown',()=>toast('The mirror shows the crown. The actor shrugs.')],['🎭 The mask',()=>toast('Also in the mirror. Look again, gently.')],['🪶 The quill',()=>go('bsolve')]],hint:['Compare the mirror to the table. Calmly.','The mirror has two props. The table has three.','Which prop appears on the table but not in the mirror?']}},
+bsolve:()=>{S.v.backstage=1;S.c.backstage=1;return{t:'BACKSTAGE',i:'🪶',g:'linear-gradient(#2a1030,#080808)',l:[X('The quill. Of course. Nothing real gets written around here.'),X('The script was never finished. Or the director’s been hiding it. Hard to say. He leaves drafts in the editing room, and he’s never learned to lock a door.'),'SCRIPT FRAGMENT 3: “PAGE THREE: [blank]. Note: figure out later.”'],c:[['Back to the doors',()=>go('hub')]]}},
+
+/* CREW LOUNGE: optional staff characters; they affect credits and the final scene */
+crew:()=>({t:'THE CREW LOUNGE',i:'☕',g:'linear-gradient(#2a2418,#080808)',l:['A folding table, a broken kettle, and four people who stopped pretending to work. Tap a crew member.',crewN()>=4?'You’ve met everyone. They are quietly proud of you.':''].filter(Boolean),c:Object.keys(CREW).map(k=>[(S.f.cm&&S.f.cm[k]?'✓ ':'')+CREW[k][1]+' '+CREW[k][0],()=>{S.f.cm=S.f.cm||{};S.f.cm[k]=1;S.f.cur=k;go('crew2')}]).concat([['Back to the doors',()=>go('hub')]])}),
+crew2:()=>{const c=CREW[S.f.cur];return{t:c[0],i:c[1],g:'linear-gradient(#2a2418,#080808)',l:c[2],c:[['Back to the crew',()=>go('crew')]]}},
+/* GENRE INTERLUDES */
+horror:()=>({t:'HORROR MODE',i:'🌫️',g:'radial-gradient(circle,#14201c,#030303)',l:['A dark corridor. Soft fog. A distant creak. A door opens by itself.','Don’t look behind you.','…','Actually, do.','The camera crew is getting tired of filming that direction.'],c:[['LOOK BEHIND YOU',()=>go('horror2')],skip]}),
+horror2:()=>({t:'HORROR MODE',i:'🎥',g:'radial-gradient(circle,#14201c,#030303)',l:['A cameraman waves at you. He holds a sign: “WE SCARE ON BUDGET.”'].concat(S.f.crew?['PRODUCTION NOTE: “Fog machine borrowed from a birthday party. Please return.”']:[]),
+ c:(S.f.crew?[]:[['TAP THE CAMERAMAN',()=>{S.f.crew=1;draw()}]]).concat([['NEXT GENRE',()=>go('action')],skip])}),
+action:()=>({t:'ACTION MODE',i:'🌃',g:'linear-gradient(#0a1030,#2a1020 80%,#050505)',l:[SY('A security system has detected your presence.')],c:[['RUN',()=>{S.f.act='r';go('action2')}],['HIDE',()=>{S.f.act='h';go('action2')}],['ASK WHY THE SECURITY SYSTEM HAS YOUR NAME',()=>{S.f.act='a';go('action2')}]]}),
+action2:()=>({t:'ACTION MODE',i:'🌃',g:'linear-gradient(#0a1030,#2a1020 80%,#050505)',l:[{r:'You sprint across the rooftop. The set ends after nine meters at a painted wall. A stuntman applauds politely.',h:'You hide behind a water tank labelled “WATER TANK (PROP)”. The system logs you as “shrub”.',a:SY('Honestly, we have no idea. The database was imported from an Excel sheet.')}[S.f.act]],c:[['NEXT GENRE',()=>go('romance')],skip]}),
+romance:()=>({t:'ROMANCE (PARODY)',i:'💐',g:'linear-gradient(#4a1a2a,#150508)',l:['The lighting shifts to a dramatic rose. A mysterious figure enters, carrying flowers.',SY('A romantic subplot has been detected.')],c:[['ACCEPT SUBPLOT',()=>{S.f.rom='a';go('romance2')}],['REJECT SUBPLOT',()=>{S.f.rom='r';go('romance2')}]]}),
+romance2:()=>({t:'ROMANCE (PARODY)',i:'💐',g:'linear-gradient(#4a1a2a,#150508)',l:(S.f.rom==='r'?[SY('Subplot rejected.'),SY('The production respects your decision.'),'The flowers have been redirected to the reception desk.']:['The figure gasps: “I have waited my whole life for this moment—” The chandelier above them falls off its hook. It was never attached. There was no budget for screws.',SY('Subplot concluded due to lighting. Flowers redirected to reception.'),]),c:[['NEXT GENRE',()=>go('fantasy')],skip]}),
+fantasy:()=>({t:'FANTASY MODE',i:'📚',g:'radial-gradient(circle,#4a3a10,#0a0800)',l:['A magical library. Floating books. Warm gold light.','A book drifts toward you: THE BOOK OF UNFINISHED STORIES.','You open it. The pages are blank.','The stories are waiting for someone to finish them.'],c:[1,2,3].map(k=>[['A queen who lost her crown in a supermarket.','A dragon that is afraid of butterflies.','A witch whose spells only work on Mondays.'][k-1],()=>{S.f.story=k;go('fantasy2')}])}),
+fantasy2:()=>({t:'FANTASY MODE',i:'✨',g:'radial-gradient(circle,#4a3a10,#0a0800)',l:[['WRITERS’ ROOM','The writers have been informed.'],['WRITERS’ ROOM','They are concerned about your creative direction.'],'ALTERNATE SCENE COLLECTED: “'+STORY[S.f.story]+'”. It may appear in the credits.'],c:[['BACK TO THE FILM',()=>go('hub')]]}),
+
+/* REVEAL + ENDINGS */
+editing:()=>nv()<3?N.hub():({t:'THE EDITING ROOM',i:'🎞️',g:'radial-gradient(circle at 50% 30%,#3a3010,#050505 70%)',l:['Film reels. Monitors. One desk lamp. The director sits alone among unfinished drafts.',['YOU','Where’s the script?'],D('…'),['YOU','You’re the one who lost it?'],D('Technically, it was never written.'),'You lay out your three fragments: “Ominous?”, wet paint saying the story keeps changing genres, and a blank page marked “figure out later.”','Every time they wrote it, the story changed. Horror became comedy. Comedy became action. Action became fantasy. They never finished a single draft.',D('So we thought we’d let you finish it.'),S.f.cast==='B'?D('Please don’t set anything on fire.'):S.f.cast==='C'?D('I know. I’ve seen the casting department.'):D('You did read the script, right? …Right?')],c:[['What now?',()=>go('final')]]}),
+final:()=>({t:'THE FINAL CUT',i:'🎞️',g:'radial-gradient(circle at 50% 30%,#3a3010,#050505 70%)',l:['The editing desk. Three options glow on the monitors.'].concat(S.f.paint?['Your '+PAINT[S.f.paint][0]+' glows faintly on one monitor. It wants to be in the film.']:[]).concat(S.f.who==='r'?[X('(from the doorway) Pick the exit. I’m begging.')]:[]).concat(crewN()>=2?['The crew gathers in the doorway, pretending not to listen. Dolores is holding popcorn.']:[]),c:[['REPAIR THE SCRIPT',()=>go('endA')],['THROW IT AWAY AND MAKE A NEW FILM',()=>go('endB')],['LEAVE THE PRODUCTION',()=>go('endC')]]}),
+endA:()=>({t:'THE MASTERPIECE',i:'🌅',g:'linear-gradient(#f0a850,#7A171C 70%,#080808)',l:['You write. The reels line up. The colors warm. A sunrise fills the frame, then a curtain call.',D('I knew you could do it.'),'Director: Still recovering.','Screenwriter: Janiz (unwillingly).','Production: Somehow successful.','Cast: One extremely confused protagonist.'].concat(Object.keys(S.f.cm||{}).map(k=>CREW[k][3])).concat(S.f.story?['Special thanks: “'+STORY[S.f.story]+'”']:[]).concat(['THE END.']),c:[['Continue ▸',()=>go('post')]]}),
+endB:()=>({t:'THE CHAOS CUT',i:'🎉',g:'linear-gradient(135deg,#7A171C,#B99A62,#1c2a3a,#4a1a2a)',l:['You tear up the script. Frames shuffle. Confetti.','The director becomes the receptionist. The receptionist becomes the villain. The villain becomes a popcorn seller.','Room 13 is now a snack bar.'].concat(S.f.cm&&S.f.cm.b?['Bea the intern is promoted to Director. Then Villain. Then Popcorn.']:[]).concat(S.f.paint?['A '+PAINT[S.f.paint][0]+' appears in every shot for no reason.']:[]).concat(S.f.story?['Bonus scene: “'+STORY[S.f.story]+'”.']:[]).concat([SY('Congratulations.'),SY('You have successfully ruined the original film.'),SY('It is now significantly better.'),'THE END.']),c:[['Continue ▸',()=>go('post')]]}),
+endC:()=>({t:'THE EXIT',i:'🚪',g:'linear-gradient(#444,#fff3d6)',l:['A quiet corridor. The red EXIT sign. A door opens onto bright daylight.',D('Wait! You can’t leave! We haven’t filmed the ending!'),D('At least tell me what happens!'),'Some stories don’t need an ending.','Some productions simply need better management.','THE END.'],c:[['Continue ▸',()=>go('post')]]}),
+post:()=>({t:'',i:'',g:'#000',l:['WAIT.','We found your original script.'],c:[['OPEN IT',()=>go('post2')]]}),
+post2:()=>({t:'',i:'',g:'#000',l:['The original script was blank.','It still is.','Anyway, thanks for funding this production with your attention.'],c:[['REPLAY THE FILM',()=>{S=fresh();go('cast')}],['RETURN TO OPENING',()=>{S=fresh();save();intro()}]]})
+};
+
+/* Renderer */
+function draw(){T.forEach(clearTimeout);T=[];const n=N[S.sc](),st=$('#stage'),w=S.sc.startsWith('post');
+ st.innerHTML=`${n.i?`<div class="art" style="background:${n.g||'#111'}" aria-hidden="true">${n.i}</div>`:''}${n.t?`<h2 class="serif">${n.t}</h2>`:''}<div id="ls"></div><div id="ch"></div>`;
+ n.l.forEach((x,i)=>{const d=document.createElement('p');d.className='ln'+(n.m?' mono':'');d.style.animationDelay=i*.55+'s';
+  if(Array.isArray(x)){const b=document.createElement('b');b.textContent=x[0]+' ';d.append(b,x[1])}else{d.textContent=x;d.classList.add('nar')}$('#ls').append(d)});
+ const dl=n.l.length*.55+.1;
+ (n.c||[]).forEach(([lab,fn])=>{const b=document.createElement('button');b.className='ln';b.style.animationDelay=dl+'s';b.textContent=lab;b.onclick=()=>{blip();fn()};$('#ch').append(b)});
+ if(n.hint){const b=document.createElement('button');b.className='ghost ln';b.style.animationDelay=dl+'s';b.textContent='💡 Hint';b.onclick=()=>toast(n.hint[Math.min(S.h++,n.hint.length-1)]);$('#ch').append(b)}
+ const k=nv();$('#reel').textContent='🎞 '+'●'.repeat(k)+'○'.repeat(3-k);save();blip(110);window.scrollTo(0,0)}
+
+/* Intro + title */
+function intro(){T.forEach(clearTimeout);T=[];$('#bar').hidden=true;
+ const B=['Some stories are carefully written.','A beginning. A middle. An ending.','Some have a cast, a crew, and a director who knows what they’re doing.','…This one had none of those things.'];
+ $('#stage').innerHTML='<div id="beat" class="beat serif" aria-live="polite"></div><button class="ghost" id="skp">SKIP INTRO</button>';
+ $('#skp').onclick=title;const e=$('#beat');let i=0;
+ (function nx(){if(i>=B.length)return T.push(setTimeout(title,600));e.textContent=B[i++];e.style.opacity=1;T.push(setTimeout(()=>{e.style.opacity=0;T.push(setTimeout(nx,1100))},2900))})()}
+function title(){T.forEach(clearTimeout);T=[];const sv=load(),has=sv&&sv.sc&&!sv.sc.startsWith('post')&&Object.keys(sv.f||{}).length>0;
+ $('#stage').innerHTML=`<h1 class="serif flick">THE WRONG SCRIPT</h1><p class="c nar">“She wasn’t supposed to be here.”</p><p class="c mono" style="font-size:13px;color:var(--gold)">An interactive motion picture</p>
+ <div class="slate mono"><div><span>Production status</span><span>Already falling apart</span></div><div><span>Director</span><span>Questionable competence</span></div><div><span>Runtime</span><span>Classified</span></div><div><span>Cast</span><span>One confused lead</span></div><div><span>Script</span><span>Missing</span></div></div>
+ <button class="main" id="go">ENTER THE FILM</button><p class="c mono" style="font-size:13px">Proceed at your own questionable discretion.</p>${has?'<button id="cont">CONTINUE (saved)</button>':''}`;
+ const fx=cb=>{const f=$('#flare');f.style.animation='flare .7s';blip(90);setTimeout(()=>{f.style.animation='';$('#bar').hidden=false;cb()},380)};
+ $('#go').onclick=()=>{const st=()=>{S=fresh();fx(()=>go('cast'))};has?ask('Start a new film? Your saved progress will be replaced.',st):st()};
+ if(has)$('#cont').onclick=()=>{S=sv;fx(draw)}}
+
+/* Controls */
+$('#snd').onclick=e=>{snd=!snd;e.target.textContent='Sound: '+(snd?'on':'off');e.target.setAttribute('aria-pressed',snd);blip(180)};
+$('#calm').onclick=e=>{const c=document.body.classList.toggle('calm');e.target.setAttribute('aria-pressed',c);e.target.textContent=c?'Calm ✓':'Calm'};
+$('#new').onclick=()=>ask('Start over? Current progress will be erased.',()=>{S=fresh();try{localStorage.removeItem('tws')}catch(e){}intro()});
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){document.body.classList.add('calm');$('#calm').textContent='Calm ✓';$('#calm').setAttribute('aria-pressed',true)}
+/* tap anywhere (not on a button) to reveal all lines at once */
+$('#stage').addEventListener('click',e=>{if(e.target.closest('button'))return;document.querySelectorAll('.ln').forEach(x=>{x.style.animation='none';x.style.opacity=1})});
+intro();
+</script></body></html>
