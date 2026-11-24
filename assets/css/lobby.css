@@ -444,6 +444,20 @@ p{margin:0}
 }
 .card h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:19px}
 .card p{color:var(--muted);font-size:14px;max-width:42ch}
+/* A destination that has actually opened. Deliberately restrained: a gold
+   rule and a real link, so a live room reads as reachable without making the
+   five unfinished rooms look disabled. */
+.card.is-open{border-color:rgba(185,154,98,.34)}
+.card.is-open:before{background:linear-gradient(90deg,var(--gold),transparent 60%);opacity:.85}
+.card.is-open .stat{color:var(--gold)}
+.card.is-open .stat a{
+  color:inherit;
+  text-decoration:none;
+  border-bottom:1px solid rgba(185,154,98,.45);
+  padding-bottom:2px;
+}
+.card.is-open .stat a:hover{border-bottom-color:var(--gold)}
+
 .card .stat{
   margin-top:4px;
   display:inline-flex;
