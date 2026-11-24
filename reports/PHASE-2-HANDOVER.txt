@@ -7,8 +7,11 @@ PHASE:            02 — The Stories
 STATUS:           COMPLETE (implementation + verification), NOT DEPLOYED
 BRANCH:           appjet
 STARTING COMMIT:  12dea1d  (final Phase 1 commit — Lobby + /film/)
-TIP BEFORE THIS REPORT: b7e8e3b
-FINAL COMMIT:     fa8976b  (fa8976bcd5a43cbbba997f723a8fe6ce70aa504b)
+LAST APP COMMIT:  b7e8e3b  (README.md and film/index.html)
+REPORT COMMIT:    fa8976b  (fa8976bcd5a43cbbba997f723a8fe6ce70aa504b)
+BRANCH HEAD:      21f43ec  (21f43ecf5b297cc13e46de22b4b0070ea7b9ec9d)
+                  HEAD is this report's own correction commit and contains no
+                  application code. Section 2A reconciles all reported hashes.
 
 Deployment was explicitly not authorised in this phase. Nothing was published,
 no hosting configuration was touched, and no external service was contacted.
@@ -44,7 +47,7 @@ behaviour and localStorage key "tws" are all intact.
 2. FILES CREATED, MODIFIED, MOVED, DELETED
 ================================================================================
 
-CREATED (7 files)
+CREATED (8 files: 7 application files plus this report)
 
   stories/index.html                    113 lines
       The Stories library page. Semantic sections, skip link, shared platform
@@ -81,7 +84,7 @@ CREATED (7 files)
 
   reports/PHASE-2-HANDOVER.txt          this file
 
-MODIFIED (3 files)
+MODIFIED (4 files)
 
   index.html                            Lobby
       The Stories card changed from "UNDER CONSTRUCTION / PHASE 2" to a live
@@ -104,6 +107,47 @@ MODIFIED (3 files)
                                         project locally with no build step.
 
 DELETED or MOVED: none. reports/PHASE-1-HANDOVER.txt is untouched.
+
+================================================================================
+2A. COMMIT RECONCILIATION (ADDED AFTER HANDOVER REVIEW)
+================================================================================
+
+The review compared this report's "FINAL COMMIT" line against a chat message
+citing "21f43ec". Both hashes are real commits in one linear history; the label
+was ambiguous and is corrected here.
+
+CURRENT HEAD (branch appjet):
+  21f43ecf5b297cc13e46de22b4b0070ea7b9ec9d
+  "Edit reports/PHASE-2-HANDOVER.txt" — 1 file, 1 line changed.
+
+BRANCH ORDER (linear, no merges), all three ancestors of HEAD:
+  b7e8e3b  AppJet agent update (2 files)      README.md, film/index.html
+  fa8976b  Phase 2 handover report: ...       reports/PHASE-2-HANDOVER.txt
+  21f43ec  Edit reports/PHASE-2-HANDOVER.txt  this file, one line (HEAD)
+
+WHICH COMMIT HOLDS THE PHASE 2 IMPLEMENTATION:
+No single commit does. Each working step was committed separately, so the
+implementation is spread across six commits between 12dea1d and b7e8e3b:
+
+  e146a59  assets/js/stories-index.js, assets/js/stories-library.js
+  1e6363b  stories/index.html, stories/the-ninth-bell/index.html,
+           assets/css/stories.css
+  fb0de75  assets/js/story-engine.js
+  63b39ff  stories/data/the-ninth-bell.js
+  e17e7f9  index.html, assets/css/lobby.css
+  b7e8e3b  film/index.html, README.md          <- last application commit
+
+All eight Phase 2 paths are present at HEAD (verified with git ls-tree).
+fa8976b adds only the report, so the report was committed after the
+implementation; 21f43ec then edited one line of the report.
+
+AUTOMATED TEST FILES: none exist and none are claimed. The project has no test
+runner, package manifest or build step, so no test file could contain the
+implementation's tests. Verification for this phase was performed with browser
+checks and is recorded in section 13.
+
+WORKING TREE: clean (git status --porcelain returned nothing). Branch appjet
+was in sync with origin/appjet at reconciliation time: 0 ahead, 0 behind.
 
 ================================================================================
 3. ROUTE MAP
