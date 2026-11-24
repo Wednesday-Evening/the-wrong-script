@@ -1,0 +1,474 @@
+/* =====================================================================
+   THE WRONG SCRIPT - The Stories (Phase 2)
+   ---------------------------------------------------------------------
+   Loaded after lobby.css, which supplies the shell: header, navigation,
+   buttons, footer, palette variables and the skip link. This file only
+   adds the Stories identity and the reader.
+
+   Identity: the Lobby is a lobby with a red curtain; the Stories is a
+   reading room. Same near-black and parchment, but the accent shifts
+   from stage red to a cold tidal teal, with muted gold kept for rules
+   and labels. No external fonts, images, scripts or tracking.
+   ===================================================================== */
+
+:root{
+  --deep:#060a0b;
+  --tide:#3f6f6b;
+  --tide-lit:#6ea39c;
+  --tide-dim:#2b4d4a;
+  --sea-line:rgba(110,163,156,.22);
+}
+
+body.stories{
+  background:
+    radial-gradient(120% 80% at 50% -10%,rgba(43,77,74,.28),transparent 60%),
+    var(--deep);
+}
+
+/* ---------- header adjustments ---------- */
+
+body.stories .mark{
+  border-color:var(--tide);
+  background:radial-gradient(circle at 50% 50%,var(--tide-lit) 0 4px,#05090a 4px 100%);
+}
+body.stories .site-header{background:rgba(6,10,11,.78)}
+body.stories .site-nav a.is-live:after{
+  color:#9ecfc7;
+  border-color:var(--tide-dim);
+}
+body.stories .eyebrow{color:var(--tide-lit)}
+body.stories .btn-primary{
+  background:linear-gradient(180deg,#4c827c,#2b4d4a);
+  border-color:var(--tide);
+  color:#f2f7f5;
+}
+body.stories .btn-primary:hover{background:linear-gradient(180deg,#5b968f,#325955)}
+body.stories .btn-ghost:hover{border-color:var(--tide)}
+
+/* ---------- library: opening ---------- */
+
+.open{
+  max-width:var(--shell);
+  margin:0 auto;
+  padding:clamp(30px,7vw,72px) var(--pad) clamp(20px,4vw,36px);
+  display:grid;
+  gap:20px;
+}
+.open h1{
+  font-size:clamp(34px,9vw,64px);
+  letter-spacing:-.015em;
+  text-transform:none;
+}
+.open .identity{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:clamp(16px,3.4vw,20px);
+  line-height:1.5;
+  color:var(--parch);
+  max-width:34ch;
+}
+.open .lede{color:var(--parch-soft);max-width:60ch;font-size:15.5px}
+.open-actions{display:flex;flex-wrap:wrap;gap:12px}
+.open-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 22px;
+  padding-top:14px;
+  border-top:1px solid var(--sea-line);
+  font:10.5px/1.5 system-ui,sans-serif;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.open-meta span{display:inline-flex;align-items:center;gap:8px}
+.open-meta span:before{
+  content:"";
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--tide);
+}
+
+/* ---------- the shelf ---------- */
+
+.shelf{
+  max-width:var(--shell);
+  margin:0 auto;
+  padding:clamp(24px,5vw,44px) var(--pad);
+  border-top:1px solid var(--rule-soft);
+}
+.shelf-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:20px;
+}
+.shelf-head h2{font-size:clamp(21px,4.6vw,28px)}
+.shelf-count{
+  font:10.5px/1 system-ui,sans-serif;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--tide-lit);
+}
+
+.entries{display:grid;gap:16px}
+
+.entry{
+  position:relative;
+  display:grid;
+  gap:12px;
+  align-content:start;
+  padding:clamp(16px,3.6vw,24px);
+  border:1px solid var(--sea-line);
+  border-left:2px solid var(--tide);
+  border-radius:4px;
+  background:
+    radial-gradient(120% 120% at 0% 0%,rgba(43,77,74,.30),transparent 62%),
+    linear-gradient(180deg,#0b1213,#070b0c);
+}
+.entry-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font:10px/1 system-ui,sans-serif;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.entry-state{color:var(--tide-lit)}
+.entry h3{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:clamp(22px,5vw,29px);
+  line-height:1.15;
+}
+.entry .entry-sub{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:15.5px;
+  color:var(--parch-soft);
+  font-style:italic;
+}
+.entry .entry-desc{color:var(--parch-soft);font-size:14.5px;max-width:58ch}
+
+.labels{
+  list-style:none;
+  margin:2px 0 0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.labels li{
+  font:10px/1 system-ui,sans-serif;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--parch-soft);
+  border:1px solid var(--sea-line);
+  border-radius:999px;
+  padding:6px 9px;
+  white-space:nowrap;
+}
+
+.entry-foot{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin-top:4px;
+}
+.entry-foot .btn{min-width:0}
+.entry-foot .entry-note{
+  font-size:12px;
+  color:var(--muted);
+  max-width:34ch;
+}
+
+/* the honest state of the shelf */
+
+.shelf-note{
+  margin-top:18px;
+  padding:14px 16px;
+  border:1px dashed var(--sea-line);
+  border-radius:4px;
+  color:var(--muted);
+  font-size:13px;
+  max-width:70ch;
+}
+.shelf-note strong{color:var(--parch-soft);font-weight:600}
+
+/* ---------- reader ---------- */
+
+.reader-bar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(6,10,11,.88);
+  backdrop-filter:blur(12px) saturate(120%);
+  border-bottom:1px solid var(--rule-soft);
+}
+.reader-bar .bar{gap:10px}
+.reader-id{
+  display:grid;
+  gap:2px;
+  min-height:44px;
+  align-content:center;
+}
+.reader-id .rid-lab{
+  font:9.5px/1 system-ui,sans-serif;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--tide-lit);
+}
+.reader-id .rid-title{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:15px;
+  color:var(--parch);
+}
+.reader-tools{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.reader-tools .btn{min-height:44px;padding:0 14px;font-size:10.5px}
+
+.reader{
+  max-width:640px;
+  margin:0 auto;
+  padding:clamp(22px,5vw,44px) var(--pad) clamp(40px,8vw,72px);
+}
+
+.scene-chapter{
+  font:10.5px/1.4 system-ui,sans-serif;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--tide-lit);
+  margin:0 0 12px;
+}
+
+.scene-title{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-weight:400;
+  font-size:clamp(27px,6.4vw,38px);
+  line-height:1.1;
+  letter-spacing:-.01em;
+  margin:0 0 18px;
+  outline:none;
+}
+.scene-title:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+
+.lines{display:grid;gap:14px}
+.lines p{
+  margin:0;
+  font-size:16.5px;
+  line-height:1.68;
+  color:var(--parch-soft);
+  max-width:62ch;
+}
+.lines p.nar{color:#cfc6b5}
+.lines p.say{
+  color:var(--parch);
+  padding-left:14px;
+  border-left:1px solid var(--sea-line);
+}
+.lines p.say b{
+  display:block;
+  margin-bottom:3px;
+  font:10px/1.4 system-ui,sans-serif;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--tide-lit);
+  font-weight:600;
+}
+.lines p.em{font-style:italic;color:var(--parch)}
+
+/* the choices */
+
+.choices{
+  margin-top:clamp(24px,5vw,36px);
+  display:grid;
+  gap:10px;
+}
+.choices-lab{
+  font:10px/1 system-ui,sans-serif;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:2px;
+}
+
+.choice{
+  display:grid;
+  grid-template-columns:26px 1fr;
+  gap:12px;
+  align-items:start;
+  width:100%;
+  min-height:56px;
+  padding:14px 16px;
+  text-align:left;
+  background:linear-gradient(180deg,#0d1516,#080d0e);
+  border:1px solid var(--sea-line);
+  border-radius:4px;
+  color:var(--parch);
+  font:inherit;
+  cursor:pointer;
+}
+.choice:hover{border-color:var(--tide);background:linear-gradient(180deg,#101b1c,#0a1011)}
+.choice:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.choice .idx{
+  font:11px/1.5 ui-monospace,Menlo,monospace;
+  color:var(--tide-lit);
+  padding-top:3px;
+}
+.choice .cl{display:grid;gap:3px}
+.choice .cl b{font-weight:500;font-size:15.5px;line-height:1.4}
+.choice .cl span{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+.choice.quiet{
+  grid-template-columns:26px 1fr;
+  background:transparent;
+  border-style:dashed;
+  color:var(--parch-soft);
+}
+.choice.quiet .cl b{font-size:14px}
+
+/* status line under the choices */
+
+.run-status{
+  margin-top:18px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 18px;
+  font:10.5px/1.6 system-ui,sans-serif;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.run-status span{display:inline-flex;align-items:center;gap:7px}
+.run-status span:before{
+  content:"";
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--tide-dim);
+}
+
+/* ---------- ending ---------- */
+
+.ending{
+  margin-top:clamp(26px,5vw,40px);
+  padding:clamp(18px,4vw,26px);
+  border:1px solid var(--sea-line);
+  border-top:2px solid var(--gold-dim);
+  border-radius:4px;
+  background:
+    radial-gradient(120% 120% at 50% 0%,rgba(185,154,98,.14),transparent 60%),
+    linear-gradient(180deg,#0b1213,#070b0c);
+  display:grid;
+  gap:14px;
+}
+.ending .seal{
+  justify-self:start;
+  font:9.5px/1 system-ui,sans-serif;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:#0a0d0d;
+  background:var(--gold-dim);
+  padding:6px 9px;
+  border-radius:2px;
+}
+.ending h3{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:clamp(21px,4.6vw,26px);
+  font-weight:400;
+}
+.ending p{color:var(--parch-soft);font-size:14.5px;max-width:56ch}
+.ending-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+
+.found{
+  margin-top:8px;
+  font:10.5px/1.7 system-ui,sans-serif;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* ---------- notices and states ---------- */
+
+.notice{
+  margin:0 0 20px;
+  padding:12px 14px;
+  border-left:2px solid var(--gold-dim);
+  background:rgba(185,154,98,.07);
+  color:var(--parch-soft);
+  font-size:13px;
+  border-radius:0 3px 3px 0;
+}
+.notice strong{color:var(--parch);font-weight:600}
+
+.resume{
+  margin:0 0 22px;
+  padding:16px;
+  border:1px solid var(--sea-line);
+  border-left:2px solid var(--tide);
+  border-radius:4px;
+  background:#0a1112;
+  display:grid;
+  gap:12px;
+}
+.resume .lab{
+  font:10px/1 system-ui,sans-serif;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--tide-lit);
+}
+.resume .val{
+  font-family:"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:17px;
+  color:var(--parch);
+}
+.resume .resume-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+.broken{
+  padding:20px;
+  border:1px dashed var(--sea-line);
+  border-radius:4px;
+  color:var(--parch-soft);
+  font-size:14.5px;
+  display:grid;
+  gap:12px;
+}
+.broken h2{font-size:20px}
+
+/* ---------- footer ---------- */
+
+body.stories .site-footer{border-top-color:var(--sea-line)}
+body.stories .footer-links a{border-bottom-color:var(--sea-line)}
+
+/* ---------- motion ---------- */
+
+@keyframes line-in{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+.lines p,.choices .choice{animation:line-in .5s ease both}
+.lines p:nth-child(2){animation-delay:.08s}
+.lines p:nth-child(3){animation-delay:.16s}
+.lines p:nth-child(4){animation-delay:.24s}
+.lines p:nth-child(5){animation-delay:.32s}
+.lines p:nth-child(6){animation-delay:.40s}
+.lines p:nth-child(n+7){animation-delay:.46s}
+.choices{animation:line-in .5s ease both;animation-delay:.3s}
+
+@media (prefers-reduced-motion:reduce){
+  .lines p,.choices,.choices .choice{animation:none}
+}
+
+/* ---------- wider screens ---------- */
+
+@media (min-width:720px){
+  .entries{grid-template-columns:1fr}
+  .entry{grid-template-columns:1fr;gap:14px}
+}
+@media (min-width:940px){
+  .open{grid-template-columns:1.4fr .8fr;align-items:start;column-gap:40px}
+  .open .open-meta{grid-column:1 / -1}
+  .entry{padding:26px 28px}
+}
