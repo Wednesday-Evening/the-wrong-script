@@ -47,13 +47,55 @@ p{margin:.5em 0}.beat{min-height:60vh;display:flex;align-items:center;justify-co
 <script>
 /* THE WRONG SCRIPT — single-file interactive film. Systems: state+save, scene renderer, node table N, intro/title, interludes, endings. */
 const $=s=>document.querySelector(s);
-let T=[],snd=false,AC,S=fresh();
+let T=[],snd=false,AC,S=fresh(),firstDraw=true;
 function fresh(){return{v:{},c:{},f:{},sc:'cast',h:0}}
 function save(){try{localStorage.setItem('tws',JSON.stringify(S))}catch(e){}}
-function load(){try{return JSON.parse(localStorage.getItem('tws'))}catch(e){return null}}
+/* Reading a save is deliberately forgiving. No version field is required, so every
+   save written by any earlier build of this film still loads. Only structurally
+   impossible data is refused, and a refused save is copied aside before anything
+   can overwrite it, so a player's progress is never thrown away silently. */
+let SAVE_CORRUPT=false;
+function valid(sv){
+ if(!sv||typeof sv!=='object'||Array.isArray(sv))return false;
+ if(typeof sv.sc!=='string'||typeof N[sv.sc]!=='function')return false;
+ if(!sv.v||typeof sv.v!=='object'||Array.isArray(sv.v))return false;
+ if(!sv.c||typeof sv.c!=='object'||Array.isArray(sv.c))return false;
+ if(!sv.f||typeof sv.f!=='object'||Array.isArray(sv.f))return false;
+ if(typeof sv.h!=='number'||!isFinite(sv.h)||sv.h<0)sv.h=0;
+ return true;
+}
+function load(){
+ let raw=null;
+ try{raw=localStorage.getItem('tws')}catch(e){return null}
+ if(!raw)return null;
+ let sv=null;
+ try{sv=JSON.parse(raw)}catch(e){sv=null}
+ if(valid(sv))return sv;
+ SAVE_CORRUPT=true;
+ try{if(!localStorage.getItem('tws.corrupt'))localStorage.setItem('tws.corrupt',raw)}catch(e){}
+ return null;
+}
 function blip(f=140){if(!snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.value=.05;g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.4);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.4)}catch(e){}}
 function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,4500)}
 const go=id=>{S.sc=id;S.h=0;draw()};
+/* Back/Forward support, one history entry per scene transition. draw() is only
+   reached from go(), CONTINUE and popstate, so cosmetic updates (sound, calm,
+   hints, toasts) never add an entry. The first draw of a visit replaces instead
+   of pushing, so entering the film cannot trap the player in a back-loop. */
+function syncHash(){
+ try{const h='#'+S.sc;if(location.hash!==h){
+  if(firstDraw){history.replaceState({sc:S.sc},'','#'+S.sc)}
+  else{history.pushState({sc:S.sc},'','#'+S.sc)}
+ }}catch(e){}
+ firstDraw=false;
+}
+function fromHash(){try{return decodeURIComponent((location.hash||'').replace(/^#/,''))}catch(e){return ''}}
+window.addEventListener('popstate',()=>{
+ const id=fromHash();
+ if(!id){firstDraw=true;title();return}
+ if(typeof N[id]!=='function'||id===S.sc)return;
+ S.sc=id;S.h=0;draw();
+});
 /* in-page confirm dialog (browser confirm() can be blocked in embeds) */
 const ask=(q,y)=>{$('#mq').textContent=q;$('#md').style.display='flex';$('#my').onclick=()=>{$('#md').style.display='none';y()};$('#mn').onclick=()=>{$('#md').style.display='none'}};
 const crewN=()=>Object.keys(S.f.cm||{}).length;
@@ -138,7 +180,7 @@ function draw(){T.forEach(clearTimeout);T=[];const n=N[S.sc](),st=$('#stage'),w=
  const dl=n.l.length*.55+.1;
  (n.c||[]).forEach(([lab,fn])=>{const b=document.createElement('button');b.className='ln';b.style.animationDelay=dl+'s';b.textContent=lab;b.onclick=()=>{blip();fn()};$('#ch').append(b)});
  if(n.hint){const b=document.createElement('button');b.className='ghost ln';b.style.animationDelay=dl+'s';b.textContent='💡 Hint';b.onclick=()=>toast(n.hint[Math.min(S.h++,n.hint.length-1)]);$('#ch').append(b)}
- const k=nv();$('#reel').textContent='🎞 '+'●'.repeat(k)+'○'.repeat(3-k);save();blip(110);window.scrollTo(0,0)}
+ const k=nv();$('#reel').textContent='🎞 '+'●'.repeat(k)+'○'.repeat(3-k);save();syncHash();blip(110);window.scrollTo(0,0)}
 
 /* Intro + title */
 function intro(){T.forEach(clearTimeout);T=[];$('#bar').hidden=true;
@@ -146,10 +188,10 @@ function intro(){T.forEach(clearTimeout);T=[];$('#bar').hidden=true;
  $('#stage').innerHTML='<div id="beat" class="beat serif" aria-live="polite"></div><button class="ghost" id="skp">SKIP INTRO</button>';
  $('#skp').onclick=title;const e=$('#beat');let i=0;
  (function nx(){if(i>=B.length)return T.push(setTimeout(title,600));e.textContent=B[i++];e.style.opacity=1;T.push(setTimeout(()=>{e.style.opacity=0;T.push(setTimeout(nx,1100))},2900))})()}
-function title(){T.forEach(clearTimeout);T=[];const sv=load(),has=sv&&sv.sc&&!sv.sc.startsWith('post')&&Object.keys(sv.f||{}).length>0;
+function title(){T.forEach(clearTimeout);T=[];$('#bar').hidden=true;const sv=load(),has=!!sv&&!sv.sc.startsWith('post')&&Object.keys(sv.f||{}).length>0;
  $('#stage').innerHTML=`<h1 class="serif flick">THE WRONG SCRIPT</h1><p class="c nar">“She wasn’t supposed to be here.”</p><p class="c mono" style="font-size:13px;color:var(--gold)">An interactive motion picture</p>
  <div class="slate mono"><div><span>Production status</span><span>Already falling apart</span></div><div><span>Director</span><span>Questionable competence</span></div><div><span>Runtime</span><span>Classified</span></div><div><span>Cast</span><span>One confused lead</span></div><div><span>Script</span><span>Missing</span></div></div>
- <button class="main" id="go">ENTER THE FILM</button><p class="c mono" style="font-size:13px">Proceed at your own questionable discretion.</p>${has?'<button id="cont">CONTINUE (saved)</button>':''}`;
+ <button class="main" id="go">ENTER THE FILM</button><p class="c mono" style="font-size:13px">Proceed at your own questionable discretion.</p>${has?'<button id="cont">CONTINUE (saved)</button>':''}${SAVE_CORRUPT?'<p class="c mono" style="font-size:12px;color:#B99A62;max-width:38ch">A saved film was found in this browser, but its data could not be read. It has been set aside rather than erased, so starting a new film will not destroy it.</p>':''}`;
  const fx=cb=>{const f=$('#flare');f.style.animation='flare .7s';blip(90);setTimeout(()=>{f.style.animation='';$('#bar').hidden=false;cb()},380)};
  $('#go').onclick=()=>{const st=()=>{S=fresh();fx(()=>go('cast'))};has?ask('Start a new film? Your saved progress will be replaced.',st):st()};
  if(has)$('#cont').onclick=()=>{S=sv;fx(draw)}}
@@ -161,5 +203,7 @@ $('#new').onclick=()=>ask('Start over? Current progress will be erased.',()=>{S=
 if(matchMedia('(prefers-reduced-motion: reduce)').matches){document.body.classList.add('calm');$('#calm').textContent='Calm ✓';$('#calm').setAttribute('aria-pressed',true)}
 /* tap anywhere (not on a button) to reveal all lines at once */
 $('#stage').addEventListener('click',e=>{if(e.target.closest('button'))return;document.querySelectorAll('.ln').forEach(x=>{x.style.animation='none';x.style.opacity=1})});
+/* a stale scene hash from a previous visit must not skip the title card */
+if(location.hash)try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
 intro();
 </script></body></html>
