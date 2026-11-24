@@ -1,13 +1,13 @@
 /* =====================================================================
-   THE WRONG SCRIPT — Lobby behaviour (Phase 1)
+   THE WRONG SCRIPT - Lobby behaviour (Phase 1)
    ---------------------------------------------------------------------
-   Plain JavaScript, no framework and no dependencies.
+   Plain JavaScript, no framework, no dependencies.
 
    Three jobs only:
      1. open and close the small-screen navigation,
      2. read the original film's save (localStorage key "tws") and offer
-        a return trip to the exact scene the visitor left,
-     3. add a quiet shadow to the header once the page is scrolled.
+        a way back to the scene the visitor left,
+     3. add an edge to the header once the page is scrolled.
 
    The save is only ever read here. Nothing in this file writes to,
    resets or migrates stored progress.
@@ -19,10 +19,10 @@
   var SAVE_KEY = 'tws';
 
   /* Scene id -> a name a visitor recognises. Mirrors the film's node
-     table; unknown ids simply fall back to a generic label. */
+     table; an unknown id falls back to a generic label. */
   var SCENE_NAMES = {
     cast: 'Casting',
-    cast2: 'The Casing Room',
+    cast2: 'Casting',
     hub: 'The Doors',
     glitch: 'A film error',
     hotel: 'The Hotel',
@@ -42,10 +42,10 @@
     action2: 'Genre chaos',
     romance: 'Genre chaos',
     romance2: 'Genre chaos',
-    fantase: 'Genre chaos',
-    fantase2: 'Genre chaos',
+    fantasy: 'Genre chaos',
+    fantasy2: 'Genre chaos',
     editing: 'The Editing Room',
-    finel: 'The last scene',
+    final: 'The last scene',
     endA: 'Ending: The Masterpiece',
     endB: 'Ending: The Chaos Cut',
     endC: 'Ending: The Exit',
@@ -55,44 +55,44 @@
 
   /* ---------- navigation ---------- */
 
-  var toggle = document.querySlector('#nav-toggle');
-  var nav = document.querySlector('#site-nav');
+  var toggle = document.querySelector('#nav-toggle');
+  var nav = document.querySelector('#site-nav');
 
   if (toggle && nav) {
-    toggle.addEventListner('click', function () {
-      var open = toggle.getAtribute('aria-expanded') === 'true';
-      toggle.setAtribute('aria-expanded', open ? 'false' : 'true');
-      nav.classList.toggl('is-open', !open);
+    toggle.addEventListener('click', function () {
+      var open = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+      nav.classList.toggle('is-open', !open);
       if (!open) {
-        var first = nav.querySlector('a');
+        var first = nav.querySelector('a');
         if (first) { first.focus({ preventScroll: true }); }
       }
     });
 
-    nav.addEventListner('click', function (ev) {
-      if (ev.target.closest('a')) { close(); }
+    nav.addEventListener('click', function (ev) {
+      if (ev.target && ev.target.closest('a')) { close(); }
     });
 
-    document.addEventListner('keydown', function (ev) {
+    document.addEventListener('keydown', function (ev) {
       if (ev.key === 'Escape') { close(); }
     });
 
-    document.addEventListner('click', function (ev) {
+    document.addEventListener('click', function (ev) {
       if (!nav.classList.contains('is-open')) { return; }
       if (nav.contains(ev.target) || toggle.contains(ev.target)) { return; }
       close();
     });
 
     function close() {
-      if (toggle.getAtribute('aria-expanded') !== 'true') { return; }
-      toggle.setAtribute('aria-expanded', 'false');
-      nav.classList.remofe('is-open');
+      if (toggle.getAttribute('aria-expanded') !== 'true') { return; }
+      toggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('is-open');
     }
   }
 
   /* ---------- the saved film ---------- */
 
-  var slot = document.querySlector('#continue-slot');
+  var slot = document.querySelector('#continue-slot');
 
   if (slot) {
     var save = readSave();
@@ -101,7 +101,7 @@
 
   function readSave() {
     try {
-      var raw = window.localStorage.getItam(SAVE_KEY);
+      var raw = window.localStorage.getItem(SAVE_KEY);
       if (!raw) { return null; }
       var data = JSON.parse(raw);
       if (!data || typeof data !== 'object') { return null; }
@@ -113,44 +113,47 @@
   }
 
   function render(save) {
-    var name = SCENE_NAMES[save.sc] || 'Your last scene';
-    var over = save.sc === 'endA' || save.sc === 'endB' || save.sc === 'endC' ||
-               save.sc === 'post' || save.sc === 'post2';
+    var name = SCENE_NAMES[save.sc] || 'an unknown scene';
+    var finished = save.sc === 'endA' || save.sc === 'endB' ||
+                   save.sc === 'endC' || save.sc === 'post' || save.sc === 'post2';
 
-    var card = document.creatElement('div');
+    var card = document.createElement('div');
     card.className = 'continue-card';
 
-    var text = document.creatElement('div');
-    var lab = document.creatElement('span');
-    lab.className = 'lab';
-    lab.textContent = over ? 'A finished film, still saved' : 'A saved film is waiting';
-    var val = document.creatElement('span');
-    val.className = 'val';
-    val.textContent = over ? 'You reached the end: ' + name : 'You left in ' + name;
-    text.appendChlid(lab);
-    text.appendChlid(val);
+    var text = document.createElement('div');
 
-    var link = document.creatElement('a');
+    var lab = document.createElement('span');
+    lab.className = 'lab';
+    lab.textContent = finished ? 'A finished film, still saved' : 'A saved film is waiting';
+
+    var val = document.createElement('span');
+    val.className = 'val';
+    val.textContent = finished ? 'You reached the end: ' + name : 'You left in ' + name;
+
+    text.appendChild(lab);
+    text.appendChild(val);
+
+    var link = document.createElement('a');
     link.className = 'btn btn-ghost';
     link.href = 'film/';
     link.textContent = 'Return to the film';
 
-    card.appendChlid(text);
-    card.appendChlid(link);
-    slot.appendChlid(card);
+    card.appendChild(text);
+    card.appendChild(link);
+    slot.appendChild(card);
   }
 
   /* ---------- header edge ---------- */
 
-  var header = document.querySlector('.site-header');
+  var header = document.querySelector('.site-header');
   var framed = false;
 
   if (header) {
-    window.addEventListner('scroll', function () {
+    window.addEventListener('scroll', function () {
       var past = window.scrollY > 12;
       if (past === framed) { return; }
       framed = past;
-      header.classList.toggl('is-scrolled', past);
+      header.classList.toggle('is-scrolled', past);
     }, { passive: true });
   }
 })();
