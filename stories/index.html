@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Stories - The Wrong Script</title>
+<meta name="description" content="The Stories: a shelf of independent interactive fiction inside The Wrong Script universe. One story is open now: The Ninth Bell.">
+<meta name="theme-color" content="#060a0b">
+<link rel="stylesheet" href="../assets/css/lobby.css">
+<link rel="stylesheet" href="../assets/css/stories.css">
+</head>
+<body class="stories">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header" id="top">
+  <div class="bar">
+    <a class="brand" href="../">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="wordmark">The Wrong Script</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Platform">
+      <a href="../">Lobby</a>
+      <a href="../film/" class="is-live">The Original Production</a>
+      <a href="./" class="is-live" aria-current="page">The Stories</a>
+      <a href="../#arcade">The Arcade <span class="soon">Soon</span></a>
+      <a href="../#gallery">The Gallery <span class="soon">Soon</span></a>
+      <a href="../#social-room">The Social Room <span class="soon">Soon</span></a>
+      <a href="../#archive">The Archive <span class="soon">Soon</span></a>
+      <a href="../#creator-studio">The Creator Studio <span class="soon">Soon</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="open">
+    <div>
+      <p class="eyebrow">The Stories &middot; open</p>
+      <h1>The Stories</h1>
+      <p class="identity">Independent fictions, written for one reader at a time.</p>
+      <p class="lede">Short interactive stories that live in the same universe as the film without borrowing its plot. You make the choices, the story keeps the record, and it ends &mdash; properly, with a last page rather than a loop.</p>
+      <div class="open-actions">
+        <a class="btn btn-primary" href="#shelf">Browse the shelf</a>
+        <a class="btn btn-ghost" href="../">Return to the Lobby</a>
+      </div>
+    </div>
+
+    <div class="open-meta">
+      <span>One story open</span>
+      <span>Saved in this browser</span>
+      <span>No accounts, no tracking</span>
+    </div>
+  </section>
+
+  <section class="shelf" id="shelf" aria-labelledby="shelf-heading">
+    <div class="shelf-head">
+      <h2 id="shelf-heading">On the shelf</h2>
+      <span class="shelf-count" data-shelf-count>One story on the shelf</span>
+    </div>
+
+    <div class="entries" data-shelf></div>
+
+    <p class="shelf-note">
+      <strong>This shelf is deliberately short.</strong> Everything listed here can be opened and finished tonight; nothing is a placeholder, and no rating, review or reader count is invented to make the room look busier than it is. More stories will be added as they are written, not as promises.
+    </p>
+  </section>
+
+  <section class="shelf" aria-labelledby="how-heading">
+    <div class="shelf-head">
+      <h2 id="how-heading">How a story works here</h2>
+    </div>
+    <p class="shelf-note" style="margin-top:0">
+      <strong>Choices change what you find.</strong> Different routes through a story give you different information, and the ending you reach depends on what you know when you get there.
+      <br><br>
+      <strong>Progress stays in your browser.</strong> Each story saves under its own key. Nothing is sent anywhere, there is no account, and the original film&rsquo;s save is a separate record that these stories never read or touch.
+      <br><br>
+      <strong>Endings are kept, not scored.</strong> A story remembers which endings you have found in this browser so a replay has somewhere to go. That record is yours alone; there is no leaderboard and nobody else can see it.
+    </p>
+    <p class="shelf-note">
+      <strong>The Wrong Script: Original Production is not on this shelf.</strong> It has its own room and its own save, and it is reached from the Lobby or directly at <a href="../film/">the original production</a>.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="wordmark">The Wrong Script</span>
+    <p>An evolving digital universe of stories, games, creative experiences and community.</p>
+    <p>Phase two: the Lobby, the original film, and The Stories. No accounts, no tracking, no analytics. Progress is stored in this browser only.</p>
+    <div class="footer-links">
+      <a href="../">The Lobby</a>
+      <a href="../film/">The Original Production</a>
+      <a href="#top">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<noscript>
+  <p class="shelf-note" style="max-width:640px;margin:0 auto 40px">The shelf needs JavaScript to draw the story cards. The stories themselves also need it. Nothing else on this page does.</p>
+</noscript>
+
+<script src="../assets/js/stories-index.js" defer></script>
+<script src="../assets/js/stories-library.js" defer></script>
+</body>
+</html>
