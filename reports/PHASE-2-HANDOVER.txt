@@ -8,7 +8,7 @@ STATUS:           COMPLETE (implementation + verification), NOT DEPLOYED
 BRANCH:           appjet
 STARTING COMMIT:  12dea1d  (final Phase 1 commit — Lobby + /film/)
 TIP BEFORE THIS REPORT: b7e8e3b
-FINAL COMMIT:     the commit that adds this report (see repository tip)
+FINAL COMMIT:     fa8976b  (fa8976bcd5a43cbbba997f723a8fe6ce70aa504b)
 
 Deployment was explicitly not authorised in this phase. Nothing was published,
 no hosting configuration was touched, and no external service was contacted.
