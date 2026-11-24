@@ -381,18 +381,19 @@ Labels: PASS = executed and passed. FAIL = executed and failed.
   1  Lobby loads at /                              PASS — web preset (4 routes,
                                                    1280px + 390px) plus direct
                                                    browser navigation.
-  2  Stories entry opens the library               PASS — clicked "The shelf" from
-                                                   the story and landed on the
-                                                   library ("ON THE SHELF"). The
-                                                   Lobby's own Stories links were
-                                                   asserted by route + target
-                                                   inspection; the Lobby→library
-                                                   click itself: CODE REVIEW ONLY.
+  2  Stories entry opens the library               PASS — clicked "Browse The
+                                                   Stories" on the Lobby and
+                                                   landed on /stories/ ("ON THE
+                                                   SHELF"); clicked "The shelf"
+                                                   from the story back to the
+                                                   library. Both directions
+                                                   executed with URL assertions.
   3  Library lists the story with a real entry     PASS — library renders the
                                                    story card and its "endings
-                                                   found" state. The card's entry
-                                                   link target: CODE REVIEW ONLY
-                                                   (not clicked; see limitations).
+                                                   found" state; clicking the
+                                                   card's "Begin" link opened
+                                                   /stories/the-ninth-bell/ at
+                                                   "THE BOAT".
   4  Story completes through two distinct routes   PASS — two full playthroughs,
                                                    different premises, different
                                                    flags, different endings.
@@ -439,7 +440,7 @@ SUPPORTING RUNS (all actually executed)
   - Route B playthrough, 15 steps ................ PASS
   - /film/#cast deep link ........................ PASS
   - RESTART → "THE BOAT" ......................... PASS
-  - story → shelf → Lobby clicks ................. PASS
+  - Lobby → library → story clicks ............... PASS
 
 FAILED ATTEMPTS — ALL TEST-INSTRUMENT ERRORS, NOT APP DEFECTS
   These are recorded because they happened, and because none of them was an
@@ -455,8 +456,9 @@ FAILED ATTEMPTS — ALL TEST-INSTRUMENT ERRORS, NOT APP DEFECTS
     Replaced with the deep-link assertion, which passed.
   - 'a[href="../"]' was ambiguous (three matches on the page). Fixed by scoping
     to .reader-tools.
-  - Role link "BROWSE THE STORIES" did not resolve, so the Lobby→library click
-    is recorded as CODE REVIEW ONLY rather than claimed as a pass.
+  - Role link "BROWSE THE STORIES" did not resolve: the source text is
+    "Browse The Stories" and CSS uppercases it. A later run using the real
+    accessible name clicked through to the library — PASS (row 2).
 
 ================================================================================
 12. RESPONSIVE AND ACCESSIBILITY CHECKS PERFORMED
@@ -489,10 +491,11 @@ FAILED ATTEMPTS — ALL TEST-INSTRUMENT ERRORS, NOT APP DEFECTS
      traversal path is code-reviewed only.
   2. The film's save hardening is code-reviewed only, for the safety reason in
      §9. No browser test seeded a legacy or malformed "tws" value.
-  3. The Lobby→library click and the library card's entry click were not
-     executed as clicks (locator issues in the harness). Both targets were
-     inspected and the destination routes were verified independently, so the
-     risk is low, but it is not a claimed pass.
+  3. Both previously locator-blocked clicks are now executed: Lobby "Browse The
+     Stories" → /stories/, and the card's "Begin" → /stories/the-ninth-bell/.
+     The earlier failures were harness locator mistakes (visible text is
+     CSS-uppercased; choice names include their number and note), not app
+     defects. History traversal and save-corruption testing remain untested.
   4. Only one story exists. This is deliberate: one finished story beats several
      empty cards. The library is built to hold more without redesign.
   5. The "endings found" counter is per browser and per story, not an account
