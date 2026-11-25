@@ -113,6 +113,30 @@ function facts(story) {
   return { ids: ids, flags: Array.from(flags), targets: Array.from(targets) };
 }
 
+/* Decodes a flag mask back into the object shape the engine hands to build. */
+function flagsFromMask(flagIndex, mask) {
+  const out = {};
+  Object.keys(flagIndex).forEach(function (k) {
+    if ((mask & (1 << flagIndex[k])) !== 0) { out[k] = 1; }
+  });
+  return out;
+}
+
+/* The choices a scene offers in one specific state. Scenes that build their
+   choices are asked directly, so the tower's spent-night branch is evaluated
+   as the player would see it rather than as a union of every branch. */
+function choicesFor(scene, story, state) {
+  if (scene.choices && scene.choices.length) { return scene.choices; }
+  if (typeof scene.build !== 'function') { return []; }
+  let result;
+  try {
+    result = scene.build({ visits: state.visits, flags: Object.assign({}, state.flags), seen: [], ended: false });
+  } catch (err) {
+    return choicesOf(scene, story);
+  }
+  return (result && result.choices) || [];
+}
+
 /* Walks the graph the way the engine does: entering a scene applies its
    `set` flags, a choice applies its own and may spend an hour. Returns
    what is reachable and how many hours the shortest route takes. */
@@ -152,11 +176,19 @@ function walk(story) {
     const scene = story.scenes[node.scene];
     if (scene.ending) { endings.add(node.scene); }
 
-    choicesOf(scene, story).forEach(function (choice) {
-      if (!story.scenes[choice.to]) { return; }
+    choicesFor(scene, story, { visits: node.visits, flags: flagsFromMask(flagIndex, mask) }).forEach(function (choice) {
+      /* The engine sends a spent night to the water instead of the tower
+         (assets/js/story-engine.js, choose()). Mirror that here so the walk
+         matches what a player can actually reach. */
+      const target = (choice.to === 'tower' && story.scenes.bell && node.visits >= story.budget)
+        ? 'bell'
+        : choice.to;
+      if (!story.scenes[target]) { return; }
       if (choice.requires) {
         const ok = Object.keys(choice.requires).every(function (flag) {
-          const want = choice.requires[flag];
+          /* Story data writes these as 1/0 or true/false; compare booleans so a
+             `1` is not rejected against the boolean mask test. */
+          const want = Boolean(choice.requires[flag]);
           const has = (mask & (1 << flagIndex[flag])) !== 0;
           return want === has;
         });
@@ -170,9 +202,9 @@ function walk(story) {
       }
       const nextVisits = node.visits + (choice.visit ? 1 : 0);
       if (nextVisits > 12) { return; }
-      const prior = hours.get(choice.to);
-      if (prior === undefined || nextVisits < prior) { hours.set(choice.to, nextVisits); }
-      queue.push({ scene: choice.to, mask: nextMask, visits: nextVisits });
+      const prior = hours.get(target);
+      if (prior === undefined || nextVisits < prior) { hours.set(target, nextVisits); }
+      queue.push({ scene: target, mask: nextMask, visits: nextVisits });
     });
   }
 
