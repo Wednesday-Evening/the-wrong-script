@@ -34,8 +34,13 @@ external assets. The whole thing is a static site.
 | `assets/js/gallery-exhibits.js` | The collection: six categories and eight exhibits. Data only. |
 | `assets/js/gallery.js` | Draws the wall and the filters, and opens an exhibit from its link or the address bar. |
 | `assets/img/gallery/*.svg` | The Gallery's artwork, drawn for this project. Local SVG, no external assets. |
+| `social-room/index.html` | The Social Room: four curated boards, read-only. |
+| `assets/css/social-room.css` | The Social Room's own identity: the boards, the jump list, the note. Loaded after `lobby.css`. |
+| `assets/js/social-room-content.js` | The four boards, written as data. Data only. |
+| `assets/js/social-room.js` | Draws the boards, the jump list and the deep links. No storage, no network. |
 | `tools/verify-signal-path.js` | Development check: solves every level, exercises the rules and the save reader. |
 | `tools/verify-gallery.js` | Development check: validates the collection, the artwork on disk and the Gallery's isolation from other rooms' saves. |
+| `tools/verify-social-room.js` | Development check: validates the boards, every destination link on disk, and the room's isolation from storage. |
 
 ## Running it
 
@@ -45,8 +50,8 @@ python3 -m http.server 8000
 
 Then open <http://localhost:8000>. The Lobby is at `/`, the film at `/film/`, the
 library at `/stories/`, the first story at `/stories/the-ninth-bell/`, the Arcade
-at `/arcade/`, SIGNAL PATH at `/arcade/signal-path/` and the Gallery at
-`/gallery/`.
+at `/arcade/`, SIGNAL PATH at `/arcade/signal-path/`, the Gallery at
+`/gallery/` and the Social Room at `/social-room/`.
 Opening `film/index.html` directly from disk also works, because the film carries
 its own styles and scripts inline. The Stories pages need to be served over HTTP
 (they load shared CSS and JavaScript by relative path, which is also how they
@@ -64,9 +69,13 @@ deploy).
   categories and eight demonstration exhibits, all made for this project and
   credited to The Wrong Script Studio. Browsing only: no accounts, no uploads,
   no submissions.
-- **Reserved:** The Social Room, The Archive and The Creator Studio.
-  Each has a card that states its state. None of them is a button that pretends
-  to work.
+- **Phase 5 (done):** The Social Room. A read-only room at `/social-room/` with
+  four boards: the Noticeboard, the Open Questions, the Gathering Board and
+  What's Happening. Curated studio writing only. No accounts, no posting, no
+  comments, no reactions, no storage.
+- **Reserved:** The Archive and The Creator Studio.
+  Each has a card that states its state. Neither is a button that pretends to
+  work.
 
 ## The Stories
 
@@ -134,6 +143,41 @@ SIGNAL PATH saves under `wrong-script.arcade.signal-path.v1`, and stores only
 version, a wrong shape or out-of-range numbers are treated as "no save" in
 memory, and the stored value is left exactly as it was until the player chooses
 "Reset progress". Progress never leaves the browser and does not sync.
+
+## The Social Room
+
+The Social Room is a reading room, not a feed. `assets/js/social-room-content.js`
+holds four boards as data and `assets/js/social-room.js` draws them; the page has
+no forms, no buttons beyond the small-screen nav toggle, and no way to write
+anything. Everything on the boards is written by The Wrong Script Studio, and
+every entry says what kind of writing it is.
+
+What the boards are:
+
+- **The Noticeboard** - studio notices and universe updates.
+- **The Open Questions** - prompts to carry around, each tied to a room.
+- **The Gathering Board** - invitations and ideas, labelled as such. Nothing is
+  running and nobody has joined anything.
+- **What's Happening** - a short listing. The labels (`Open now`,
+  `In preparation`) are editorial states, not live event data, and there are no
+  dates, deadlines or attendance figures.
+
+### Adding a board entry
+
+Add an object to the relevant area's `entries` in
+`assets/js/social-room-content.js`: `id`, `kind`, `title`, `body` (an array of
+paragraphs), optional `note`, and an optional `link: { label, href }` pointing at
+a real destination. Ids double as deep links (`/social-room/#<id>`), so keep them
+unique. `node tools/verify-social-room.js` checks the shape, the ids and that
+every link exists on disk.
+
+### No storage
+
+The room has no save key and needs none. Nothing here reads, writes or clears
+`tws`, `wrong-script.story.the-ninth-bell.v1` or
+`wrong-script.arcade.signal-path.v1`, and there is no member account, post,
+comment, reaction, message or upload to persist. Community participation is not
+available yet, and the room says so instead of implying otherwise.
 
 ## The original film
 
