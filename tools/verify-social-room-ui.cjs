@@ -117,6 +117,26 @@ async function waitForServer(deadlineMs) {
   const browser = await playwright.chromium.launch();
   const settle = (page, ms) => page.waitForTimeout(ms || 300);
 
+  /* Hash navigation scrolls smoothly, so a fixed wait can sample a board the
+     page is only passing through. Wait until the scroll position holds still. */
+  async function waitForScrollEnd(page, timeoutMs) {
+    const end = Date.now() + (timeoutMs || 5000);
+    let last = -1;
+    let stable = 0;
+    while (Date.now() < end) {
+      const y = await page.evaluate(() => window.scrollY);
+      if (y === last) {
+        stable += 1;
+      } else {
+        stable = 0;
+        last = y;
+      }
+      if (stable >= 3) return y;
+      await page.waitForTimeout(120);
+    }
+    return last;
+  }
+
   for (const vp of VIEWPORTS) {
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await context.newPage();
@@ -243,7 +263,7 @@ async function waitForServer(deadlineMs) {
       const count = await page.$$eval('#jump a[data-area]', (els) => els.length);
       ok(count === 4, 'expected 4 jump links, found ' + count);
       await page.click('#jump a[data-area="gathering-board"]');
-      await settle(page, 500);
+      await waitForScrollEnd(page);
       const state = await page.evaluate(() => ({
         hash: location.hash,
         current: Array.from(document.querySelectorAll('#jump a[data-area]'))
@@ -260,7 +280,7 @@ async function waitForServer(deadlineMs) {
 
     await check('a board deep link opens and focuses that board at ' + vp.name, async () => {
       await page.goto(BASE + '/social-room/#whats-happening', { waitUntil: 'load' });
-      await settle(page, 500);
+      await waitForScrollEnd(page);
       const focused = await page.evaluate(() => document.activeElement && document.activeElement.id);
       ok(focused === 'whats-happening-title', 'focus went to ' + focused);
       const noteShowing = await page.evaluate(() => {
@@ -273,7 +293,7 @@ async function waitForServer(deadlineMs) {
 
     await check('an unknown deep link explains itself at ' + vp.name, async () => {
       await page.goto(BASE + '/social-room/#no-such-board', { waitUntil: 'load' });
-      await settle(page, 500);
+      await waitForScrollEnd(page);
       const note = await page.evaluate(() => {
         const el = document.getElementById('hash-note');
         if (!el || el.hidden || el.offsetParent === null) return '';
@@ -282,7 +302,7 @@ async function waitForServer(deadlineMs) {
       ok(note.length > 40, 'the note is not visible');
       ok(/no board/i.test(note), 'the note does not say what went wrong: ' + note);
       await page.click('#hash-note a');
-      await settle(page, 500);
+      await waitForScrollEnd(page);
       const hash = await page.evaluate(() => location.hash);
       ok(hash === '#noticeboard', 'the recovery link went to ' + hash);
       return 'note shown, recovery to ' + hash;
@@ -414,7 +434,7 @@ async function waitForServer(deadlineMs) {
       await page.goto(BASE + '/social-room/', { waitUntil: 'load' });
       await settle(page, 600);
       await page.click('#jump a[data-area="noticeboard"]');
-      await settle(page, 300);
+      await waitForScrollEnd(page);
       const after = await page.evaluate(() => ({
         keys: Object.keys(localStorage).sort(),
         tws: localStorage.getItem('tws'),
