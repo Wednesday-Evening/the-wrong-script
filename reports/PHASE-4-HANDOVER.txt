@@ -9,10 +9,16 @@ DATE             : 2026-11-25
 REPOSITORY       : Wednesday-Evening/the-wrong-script
 BRANCH           : appjet
 STARTING HEAD    : acb3cb1d7f1c0a34c0a2864ff2d0a7a65b9d31e1
-FINAL HEAD       : the commit that carries this report (stated in the chat
-                   completion message, because a file cannot contain the hash
-                   of the commit that adds it)
-WORKING TREE     : clean before and after this phase
+IMPLEMENTATION   : 954d1d5ffe7e386917dded859f3c0d8186d19ca5
+                   (the Phase 4 implementation commit, which also carried the
+                   first version of this report)
+RECONCILIATION   : 2026-11-25, report-only. Starting HEAD for the correction
+                   was 954d1d5; no report-only commit existed before it. The
+                   report-only commit hash is stated in the chat completion
+                   message, because a file cannot contain the hash of the
+                   commit that adds it.
+WORKING TREE     : clean before and after this phase, and clean before and
+                   after the report reconciliation
 DEPLOYMENT       : none performed (no hosting, DNS or configuration change)
 
 
@@ -394,6 +400,123 @@ Failures kept in the record:
 
 
 ================================================================================
+8A. VERIFICATION CHRONOLOGY AND THE REVISION 19 RE-RUN
+================================================================================
+
+The Phase 4 checks were run more than once. The whole history is kept here so
+a reader can tell which evidence is current, which is historical, and which
+was never actually executed.
+
+  WHEN                CHECK                                     RESULT
+  ------------------  ----------------------------------------  -------------
+  Phase 4 build       call-5e74f917                             FAIL
+                      node tools/verify-gallery.js              2 of 34
+  Phase 4 build       call-6328b34d                             FAIL
+                      web route-smoke preset                    expectation
+                                                                defect
+  Phase 4 build       call-f4469a96                             PASS
+                      node tools/verify-gallery.js              34 of 34
+  Phase 4 build       call-04972ce8                             PASS
+                      node tools/verify-gallery-ui.cjs          all
+                                                                assertions
+  Revision 19         job 13fc282b33f064fbfb1a11d062b6700b     PASS
+  (completion review) node tools/verify-gallery.js &&
+                      node tools/verify-gallery-ui.cjs
+
+Revision 19 is the latest completed verification of the Phase 4
+implementation. It ran the two shipped checks as one command against the
+unchanged application at implementation revision
+954d1d5ffe7e386917dded859f3c0d8186d19ca5.
+
+How this record was produced: the project owner supplied the revision 19
+summary, and the same command was also run in this workspace in the same
+session (job id above) with the same result, printing the assertion list
+below. Everything listed is what the scripts themselves report. No browser
+build number, viewport height, timing figure or test identifier has been
+invented for this record, and the earlier runs are not restated as if they
+had been executed again.
+
+Recorded results
+
+- 34 static assertions passed (tools/verify-gallery.js): six categories and
+  eight exhibits defined, unique exhibit ids, every required field present,
+  all six shelves stocked, every exhibit credited to The Wrong Script Studio,
+  every referenced artwork present on disk, every image carrying meaningful
+  alt text, no markup or inline handler in exhibit content, every SVG
+  well-formed, titled and local, no Gallery file using browser storage or
+  naming another room's save key, no fetch or external host, no audio element
+  or autoplay, no upload or publish control, and the film still saving under
+  its own key.
+- 78 browser assertions passed (tools/verify-gallery-ui.cjs).
+- Seven routes tested at both 390px and 1280px: /, /film/, /stories/,
+  /stories/the-ninth-bell/, /arcade/, /arcade/signal-path/ and /gallery/.
+- Zero console errors, zero page errors and zero failed local requests across
+  those routes and the interaction session.
+- Zero horizontal overflow at both widths, including with the exhibit panel
+  open on a phone.
+- Category filters verified, including the aria-pressed state on the active
+  shelf and returning to the full wall.
+- Exhibit panel verified: opens from a card, carries the full text and studio
+  credit, names the exhibit in the address bar, closes by button and Escape,
+  and returns focus to the card that opened it.
+- Deep link verified: a direct /gallery/#exhibit-id opens that exhibit, and its
+  artwork loads from disk with alt text present.
+- Unknown-hash note verified: an unmatched link is explained by name and the
+  wall stays usable.
+- Fourteen keyboard stops, each showing a visible focus ring, with a shelf
+  filter operated from the keyboard.
+- Touch targets measured at 44px (filter) and 48px (panel close).
+- Reduced motion verified with emulation: 0ms transition, 0ms animation,
+  immediate scrolling.
+- All three existing save keys byte-identical after the session ("tws",
+  "wrong-script.story.the-ninth-bell.v1",
+  "wrong-script.arcade.signal-path.v1"), and no fourth storage key created.
+- Lobby card opened /gallery/, and the return control came back to /.
+
+What this establishes
+
+- The acceptance claims in section 8 now rest on two completed runs of the
+  same checks at the same implementation revision, not on one.
+- The Gallery's isolation is confirmed again with seeded values: the three
+  keys were unchanged after browsing, filtering, opening and closing exhibits
+  and using the keyboard.
+
+What this does not establish
+
+- It does not turn the earlier preset failure call-6328b34d into a pass. That
+  check was never re-run under its original definition, and no claim is made
+  that the preset passes. See limitation 1.
+- It does not close the empty state, real-device reduced motion or screen
+  reader items. Revision 19 repeats the same automated and emulated coverage;
+  it adds no new kind of evidence. See limitations 2 to 4.
+
+
+================================================================================
+8B. DEPENDENCY CHECK
+================================================================================
+
+Result: not_applicable - 0 packages resolved, 0 findings.
+
+  scanner    OSV-Scanner 2.7.0
+  policy     workspace-dependencies-v1
+  coverage   known vulnerabilities in resolved repository dependencies
+  packages   0
+  findings   0 (0 blocking)
+  job        adb17a65d1c44c5698f1b500174016fa
+
+Why it is empty: this project deliberately has no package manifest, no
+lockfile and no dependencies, so the advisory scanner had nothing to resolve
+and reported not_applicable rather than clean.
+
+The distinction is not softened here. A not_applicable result is not a
+certification of the source code, of any runtime, or of the project as a
+whole. It says only that a dependency set which is empty cannot contain a
+dependency vulnerability. The Gallery's isolation claims rest on the source
+scan (tools/verify-gallery.js) and the browser run
+(tools/verify-gallery-ui.cjs), not on this scanner.
+
+
+================================================================================
 9. ACCESSIBILITY, RESPONSIVE AND SAFETY FINDINGS
 ================================================================================
 
@@ -445,12 +568,16 @@ Safety and privacy
 10. KNOWN LIMITATIONS AND UNVERIFIED ITEMS
 ================================================================================
 
-1. The web route-smoke check call-6328b34d remains a recorded failure. Its
-   expectations were wrong for these pages (title case against CSS-uppercased
-   headings, and an h1 that film/index.html does not have). It was not re-run
-   with corrected strings because the checker treats changed expectations as a
-   changed test definition. The same seven routes at both viewports are covered
-   and passing in call-04972ce8. If the project wants a clean preset record,
+1. The web route-smoke check call-6328b34d remains a recorded failure, and it
+   was not re-run under its original definition. Its expectations were wrong
+   for these pages (title case against CSS-uppercased headings, and an h1 that
+   film/index.html does not have), so the failure belongs to the check, not to
+   the pages. It is not retried with corrected strings because the checker
+   treats changed expectations as a changed test definition. Revision 19 does
+   not change this: the seven-route, two-viewport coverage it repeats comes
+   from the browser check call-04972ce8 and its re-run, which is a different
+   check. The original failure, its cause and its resolution are kept in
+   section 8 rather than deleted. If the project wants a clean preset record,
    the check should be redefined deliberately rather than retried.
 
 2. The empty state is CODE REVIEW ONLY. It is defensive, and the shipped
@@ -482,6 +609,11 @@ Safety and privacy
 
 9. Everything remains single-browser and static. Nothing syncs across devices,
    and the report makes no claim that it does.
+
+10. The dependency scan is not_applicable, not clean (section 8B). With no
+   manifest and no dependencies there was nothing to resolve, which is the
+   intended state of this project, but it means the scan offers no evidence
+   about the source, the runtime or the hosting environment.
 
 
 ================================================================================
@@ -526,6 +658,11 @@ environment and says so plainly if it is missing.
 - The Original Production's story, dialogue, puzzles, endings, visual identity
   and "tws" save behaviour are unchanged.
 - Stories and Arcade functionality was not altered beyond the navigation link.
+- Report reconciliation (2026-11-25): the only file changed was this report.
+  No application code, markup, styles, scripts, exhibit data, artwork, route,
+  navigation entry, save key, dependency or build/hosting configuration was
+  touched, and the implementation commit remains
+  954d1d5ffe7e386917dded859f3c0d8186d19ca5.
 
 
 ================================================================================
