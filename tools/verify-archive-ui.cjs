@@ -279,8 +279,8 @@ const ROUTES = [
     check((await markedIds()).length === 0, 'a plain visit marks nothing',
       JSON.stringify(await markedIds()));
 
-    await page.evaluate(function () { location.hash = '#completed-files'; });
-    check(await waitForMarker('completed-files'), 'a section jump marks exactly that section',
+    await page.locator('a[href="#completed-files"]').first().click();
+    check(await waitForMarker('completed-files'), 'clicking a jump link marks exactly its own section',
       JSON.stringify(await markedIds()));
 
     await page.evaluate(function () { location.hash = '#discoveries'; });
