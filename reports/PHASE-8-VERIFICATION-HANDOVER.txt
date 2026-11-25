@@ -335,6 +335,16 @@ the log, the count is not restated here rather than guessed.
 Cross-engine note: all nine suites drive Chromium, so they are Chromium
 regression evidence only.
 
+Re-run at revision 1, after this report was added to the branch:
+
+  G4  node tools/verify-archive.js                        PASS  all 35 static
+                                                                checks passed
+
+G4 matters for two reasons. It confirms the suite still passes with the report
+in the tree, and it includes the assertion "PASS the film is unchanged against
+the last commit [no diff under film/]", which is independent Git-backed
+evidence that the protected production was not touched by this pass.
+
 --------------------------------------------------------------------------------
 11. DEFECT REGISTER - APPLICATION FINDINGS (NOT FIXED; THIS PHASE MAY NOT FIX)
 --------------------------------------------------------------------------------
@@ -514,10 +524,14 @@ the audit trail is complete.
   - The original production still loads, renders and responds to a story
     control, and its tws value was not rewritten by this pass.
   - No dependency, framework, backend, database, account or network service was
-    introduced. The project still has no package manifest or lockfile, so the
-    dependency scan remains not_applicable: zero packages resolved. That is an
-    empty scan, not a security certification of the source, the runtime, the
-    hosting or the application.
+    introduced. The dependency check was executed in this pass with the
+    workspace scanner (OSV-Scanner 2.7.0, policy workspace-dependencies-v1,
+    repository scope) and returned status not_applicable: 0 packages checked,
+    0 findings, 0 blocking. The reason is structural - the project has no
+    package manifest, lockfile or resolved dependencies, so there was nothing
+    to resolve. That is an empty scan, not a security certification of the
+    source, the runtime, the hosting or the application, and it says nothing
+    about the hand-written HTML, CSS and JavaScript.
   - No deployment, hosting, domain, DNS or environment change occurred.
   - Phase 9 was not started, and no defect was fixed.
 
