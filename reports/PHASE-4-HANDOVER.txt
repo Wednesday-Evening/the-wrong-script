@@ -1,0 +1,553 @@
+================================================================================
+THE WRONG SCRIPT - PHASE 4 HANDOVER
+The Gallery
+================================================================================
+
+PHASE            : 4 - The Gallery
+STATUS           : COMPLETE - READY FOR REVIEW
+DATE             : 2026-11-25
+REPOSITORY       : Wednesday-Evening/the-wrong-script
+BRANCH           : appjet
+STARTING HEAD    : acb3cb1d7f1c0a34c0a2864ff2d0a7a65b9d31e1
+FINAL HEAD       : the commit that carries this report (stated in the chat
+                   completion message, because a file cannot contain the hash
+                   of the commit that adds it)
+WORKING TREE     : clean before and after this phase
+DEPLOYMENT       : none performed (no hosting, DNS or configuration change)
+
+
+================================================================================
+1. PRE-FLIGHT FINDINGS
+================================================================================
+
+Confirmed before any file was touched:
+
+- Repository and branch matched the accepted project: appjet at
+  acb3cb1d7f1c0a34c0a2864ff2d0a7a65b9d31e1, working tree clean, recent history
+  showing the Phase 3 handover (82e6418) followed by the Phase 3 verification
+  report (acb3cb1).
+- All six existing destinations were present and unchanged: /, /film/,
+  /stories/, /stories/the-ninth-bell/, /arcade/, /arcade/signal-path/.
+- README.md, reports/PHASE-3-HANDOVER.txt and reports/PHASE-3-VERIFICATION.txt
+  were read. The Phase 3 open verification items were treated as outstanding
+  and were not re-litigated in this phase.
+- Architecture confirmed as plain static HTML, CSS and vanilla JavaScript: no
+  framework, no package manifest, no build step, no backend. Each destination
+  is a directory with an index.html that loads shared CSS from assets/css and
+  shared scripts from assets/js by relative path.
+- Navigation convention confirmed: each destination repeats the same header
+  with links to every other destination, plus a mobile menu toggle button
+  (.nav-toggle) that the page's own script wires up.
+- Existing save keys confirmed in use and left alone: "tws" (film),
+  "wrong-script.story.the-ninth-bell.v1" (story),
+  "wrong-script.arcade.signal-path.v1" (arcade).
+
+No material discrepancy was found, so the phase proceeded.
+
+
+================================================================================
+2. WHAT WAS DELIVERED
+================================================================================
+
+An exhibition at /gallery/, reachable from the Lobby, that belongs to the
+universe without copying the film, the Stories or the Arcade.
+
+The visitor arrives at a title wall, then a single continuous hanging wall of
+eight exhibits grouped by six shelves: Visual Art, Photography, Poetry,
+Writing, Illustration and Original Music. Category filters sit above the wall
+and announce their state. Every exhibit opens in a detail panel that carries
+the work itself - prose, poem, score sketch or artwork - with its category,
+medium, collection, description, studio attribution and an honesty note
+saying what the piece is and is not. Each exhibit is addressable
+(/gallery/#exhibit-id), so a link can be shared or reloaded, and an unknown
+link is explained rather than silently ignored.
+
+The Gallery is browse-only. There is no account, no upload, no submission, no
+like, no comment, no counter, no ranking and no personal data. Nothing plays
+sound, nothing autoplays, and the page stores nothing in the browser.
+
+Editorial identity: the near-black surfaces, deep red accents and muted gold
+rules of the existing universe, carried by a serif display face for titles and
+wide, generous spacing for the wall. Motion is a short fade and lift on the
+frames, and it is switched off entirely under prefers-reduced-motion.
+
+
+================================================================================
+3. FILES CREATED, MODIFIED, MOVED, DELETED
+================================================================================
+
+CREATED - 12 files (including this report)
+
+  gallery/index.html                       126 lines
+      The exhibition page: skip link, shared header and navigation with
+      aria-current on Gallery, title wall, an honesty paragraph about what the
+      Gallery is, the shelf filters (#filters), a live status line (#status),
+      an unknown-link note (#hash-note), the wall (#collection), a defensive
+      empty state (#empty with #empty-reset), the exhibit panel
+      (#exhibit-panel and its children), Elsewhere links, footer.
+
+  assets/css/gallery.css                   490 lines
+      The Gallery's own identity, loaded after lobby.css. The wall, the
+      frames, the filter rail, the panel, the empty state, focus rings,
+      responsive rules and the reduced-motion block.
+
+  assets/js/gallery.js                     427 lines
+      The renderer: navigation toggle, defensive validation of the collection
+      data, shelf filters with aria-pressed, cards, the exhibit panel, hash
+      routing, Escape handling, focus return and the empty state. No storage
+      access, no network access.
+
+  assets/js/gallery-exhibits.js            232 lines
+      The collection as data only: window.GALLERY_CATEGORIES (six) and
+      window.GALLERY_EXHIBITS (eight). Prose and metadata live here; nothing
+      in this file draws anything.
+
+  assets/img/gallery/red-room.svg           28 lines
+  assets/img/gallery/set-dressing.svg       75 lines
+  assets/img/gallery/low-water.svg          44 lines
+  assets/img/gallery/the-booth.svg          38 lines
+  assets/img/gallery/cue-07.svg             46 lines
+      Original hand-written SVG, drawn for this project. No external images,
+      no stock, no hotlinks, no traced reference. Each is decorative in form
+      but informative in context, so each exhibit supplies its own alt text.
+
+  tools/verify-gallery.js                  223 lines
+      Development check: validates the collection (categories, unique ids,
+      required fields, category references, artwork present on disk), the page
+      wiring, and isolation from the other rooms' save keys.
+
+  tools/verify-gallery-ui.cjs              302 lines
+      Development check: drives the real pages in Chromium against a
+      throwaway static server on port 4173 and exits non-zero on failure.
+
+  reports/PHASE-4-HANDOVER.txt             this file
+
+MODIFIED - 6 files, all navigation or documentation only
+
+  index.html
+      The Lobby's Gallery card was a reserved, non-interactive card. It is now
+      a working link to gallery/, with its label updated from a reserved
+      destination to the current phase. No other Lobby markup, copy, styling
+      or behaviour was touched.
+
+  stories/index.html
+  arcade/index.html
+  stories/the-ninth-bell/index.html
+  arcade/signal-path/index.html
+      One navigation link to the Gallery added to each existing header so the
+      universe stays navigable from wherever a visitor already is. Nothing
+      else in these pages changed; no story or game logic was touched.
+
+  README.md
+      The structure table gained the four Gallery entries plus the two
+      development checks; the "Running it" section now names /gallery/ among
+      the served routes; the phase status section records Phase 4 as done and
+      keeps the Social Room, Archive and Creator Studio as reserved.
+
+DELETED - none
+MOVED   - none
+film/   - not modified in any way (no file under film/ appears in this phase's
+          diff; the original production's scenes, puzzles, endings and "tws"
+          save are exactly as accepted in Phase 3)
+
+
+================================================================================
+4. ROUTE MAP AND NAVIGATION
+================================================================================
+
+  /                              Lobby
+  /film/                         The Wrong Script: Original Production
+  /stories/                      The Stories library
+  /stories/the-ninth-bell/       The Ninth Bell
+  /arcade/                       The Arcade library
+  /arcade/signal-path/           SIGNAL PATH
+  /gallery/                      The Gallery                     <- new
+  /gallery/#<exhibit-id>         A single exhibit, opened in the panel <- new
+
+How the Gallery is reached:
+
+  Lobby -> Gallery card -> /gallery/
+  Lobby -> Gallery entry in the header navigation -> /gallery/
+  Stories, Arcade, The Ninth Bell and SIGNAL PATH -> Gallery link in the header
+  Gallery -> "Return to the Lobby" -> /
+  Gallery -> Elsewhere links -> Stories, Arcade, the original film
+  Gallery -> an exhibit card or a deep link -> the exhibit panel
+  Panel -> Close, Escape, or the browser's Back -> back to the wall
+
+
+================================================================================
+5. THE COLLECTION
+================================================================================
+
+Six categories, eight exhibits. All eight are original work made for this
+project and all are credited to The Wrong Script Studio. Nothing here is a
+member submission and the page says so.
+
+  VISUAL ART
+    Red Room, No Take                  ink study, "Opening set"
+    Set Dressing (Study III)           ink study, "Opening set"
+
+  PHOTOGRAPHY
+    Low Water, Halversen Light         still photograph, "Coastal set"
+
+  POETRY
+    Ledger of Small Hours              poem, "Opening set"
+    Instructions for a Door That       poem, "Opening set"
+      Will Not Open
+
+  WRITING
+    The Understudy's Note              short prose, "Opening set"
+
+  ILLUSTRATION
+    The Booth                          illustration, "Opening set"
+
+  ORIGINAL MUSIC
+    Cue 07: The Door Opens Twice       written cue and score sketch, no audio
+
+Each exhibit carries: id, title, category, kind, medium, collection, blurb,
+body or media, credit and a note. Media is null for the three text works, so
+the panel shows no figure at all rather than an empty frame.
+
+On Original Music: the project has no original recording of this cue, so the
+exhibit is a written cue with a score sketch and an explicit statement that no
+audio file, player or recording exists. Nothing was substituted, borrowed or
+faked to make the shelf look playable.
+
+
+================================================================================
+6. CONTENT MODEL AND FUTURE COMPATIBILITY
+================================================================================
+
+Data and presentation are separated. gallery-exhibits.js declares plain data;
+gallery.js reads it, validates it, and draws. Adding an exhibit means adding
+one object to the collection and, if it has artwork, one local file.
+
+The shape already accommodates a future member exhibit (id, title, category,
+body or media, credit), but nothing in this phase reads, writes or publishes
+submitted content. There is no upload control, no submission route, no draft
+state and no moderation surface. The platform rule that member work must be
+reviewed before publication is therefore intact and unexercised: no route or
+control exists that could bypass it, and the renderer only ever draws fields
+as text and an image src from the local collection - it never injects HTML,
+executes content, or fetches anything.
+
+The renderer validates defensively: unknown categories, missing ids, duplicate
+ids, missing titles and missing bodies are dropped rather than rendered, and an
+empty result shows the empty state with a way back to everything.
+
+
+================================================================================
+7. SAVE KEYS AND ISOLATION
+================================================================================
+
+The Gallery creates no save key. It has no progress to keep: browsing is
+stateless, and the address bar carries the only state (the selected exhibit).
+
+  "tws"                                    film              untouched
+  "wrong-script.story.the-ninth-bell.v1"   story             untouched
+  "wrong-script.arcade.signal-path.v1"     arcade            untouched
+
+Evidence, two independent methods:
+
+  1. Source scan (tools/verify-gallery.js, executed): no Gallery file contains
+     localStorage, sessionStorage or indexedDB usage, and no Gallery file names
+     any of the three keys. The scan strips comments and markup prose first, so
+     a sentence explaining that the Gallery stores nothing cannot be mistaken
+     for a call that stores something.
+
+  2. Browser check (tools/verify-gallery-ui.cjs, executed): the run seeded all
+     three keys with known values, browsed, filtered, opened and closed
+     exhibits, used the keyboard and returned to the Lobby. Afterwards all
+     three keys still held their exact seeded values, and the browser contained
+     no fourth key - the Gallery had added nothing.
+
+
+================================================================================
+8. TEST MATRIX
+================================================================================
+
+Statuses used: PASS (executed and passed), FAIL (executed and failed),
+NOT TESTED (not executed), CODE REVIEW ONLY (inspected in source only).
+
+Environment: Chromium via Playwright, viewports 1280x900 and 390x844, static
+server python3 -m http.server on port 4173 (the project's known port; 4190 was
+not used).
+
+  #   CHECK                                              STATUS   METHOD / RESULT
+  --  -------------------------------------------------  -------  ---------------
+  1   All six existing destinations still load           PASS     Browser. /, /film/,
+                                                                   /stories/, /stories/
+                                                                   the-ninth-bell/, /arcade/,
+                                                                   /arcade/signal-path/ each
+                                                                   returned 200 with a
+                                                                   non-empty document at both
+                                                                   viewports.
+  2   /gallery/ loads directly                           PASS     Browser. 200, eight frames
+                                                                   drawn, both viewports.
+  3   /gallery/ loads from the Lobby entry               PASS     Browser. The Lobby's
+                                                                   Gallery card was clicked;
+                                                                   the browser landed on
+                                                                   /gallery/ and rendered it.
+  4   Gallery returns to the Lobby                       PASS     Browser. "Return to the
+                                                                   Lobby" clicked; pathname
+                                                                   became /.
+  5   Category browsing and switching                   PASS     Browser. Poetry gave 2
+                                                                   exhibits, Music 1, Writing 1,
+                                                                   "Everything" restored 8; the
+                                                                   active filter reported
+                                                                   aria-pressed="true".
+  6   Every exhibit opens and can be exited              PASS     Browser. Panel opened from
+                                                                   a card with the right title,
+                                                                   full body text and studio
+                                                                   credit; closed by button and
+                                                                   by Escape with no broken
+                                                                   state.
+  7   Deep link to a single exhibit                      PASS     Browser. /gallery/#low-water-
+                                                                   halversen-light opened that
+                                                                   exhibit on load; the artwork
+                                                                   loaded from disk at 800px
+                                                                   with its alt text present.
+  8   Unmatched link is understandable and recoverable   PASS     Browser. #not-a-real-exhibit
+                                                                   produced the note naming the
+                                                                   missing exhibit and left the
+                                                                   wall usable.
+  9   Empty state                                        CODE     Source only. The state exists
+                                                         REVIEW   (#empty with a reset
+                                                         ONLY     control) and is reachable
+                                                                  only if the collection
+                                                                  validates to nothing, which
+                                                                  cannot happen with the shipped
+                                                                  data. Deliberately not forced
+                                                                  in a browser.
+  10  Every visible link, button and control works       PASS     Browser. Nav links, filters,
+                                                                   cards, close, reset, Elsewhere
+                                                                   links, the Lobby card and the
+                                                                   return links were all
+                                                                   exercised or resolved to real
+                                                                   files; no dead control was
+                                                                   found.
+  11  Mobile 390px layout                               PASS     Browser. Seven routes, no
+                                                                   horizontal overflow (390 vs
+                                                                   390); with the exhibit panel
+                                                                   open, still 390 vs 390.
+  12  Desktop 1280px layout                             PASS     Browser. Seven routes, no
+                                                                   horizontal overflow (1280 vs
+                                                                   1280).
+  13  Touch target sizes                                PASS     Browser. Measured on a phone:
+                                                                   filter 44px tall, panel close
+                                                                   48px tall.
+  14  Keyboard navigation and visible focus             PASS     Browser. Fourteen Tab stops
+                                                                   stayed inside the page and
+                                                                   every one showed a focus ring;
+                                                                   a shelf filter activated with
+                                                                   Enter; Escape closed the panel
+                                                                   and returned focus to the card
+                                                                   that opened it.
+  15  Reduced motion                                    PASS     Browser emulation
+                                                                   (reducedMotion: 'reduce').
+                                                                   Transition 0ms, animation 0ms,
+                                                                   scroll-behavior auto.
+  16  No console errors, page errors or failed assets   PASS     Browser. Seven routes at
+                                                                   both viewports, plus the whole
+                                                                   interaction session, logged
+                                                                   none.
+  17  The three existing save keys are untouched        PASS     Browser, with seeded values,
+                                                                   plus a source scan. Values
+                                                                   identical before and after;
+                                                                   no fourth key created.
+  18  No dependency, backend, auth or upload path       PASS     Source. No package manifest,
+                                                                   no import or fetch of anything
+                                                                   remote, no form, no storage, no
+                                                                   submission route. The site
+                                                                   still runs from a plain static
+                                                                   server.
+  19  Static collection and wiring check                PASS     node tools/verify-gallery.js,
+                                                                   every assertion passed.
+
+Recorded runs:
+
+  call-f4469a96  node tools/verify-gallery.js          PASS
+  call-04972ce8  node tools/verify-gallery-ui.cjs      PASS (all assertions)
+
+Failures kept in the record:
+
+  call-5e74f917  node tools/verify-gallery.js          FAIL (2 of 34)
+      The storage and autoplay scans matched the Gallery's own prose - a
+      sentence saying the Gallery "does not touch localStorage", and exhibit
+      copy saying "nothing autoplays". This was a defect in the check, not in
+      the page: the check now strips comments and markup prose and looks for
+      the shapes of real calls and attributes. Re-run as call-f4469a96: PASS.
+
+  call-6328b34d  web route smoke preset                FAIL
+      Reported "/film/ (1280px): page.waitForFunction: Timeout 5000ms
+      exceeded." The cause is in the expectation, not the page: film/index.html
+      contains no h1 element at all (its stage is #stage), and the Gallery and
+      SIGNAL PATH headings are uppercased by CSS text-transform, so the
+      title-case strings the check waited for never appear in the rendered
+      text. A direct browser probe confirmed all seven routes return 200 with
+      no console errors and no horizontal overflow at both widths, and the
+      corrected full-coverage check (call-04972ce8) passes the same seven
+      routes at both viewports. A retry with corrected expectations was
+      declined by the checker because it changes expected values; rather than
+      loop on an unchanged page, this is recorded here as a limitation. See
+      section 10.
+
+
+================================================================================
+9. ACCESSIBILITY, RESPONSIVE AND SAFETY FINDINGS
+================================================================================
+
+Accessibility
+- Landmarks and headings: one h1 per page, sections in order, the wall is a
+  list of articles with headings.
+- Skip link to the wall.
+- Filters are buttons with aria-pressed, not styled divs, and they carry their
+  exhibit count in the accessible name.
+- The status line is aria-live="polite", so filtering is announced.
+- Cards are links (#exhibit-id), so the panel is reachable, shareable and
+  works with the browser's Back button.
+- The panel is a labelled region; opening it moves focus to its heading, and
+  closing it (button or Escape) returns focus to the card that opened it.
+- Artwork carries written alt text describing the scene; the figure is omitted
+  entirely for text-only exhibits.
+- Visible focus rings are defined for every interactive control, and the
+  browser run confirmed a ring at all fourteen Tab stops.
+- Colour is never the only signal: categories are written, filters state their
+  state, and every card names its shelf.
+
+Responsive
+- Mobile-first CSS; the wall is a single column on a phone and a three-column
+  grid on desktop, using minmax(min(100%, 262px), 1fr) so a frame can never
+  force a horizontal scrollbar.
+- Measured: no horizontal overflow on any of the seven routes at 390px or
+  1280px, including with the exhibit panel open on a phone.
+- Body copy stays at a comfortable measure; touch targets measured at 44px and
+  48px.
+
+Motion and sound
+- Transitions and the frame reveal are removed under prefers-reduced-motion
+  (verified by emulation: 0ms transition, 0ms animation, immediate scrolling).
+- No sound anywhere in the Gallery, nothing autoplays, no flashing or strobing,
+  no timers, no streaks, no countdown pressure.
+
+Safety and privacy
+- No personal information is requested, collected, displayed or implied. There
+  are no member names, no visitor counts, no ratings, no comments and no
+  popularity signals anywhere on the page.
+- Copy is suitable for a broad teen audience: the works are atmospheric and
+  restrained, with no violence, no sexual content and no dangerous
+  instruction.
+- All content and artwork is original to this project and credited to The
+  Wrong Script Studio.
+
+
+================================================================================
+10. KNOWN LIMITATIONS AND UNVERIFIED ITEMS
+================================================================================
+
+1. The web route-smoke check call-6328b34d remains a recorded failure. Its
+   expectations were wrong for these pages (title case against CSS-uppercased
+   headings, and an h1 that film/index.html does not have). It was not re-run
+   with corrected strings because the checker treats changed expectations as a
+   changed test definition. The same seven routes at both viewports are covered
+   and passing in call-04972ce8. If the project wants a clean preset record,
+   the check should be redefined deliberately rather than retried.
+
+2. The empty state is CODE REVIEW ONLY. It is defensive, and the shipped
+   collection cannot reach it. It was not forced in a browser.
+
+3. Reduced motion was verified with browser emulation, not on a real device
+   with the OS setting enabled.
+
+4. Keyboard verification was real browser Tab traversal with computed-style
+   focus-ring checks. No screen reader was run, and no assistive-technology
+   certification is claimed.
+
+5. No search is implemented, by design. The prompt made search optional; the
+   six shelves are a small enough set to browse directly, and a search box that
+   filtered eight items would add a control without adding discovery. The
+   unmatched-state requirement is satisfied by the unknown-exhibit note.
+
+6. Visual design was not reviewed by a human. The layout, contrast and
+   composition were built to the stated direction and checked for overflow and
+   target size, but "looks right" is a judgement this report cannot make.
+
+7. The artwork is original abstract SVG drawn in code. It is deliberate and
+   consistent, but it is illustration of a mood, not photography; the
+   Photography shelf is a drawn still rather than a captured frame, and the
+   exhibit copy is written so that nothing overclaims.
+
+8. The three text-only works have no media file. That is intentional and
+   stated in the panel, not a missing asset.
+
+9. Everything remains single-browser and static. Nothing syncs across devices,
+   and the report makes no claim that it does.
+
+
+================================================================================
+11. SHARED FILE CHANGES AND RATIONALE
+================================================================================
+
+Five HTML files outside gallery/ changed, and each change is a navigation
+entry: one link to the Gallery in the shared header of stories/index.html,
+arcade/index.html, stories/the-ninth-bell/index.html and
+arcade/signal-path/index.html, plus the Lobby's Gallery card becoming a real
+link in index.html.
+
+Rationale: the universe is navigated by a repeated header. Adding the Gallery
+only to the Lobby would have made it reachable from exactly one place and left
+visitors stranded in another destination with no way across. The alternative -
+per-page bespoke links - would have been more code, not less. No CSS, script,
+story data or game logic was modified in those files.
+
+assets/css/lobby.css, assets/js/lobby.js, assets/js/story-engine.js,
+assets/js/arcade*.js, assets/js/arcade-levels.js and every file under film/
+were not modified.
+
+New development scripts (tools/verify-gallery.js, tools/verify-gallery-ui.cjs)
+are checks, not site code. The site itself still ships no dependency, no
+manifest and no build step; the browser check finds Playwright in the
+environment and says so plainly if it is missing.
+
+
+================================================================================
+12. DEPLOYMENT AND SCOPE CONFIRMATION
+================================================================================
+
+- No deployment was performed.
+- No hosting, DNS, domain or environment configuration was changed.
+- No framework, package manager, bundler, database, backend, authentication,
+  cloud storage, payment or analytics was introduced.
+- No account, profile, upload, submission, publishing, moderation, like,
+  comment, follower or messaging surface was created, and none is presented as
+  working.
+- No Phase 5 work was started. The Social Room, The Archive and The Creator
+  Studio remain reserved, and their Lobby cards still state that plainly.
+- The Original Production's story, dialogue, puzzles, endings, visual identity
+  and "tws" save behaviour are unchanged.
+- Stories and Arcade functionality was not altered beyond the navigation link.
+
+
+================================================================================
+13. RECOMMENDED NEXT STEP (not started)
+================================================================================
+
+Phase 5 - The Social Room, as a read-only notice board and gathering space:
+a curated, clearly-labelled set of studio notices and discussion prompts that
+needs no accounts, no posting and no personal data, so the room can be real
+before any member interaction exists.
+
+Two smaller items are worth folding into whichever phase comes next:
+
+- Redefine the route-smoke expectation set deliberately (uppercase headings,
+  #stage for the film) so the preset record is clean, and add the three
+  accessibility states this phase left as code review (forced empty state,
+  real-device reduced motion, screen-reader pass over the panel).
+- Extend the Gallery only when there is genuine work to hang. The collection
+  model is ready for it; inventing exhibits to fill shelves would undo the
+  honesty the room is built on.
+
+
+================================================================================
+PHASE HANDOVER STATUS: READY FOR REVIEW
+================================================================================
