@@ -422,23 +422,45 @@ Status labels used below: PASS / FAIL / NOT TESTED / CODE REVIEW ONLY.
 8. COMMITS
 --------------------------------------------------------------------------------
 
-The workspace commits each write, so the phase appears as a short series rather
-than one squashed commit. Every commit listed is on appjet, after the starting
-HEAD 8af78b7:
+The workspace commits each write, so this phase appears as a short series rather
+than one squashed commit. Every commit below is on appjet, after the starting
+HEAD 8af78b7, and the whole range 8af78b7..HEAD touches only the 17 files listed
+in section 4. The per-commit file lists are taken from git log --name-only, not
+from memory.
 
-  d0e9b39  Creator Studio page shell, content data, renderer, stylesheet
-  79669ad  Creator Studio page and assets
-  88d9e2c  Nav, Lobby card, Social Room listing, README (8 files)
-  d0e9b39..88d9e2c  all application changes in this phase
-  c875165  Social Room Studio listing correction
-  909da4e  Creator Studio content and renderer refinement
-  ee55cc2  Creator Studio browser verifier
-  0df3bdc  Archive verifier eyebrow assertion
-  573362f  Creator Studio static verifier corrections
+  d0e9b39  creator-studio/index.html
+           assets/js/creator-studio-content.js
+           The destination shell and its content data.
+  79669ad  assets/js/creator-studio.js
+           assets/css/creator-studio.css
+           The renderer and the room stylesheet.
+  88d9e2c  index.html, stories/index.html, stories/the-ninth-bell/index.html,
+           arcade/index.html, arcade/signal-path/index.html, gallery/index.html,
+           social-room/index.html, archive/index.html
+           Platform navigation on all eight rooms, the Lobby card, eyebrow,
+           room count and footer, and the two closing paragraphs.
+  c875165  assets/js/social-room-content.js
+           The Studio's What's Happening listing becomes "Open now" with a
+           working link.
+  909da4e  README.md
+           tools/verify-creator-studio.js
+           Documentation and the static suite.
+  ee55cc2  tools/verify-creator-studio-ui.cjs
+           The browser suite.
+  0df3bdc  tools/verify-archive-ui.cjs
+           The single Archive assertion made stale by the Lobby eyebrow change.
+  573362f  assets/js/creator-studio-content.js
+           tools/verify-creator-studio.js
+           The three verifier corrections recorded in section 6.6, plus the
+           Standard's originality wording.
+  <tip>    reports/PHASE-7-CREATOR-STUDIO-HANDOVER.txt
+           This report.
 
-This report is committed after them; its own hash therefore appears in the
-completion message rather than in this file. No commit was amended, rewritten or
-force-pushed, and no commit outside this phase's scope was made.
+The first revision of this report was committed as d9fffec. A file cannot
+contain the hash of the commit that carries it, so the final tip after this
+commit-mapping correction is recorded in the completion message. No commit was
+amended, rewritten or force-pushed, and no commit outside this phase's scope was
+made.
 
 --------------------------------------------------------------------------------
 9. KNOWN LIMITATIONS
