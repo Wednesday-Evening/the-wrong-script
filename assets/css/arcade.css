@@ -808,3 +808,133 @@ body.arcade button:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* =====================================================================
+   LAMPLIGHT  (Phase 9)
+   ---------------------------------------------------------------------
+   The room is a CSS grid of square cells. Columns come from the room's own
+   width via the --lp-cols custom property, so a six-wide room fits a 390px
+   phone without any horizontal scrolling: six cells plus five 4px gaps
+   inside the page gutter. Mirrors are real buttons, so they are keyboard
+   reachable and every one is at least 44px tall on a phone.
+   ===================================================================== */
+
+.lp-idea{
+  margin:-6px 0 16px;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--muted, #9a9384);
+  font-style:italic;
+}
+
+.lp-wrap{
+  width:100%;
+  max-width:520px;
+  margin:0 auto;
+  padding:10px;
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(185,154,98,.22);
+  border-radius:6px;
+}
+
+.lp-board{
+  display:grid;
+  grid-template-columns:repeat(var(--lp-cols, 6), minmax(0, 1fr));
+  gap:4px;
+}
+
+.lp-cell{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  aspect-ratio:1 / 1;
+  min-height:44px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:3px;
+  background:rgba(255,255,255,.025);
+  color:#8f8a7c;
+  font:600 clamp(13px, 3.2vw, 19px)/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+/* Walls read as solid mass, not as a colour cue: they are hatched as well as
+   darker, so they are distinguishable without relying on hue. */
+.lp-cell.lp-wall{
+  background:repeating-linear-gradient(45deg, rgba(0,0,0,.6) 0 4px, rgba(255,255,255,.05) 4px 8px);
+  border-color:rgba(255,255,255,.12);
+}
+
+.lp-cell.lp-window{
+  color:#6b7c81;
+  border-color:rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+}
+
+.lp-cell.lp-window.is-lit{
+  color:#f6e3b0;
+  background:rgba(240,215,154,.18);
+  border-color:rgba(240,215,154,.55);
+  box-shadow:inset 0 0 14px rgba(240,215,154,.3);
+}
+
+.lp-cell.lp-lamp{
+  color:#e0705a;
+  border-color:rgba(224,112,90,.55);
+  background:rgba(224,112,90,.12);
+}
+
+.lp-cell.lp-trail{
+  background:rgba(240,215,154,.07);
+  border-color:rgba(240,215,154,.16);
+}
+
+.lp-mirror{
+  cursor:pointer;
+  color:#f2e6cd;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(185,154,98,.55);
+  font-weight:700;
+}
+
+.lp-mirror.is-lit{
+  color:#fff6e2;
+  background:rgba(240,215,154,.16);
+  border-color:rgba(240,215,154,.6);
+}
+
+.lp-mirror:hover{
+  background:rgba(255,255,255,.13);
+}
+
+.lp-mirror:focus-visible{
+  outline:2px solid #f0d79a;
+  outline-offset:2px;
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .lp-mirror{
+    transition:background-color .12s linear, border-color .12s linear;
+  }
+}
+
+.lp-legend .lp-key{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  margin-right:8px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:3px;
+  font:600 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  vertical-align:middle;
+}
+
+.lp-key-lamp{ background:rgba(224,112,90,.2); border-color:rgba(224,112,90,.6); }
+.lp-key-mirror{ background:rgba(255,255,255,.1); border-color:rgba(185,154,98,.6); color:#f2e6cd; }
+.lp-key-window{ background:rgba(255,255,255,.05); }
+.lp-key-window.is-lit{ background:rgba(240,215,154,.25); border-color:rgba(240,215,154,.6); }
+.lp-key-beam{ background:rgba(240,215,154,.14); border-color:rgba(240,215,154,.3); }
+.lp-key-wall{ background:repeating-linear-gradient(45deg, rgba(0,0,0,.6) 0 3px, rgba(255,255,255,.07) 3px 6px); }

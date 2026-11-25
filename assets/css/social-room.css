@@ -450,3 +450,13 @@ body.social {
     animation: none !important;
   }
 }
+
+/* Phase 9 (DEF-03): inline links inside body copy were measured at 19px tall on
+   a 390px viewport, which is under the 24 x 24 target floor in WCAG 2.2 SC
+   2.5.8. padding-block grows the hit box without touching the line box, so the
+   copy sets exactly as it did before and nothing reflows. */
+main p a,
+main li a,
+main dd a{
+  padding-block:3px;
+}
