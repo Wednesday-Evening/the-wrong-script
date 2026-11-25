@@ -1,0 +1,659 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 7 - PLANNING AND SCOPE REVIEW
+================================================================================
+
+Phase:            7 (planning only - nothing implemented)
+Status:           PLANNING DOCUMENT - awaiting an owner decision
+Date:             25 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    601a8e31df5b067f214c23f9d5d49d3f4a86ba76
+                  "Add Phase 6A handover report for the F1 target-marker
+                  correction"
+Working tree:     Clean at the start of this review.
+This file:        Created by this review and committed on its own. It cannot
+                  contain its own commit hash; that hash is given in the
+                  completion message accompanying this document.
+Application:      No application file was created, modified, moved or deleted.
+Deployment:       NONE.
+Creator Studio:   NOT IMPLEMENTED. This is a scope review, not a build.
+
+================================================================================
+0. ANSWER TO THE QUESTION ASKED
+================================================================================
+
+The file reports/PHASE-7-PLANNING-REVIEW.txt did not exist, and no Phase 7
+planning and scope review had been completed before this document. This is not
+a lost or misplaced file: the repository has never contained it.
+
+Evidence, read directly from the branch at 601a8e3:
+
+    $ ls -1 reports/
+    PHASE-1-HANDOVER.txt
+    PHASE-2-HANDOVER.txt
+    PHASE-3-HANDOVER.txt
+    PHASE-3-VERIFICATION.txt
+    PHASE-4-HANDOVER.txt
+    PHASE-5-HANDOVER.txt
+    PHASE-6-HANDOVER.txt
+    PHASE-6-SCOPE-REVIEW.txt
+    PHASE-6-VERIFICATION.txt
+    PHASE-6A-HANDOVER.txt
+
+There is no Phase 7 file of any kind, and no commit on appjet referring to
+Phase 7 planning. The last authorised work was the Phase 6A maintenance
+correction for F1 (601a8e3), and the last instruction before this one asked
+only for a verification pass on that correction.
+
+The likely reason for the confusion: reports/PHASE-6-SCOPE-REVIEW.txt exists
+and was written by the project owner as a planning brief before Phase 6 was
+authorised. No equivalent document was ever produced for Phase 7. This file is
+that document, produced now at your request.
+
+So: not completed, and now produced. Section 15 lists the decisions this review
+cannot make on your behalf.
+
+================================================================================
+1. BASIS AND METHOD
+================================================================================
+
+This review was produced by reading the branch, not by running the application.
+Everything in sections 2 to 5 is either a direct quote of tracked source or a
+count taken from it, with the file and line named so it can be checked. No
+route was loaded in a browser during this review, no test suite was executed,
+and no claim of runtime behaviour is made here.
+
+What was inspected:
+
+  - git HEAD, commit history and working-tree status
+  - git ls-files, for the complete tracked inventory
+  - README.md, in full
+  - index.html (Lobby): the navigation block and the destination cards
+  - gallery/index.html and social-room/index.html: closing notes
+  - assets/js/social-room-content.js: the board data
+  - the reports/ directory, for the accepted phase history
+
+What was not inspected in this pass: the film source, the story engine, the
+SIGNAL PATH rules module, the Gallery catalogue and the Archive catalogue in
+detail. They are unchanged since their accepted handovers and are outside the
+question this review answers.
+
+================================================================================
+2. CURRENT STATE OF THE UNIVERSE
+================================================================================
+
+Nine routes are live, each with its own page, styles and scripts:
+
+  /                          Lobby
+  /film/                     The Wrong Script: Original Production
+  /stories/                  The Stories library
+  /stories/the-ninth-bell/   The Ninth Bell
+  /arcade/                   The Arcade library
+  /arcade/signal-path/       SIGNAL PATH
+  /gallery/                  The Gallery
+  /social-room/              The Social Room
+  /archive/                  The Archive
+
+Tracked inventory (git ls-files), by kind:
+
+  9  HTML pages (one per route above)
+  6  stylesheets under assets/css/ (lobby, stories, arcade, gallery,
+     social-room, archive)
+  13 scripts under assets/js/
+  2  data modules outside assets/ (stories/data/the-ninth-bell.js,
+     arcade/data/signal-path-levels.js)
+  5  local SVGs under assets/img/gallery/
+  6  verification tools under tools/ (four static, three browser; the
+     SIGNAL PATH check is static only)
+  11 report files under reports/
+
+Three browser save keys exist, all namespaced to their own experience:
+
+  tws                                      the original film
+  wrong-script.story.the-ninth-bell.v1     The Ninth Bell
+  wrong-script.arcade.signal-path.v1       SIGNAL PATH
+
+The Gallery, the Social Room and the Archive deliberately have no save key at
+all, and each says so in its own code comments and in the README.
+
+Architecturally the project is uniform and deliberate:
+
+  - plain HTML, CSS and vanilla JavaScript, no framework, no bundler
+  - no package manifest, no lockfile, no dependencies
+  - no backend, no database, no authentication, no analytics
+  - no external requests of any kind; all artwork is local SVG drawn for
+    this project
+  - one shared pattern per room: a page, a stylesheet loaded after
+    lobby.css, a data module holding content, a renderer that draws it
+  - content is separated from rendering in every room added since Phase 2
+  - renderers build DOM with createElement and textContent, not innerHTML
+  - each room has a static verifier and, where interaction matters, a
+    Playwright verifier driving Chromium on port 4173
+
+That uniformity is the single most valuable asset for Phase 7. Whatever is
+decided, the next room should follow it rather than invent a second pattern.
+
+================================================================================
+3. THE ONE UNBUILT DESTINATION
+================================================================================
+
+Every destination named in Phase 1 is now open except one: The Creator Studio.
+
+Its current state, quoted from the branch:
+
+  index.html:35 (and the equivalent line on seven other pages)
+      <a href="#creator-studio">The Creator Studio
+        <span class="soon">Soon</span></a>
+
+  index.html:136-140
+      <article class="card" id="creator-studio">
+        <div class="glyph" aria-hidden="true">&#128736;</div>
+        <h3>The Creator Studio</h3>
+        <p>Tools for making your own scenes in this universe. Not open,
+           and no date is being promised.</p>
+        <p class="stat">Under construction<span class="phase">Phase 7</span></p>
+      </article>
+
+  README.md, phase status list
+      - **Reserved:** The Creator Studio. Its card states its state; it is
+        not a button that pretends to work.
+
+Two other rooms refer to it in their closing notes:
+
+  gallery/index.html:100
+      "... The Creator Studio is still being built."
+
+  social-room/index.html:70
+      "... The Creator Studio is still being built."
+
+And the Social Room carries it as a listing:
+
+  assets/js/social-room-content.js, id 'happening-creator-studio'
+      kind: 'Listing', status: 'In preparation'
+      body: ['Tools for making your own scenes in this universe. Not built,
+              and no date is being promised.']
+
+Two things follow. First, the Lobby card already names the promise precisely:
+"tools for making your own scenes in this universe". Second, that promise is
+exactly the kind that cannot be met by a static site, which is the subject of
+section 6.
+
+================================================================================
+4. CARRY-OVER ITEMS FROM PHASE 6 AND 6A
+================================================================================
+
+These are open before any Phase 7 work begins. None of them blocks planning;
+all of them belong in the next phase's evidence if you want them closed.
+
+  C1  F1, the Archive target-marker defect, is fixed and tested (Phase 6A).
+      reports/PHASE-6-VERIFICATION.txt still records it as open, deliberately,
+      because that file is the historical record of the pass that found it.
+      Anyone reading only the verification report will think F1 is live. This
+      is a documentation trap, not a defect, but it should be understood
+      before the reports are read out of order.
+
+  C2  Browser coverage is Chromium only. Firefox, Safari and Edge have never
+      been exercised on any room.
+
+  C3  No physical device has been used. The 390px runs are viewport emulation
+      with touch enabled, not a real phone, and no real touch gestures have
+      been performed.
+
+  C4  No screen-reader or assistive-technology audit has been performed on any
+      room. No accessibility certification is implied anywhere in the project.
+
+  C5  Focus position after browser Back/Forward has not been asserted, in the
+      Archive or elsewhere.
+
+  C6  The dependency security scan is not_applicable: the project has no
+      manifest and no resolved packages. That is an empty scan, not a
+      certification of the source, the runtime or the application.
+
+If Phase 7 adds a room, C2 to C5 will apply to it too unless something changes
+in the testing approach. That is a decision in section 15, not an assumption.
+
+================================================================================
+5. FINDINGS FROM THIS REVIEW
+================================================================================
+
+One genuine content defect was found while reading the branch. It is recorded
+here because it affects what Phase 7 must not repeat, and because it is
+currently inaccurate to a visitor. It was not fixed: this review carries no
+authorisation to change application files.
+
+  F1  STALE SOCIAL ROOM LISTING - THE ARCHIVE IS DESCRIBED AS UNBUILT
+      File: assets/js/social-room-content.js, entry id 'happening-archive'
+      Status: OPEN. Not fixed.
+
+      Current text:
+        kind: 'Listing', status: 'In preparation', title: 'The Archive',
+        body: ['The record: drafts, deleted scenes, and what this film used
+                to be. Not built, and no date is being promised.']
+
+      Three separate inaccuracies, in one entry:
+
+        1. "Not built" - the Archive opened in Phase 6 and is reachable at
+           /archive/ with three completed files, three collections, eight
+           discoveries and the record.
+        2. "In preparation" - the status label says the same wrong thing.
+        3. "drafts, deleted scenes, and what this film used to be" - this is
+           the exact description the Lobby card carried before Phase 6 and
+           which Phase 6 was explicitly instructed to remove, because those
+           materials do not exist. The Archive contains none of them.
+
+      Why this matters for Phase 7: it is the same class of error Phase 6 was
+      asked to clean up (obsolete "still being built" text), left in place one
+      room further along. A new room added now would inherit a universe whose
+      own noticeboard misdescribes a finished one.
+
+      Smallest correction, if authorised: replace that entry's status with an
+      open state, its body with a truthful one-line description, and add a
+      link to ../archive/ in the same shape as the Gallery entry above it.
+      That is a one-object change in a data file, with the existing
+      tools/verify-social-room.js as the check.
+
+  No other inconsistency was found in the material inspected. The Lobby hero
+  eyebrow ("Phase six - the archive is open"), the Archive card, the Archive's
+  own navigation entry and the README phase list agree with each other.
+
+================================================================================
+6. THE CENTRAL QUESTION
+================================================================================
+
+The Creator Studio, as described on the Lobby card, is "tools for making your
+own scenes in this universe". The long-standing platform rule, stated in the
+Phase 4 and Phase 5 instructions and repeated in the Archive's own framing, is
+that member-created work must be submitted and reviewed before publication.
+
+Those two statements together describe a system with four parts:
+
+  1. somewhere for a person to compose or submit work
+  2. somewhere to store it before review
+  3. a way to identify who submitted it, and to keep it private until
+     approved
+  4. a review step, and a publication step that is separate from submission
+
+The project as it stands has none of these and cannot have them:
+
+  - there is no server, so there is nowhere to store a submission
+  - there is no identity, so there is no way to keep an unapproved
+    submission private to its author, and no way to attribute work
+  - there is no review queue, so "reviewed before publication" would be a
+    claim with nothing behind it
+  - there is no database, so nothing survives the browser
+
+A static site can fake every one of those things, and each fake would be a lie
+of exactly the kind this project has spent six phases avoiding: a form that
+says "submitted" and stores nothing, a "pending review" badge for a queue that
+does not exist, a profile for an account that cannot be created.
+
+This is the finding that shapes Phase 7. It is not a technical obstacle to be
+worked around; it is a product boundary. The honest options are set out below.
+
+================================================================================
+7. SCOPE OPTIONS
+================================================================================
+
+OPTION A - A READ-ONLY STUDIO (recommended)
+
+  Build /creator-studio/ as a room that documents how work is made in this
+  universe and states plainly that submissions are not open.
+
+  Contents: what the studio is for; the published format that stories and
+  games in this universe actually follow, using the real files as the
+  reference; the editorial standard a submission would have to meet; an
+  honest statement of what does not exist yet, with no date promised.
+
+  Fits the architecture exactly: page, stylesheet, data module, renderer, no
+  storage, no network, no forms. Adds no key and touches no existing one.
+  Closes the last "Coming in a later phase" destination without pretending.
+
+  Risk: a studio with no making in it may read as thin. Mitigated by making it
+  genuinely useful - the scene and level formats are real, documented in the
+  README, and have never been presented to a visitor.
+
+OPTION B - READ-ONLY STUDIO PLUS AN OFF-SITE SUBMISSION ROUTE
+
+  As Option A, plus a route for sending work in - for example a mailto link or
+  a third-party form service.
+
+  Honest, but it introduces something the project has so far refused: either a
+  third-party request from the page, or a public contact address, and with it
+  personal data arriving in someone's inbox with no policy, no retention rule
+  and no review process to receive it. It also breaks "no third-party
+  requests" in the README.
+
+  Not recommended for this phase. If it is ever wanted, it needs its own
+  review covering data handling, not a line in a build prompt.
+
+OPTION C - A REAL STUDIO: BACKEND, ACCOUNTS, SUBMISSION, MODERATION
+
+  The full system. This is what the long-term product rule actually implies,
+  and it is the only option that could ever make "make your own scenes"
+  literally true.
+
+  It requires a server, a database, authentication, private storage for
+  unapproved work, a moderation interface and a publication pipeline. It is a
+  different architecture from the one this project has, and it cannot be
+  delivered as one incremental static phase. It also brings obligations the
+  current project has none of: personal data, account recovery, abuse
+  handling, and a reason for someone to trust the site with their work.
+
+  This is a decision for the owner, not a scope the developer can adopt. It
+  would need its own planning document, its own phases, and probably its own
+  hosting.
+
+RECOMMENDATION
+
+  Phase 7 = Option A. Defer Option C until it is chosen deliberately, with
+  Option B rejected unless a data-handling review says otherwise.
+
+  Rationale: Option A finishes the universe as it was described in Phase 1,
+  keeps every promise the current architecture can keep, and tells the truth
+  about the one it cannot. Option C can then be planned on its own terms
+  rather than smuggled in as "Phase 7".
+
+================================================================================
+8. RECOMMENDED PHASE 7 SCOPE (OPTION A), IN DETAIL
+================================================================================
+
+If Option A is approved, this is the scope this review recommends. It is a
+proposal, not an authorisation.
+
+8.1 ROUTE AND FILES
+
+  Create:
+    creator-studio/index.html              the room
+    assets/css/creator-studio.css          its identity, loaded after lobby.css
+    assets/js/creator-studio-content.js    the content, as data
+    assets/js/creator-studio.js            the renderer
+    tools/verify-creator-studio.js         static checks
+    tools/verify-creator-studio-ui.cjs     browser checks
+
+  Modify, minimally:
+    index.html                             nav entry live, card open, eyebrow
+    the seven other platform pages         nav entry live, "Soon" removed
+    gallery/index.html                     closing note no longer says the
+                                           studio is being built
+    social-room/index.html                 same
+    README.md                              route, phase status, new files
+    reports/PHASE-7-HANDOVER.txt           the handover
+
+  Not touched: film/ in any part, stories/, arcade/, the three save keys, the
+  existing verification tools, any existing content.
+
+8.2 WHAT THE ROOM CONTAINS
+
+  Four parts, each doing a distinct job, in the pattern the Archive and the
+  Social Room already established:
+
+  The Desk        what the studio is, in two or three short paragraphs, and
+                  one unambiguous statement that work cannot be submitted yet
+                  and no date is being promised.
+
+  The Format      how a scene in this universe is actually written, drawn from
+                  the real story contract already in the README and in
+                  stories/data/the-ninth-bell.js: chapter, title, lines,
+                  choices, ending; flags, requires, visit. Presented as text,
+                  escaped, with the real file named as the reference.
+
+  The Standard    what a submission would have to be to belong here: original
+                  work, suitable for a broad teen audience, no graphic
+                  violence, no romantic roleplay, no personal information, and
+                  reviewed before publication. Written as the studio's
+                  editorial position, not as a promise of a process.
+
+  Not Yet         a short, honest list of what does not exist: no accounts, no
+                  upload, no submission, no review queue, no public profiles.
+                  No dates.
+
+8.3 WHAT THE ROOM MUST NOT CONTAIN
+
+  - any form, input, textarea, file picker or submit button
+  - the words "submit", "upload" or "send us" used as a call to action
+  - a "pending review" or "approved" badge, or any queue, list or count
+  - an author, editor or staff name; attribution stays "The Wrong Script
+    Studio" as elsewhere
+  - a date, deadline or "opening soon"
+  - storage access of any kind, and any of the three save-key strings in its
+    scripts
+  - a network request, an external font, an external image
+
+8.4 NAVIGATION
+
+  The Creator Studio becomes the eighth live destination. Its nav entry loses
+  the "Soon" marker and gains the same class the other live entries use. The
+  Lobby card stops saying "Under construction" and "Phase 7", gains is-open,
+  and links to the room - the same shape as the Archive card. The Lobby hero
+  eyebrow moves to Phase 7. The Gallery and Social Room closing notes stop
+  saying the studio is being built.
+
+  /film/ stays standalone. The platform navigation is not inserted into the
+  film.
+
+================================================================================
+9. PROPOSED CONTENT MODEL
+================================================================================
+
+Following the established pattern, content is data and the renderer only draws
+it. A shape in the spirit of the other rooms:
+
+    {
+      parts: [
+        { id, title, eyebrow, paragraphs: [ ... ], note?: string }
+      ],
+      format: { title, intro, entries: [ { id, name, kind, summary,
+                 fields: [ { name, purpose } ], source } ] },
+      standard: { title, intro, rules: [ { id, heading, body } ] },
+      notYet: { title, intro, items: [ { id, label } ] }
+    }
+
+Rules for the renderer, consistent with every room since Phase 2:
+
+  - createElement and textContent only; no innerHTML for content
+  - ids double as deep links (/creator-studio/#<id>) with the same
+    unknown-fragment recovery the Archive uses, including the Phase 6A rule
+    that only one target is marked at a time
+  - no filters unless they earn their place; four parts need a jump list,
+    not a filter bar
+
+================================================================================
+10. ISOLATION AND SAFETY RULES
+================================================================================
+
+  - No storage: no localStorage, sessionStorage, IndexedDB or cookies. No save
+    key, and no reading of tws, wrong-script.story.the-ninth-bell.v1 or
+    wrong-script.arcade.signal-path.v1. The three key strings must not appear
+    in the room's scripts at all.
+  - No network: no fetch, no XHR, no external asset, no analytics.
+  - No personal data: nothing asked for, nothing stored, nothing displayed.
+  - No identity: no account, profile, avatar, handle or member name.
+  - No user-generated content, and therefore no moderation surface.
+  - Attribution: "The Wrong Script Studio" only.
+
+These are the same rules the Gallery, Social Room and Archive were built to,
+and the existing static verifiers check them by scanning source. Phase 7's
+verifier should reuse that check rather than invent a new one.
+
+================================================================================
+11. ACCESSIBILITY AND RESPONSIVE REQUIREMENTS
+================================================================================
+
+  - Mobile-first; verify at 390px and 1280px; no horizontal page overflow.
+  - Touch targets at least 44px, as measured in the Gallery and Archive.
+  - Semantic headings, landmarks, link text that means something out of
+    context.
+  - Visible keyboard focus; the room reachable and usable by keyboard alone.
+  - prefers-reduced-motion respected; no parallax, no autoplay, no flashing.
+  - No sound at all is the simplest correct answer here.
+  - Text at readable size and comfortable measure; the format section is the
+    one place where a monospace block is justified.
+
+================================================================================
+12. PROPOSED ACCEPTANCE TESTS
+================================================================================
+
+To be run only if Phase 7 is authorised. Written now so the scope can be
+judged, not as a claim that any of it has been run.
+
+  Route and navigation
+    1  All ten routes return 200 with non-empty documents, at 390px and
+       1280px: the nine existing plus /creator-studio/.
+    2  Lobby -> Creator Studio by click; Creator Studio -> Lobby by click.
+    3  The nav entry is live on all eight platform pages and resolves with
+       the correct relative path from each depth.
+    4  /film/ remains standalone and unchanged.
+
+  Content and honesty
+    5  The four parts render, each with its heading and at least one
+       paragraph.
+    6  No form, input, textarea, file picker or submit control exists in the
+       rendered DOM.
+    7  No count, queue, badge, date or deadline appears anywhere on the page.
+    8  The "not yet" statement is present and unambiguous.
+    9  Every named source file in the format section exists on disk.
+
+  Links
+   10  Every link resolves to a real route; none is a placeholder.
+   11  Deep links open the addressed part; an unknown fragment shows the
+       recovery note and leaves no stale marker (the Phase 6A rule).
+
+  Isolation
+   12  The room's scripts contain no storage API, no cookie access, no fetch
+       and none of the three save-key strings.
+   13  Browsing leaves the three existing save values byte-identical and
+       creates no fourth key.
+   14  No external request is made by any tested route.
+
+  Accessibility and responsive
+   15  0px horizontal overflow at 390px and 1280px.
+   16  Visible focus ring on every interactive element; keyboard-only pass
+       through the room.
+   17  Reduced motion: animation and transition 0ms under emulation.
+   18  Touch targets at least 44px.
+
+  Regression
+   19  tools/verify-gallery.js and its UI suite still pass unchanged.
+   20  tools/verify-social-room.js and its UI suite still pass unchanged.
+   21  tools/verify-archive.js and its UI suite still pass unchanged.
+   22  No console errors, page errors or failed local requests on any route.
+
+  Not achievable here, and to be recorded as such rather than claimed: real
+  device testing, screen-reader testing, and non-Chromium browsers (C2 to C4).
+
+================================================================================
+13. RISKS
+================================================================================
+
+  R1  A studio that cannot accept work may feel empty or disappointing.
+      Mitigation: make the format and standard sections genuinely useful; say
+      what is missing once, clearly, rather than apologising throughout.
+
+  R2  Scope drift toward submission. The distance between "here is the format"
+      and "paste your scene here" is one textarea. Any move toward it is an
+      architecture decision (Option C), not a Phase 7 detail.
+
+  R3  Inconsistent copy across rooms. The "still being built" lines in the
+      Gallery and Social Room, and finding F1 in section 5, show how easily a
+      finished room is described as unfinished. Phase 7 should sweep every
+      reference to the studio in one pass.
+
+  R4  Stale status text after the phase lands - the same failure as F1.
+      Mitigation: the verifier asserts the absence of obsolete phrases, as
+      tools/verify-social-room.js already does for one string.
+
+  R5  The Lobby card's "Phase 7" badge and the hero eyebrow drift out of date
+      if the phase numbering changes. Low impact, but it is the first thing a
+      visitor reads.
+
+================================================================================
+14. WHAT THIS REVIEW DID NOT DO
+================================================================================
+
+  - It did not create /creator-studio/ or any page, style, script or data
+    file.
+  - It did not change the Lobby, the navigation, the Gallery, the Social
+    Room, the Archive, the Stories, the Arcade or the film.
+  - It did not fix finding F1 in section 5.
+  - It did not change the architecture, add a dependency, add a manifest, or
+    introduce a backend, database, account or network request.
+  - It did not deploy or change hosting.
+  - It did not run the application, any verification suite, or a browser.
+    Nothing in this document is a test result.
+  - It did not begin Phase 7 implementation, and does not authorise it.
+
+================================================================================
+15. DECISIONS NEEDED FROM THE PROJECT OWNER
+================================================================================
+
+  D1  WHICH OPTION
+      A - read-only studio (recommended)
+      B - read-only studio plus an off-site submission route
+      C - a real studio with backend, accounts and moderation
+      This is the decision that determines whether Phase 7 is a static phase
+      at all. Everything else follows from it.
+
+  D2  THE SOCIAL ROOM LISTING (finding F1, section 5)
+      Authorise a one-object correction to the 'happening-archive' entry in
+      assets/js/social-room-content.js, as its own small change with its own
+      commit, or leave it recorded and unfixed for now?
+
+  D3  CARRY-OVER TESTING (C2 to C5)
+      Accept the Chromium-only, emulated-viewport, no-screen-reader coverage
+      as a permanent documented limitation, or commission a dedicated
+      accessibility and cross-browser pass at some point? Either answer is
+      defensible; silence is not, because the gap will otherwise be inherited
+      silently by every future phase.
+
+  D4  THE EDITORIAL STANDARD
+      If Option A is chosen, the room will state what a future submission
+      would have to be. That is a product position only you can set: the
+      subject limits, the audience, and whether romantic or romantic-adjacent
+      work is excluded as it was in The Stories. The review proposes the
+      standard already implied by the existing rooms (original, teen-suitable,
+      no graphic violence, no personal information, reviewed before
+      publication); confirm or amend it.
+
+  Nothing else in this document requires a decision. In particular, no
+  technical ambiguity is being escalated: the architecture is clear and the
+  options are clear.
+
+================================================================================
+16. RECOMMENDED SEQUENCE
+================================================================================
+
+  1  Owner decides D1. If A, Phase 7 is a small static phase and can be
+     authorised with a build prompt like the Phase 6 one.
+  2  Owner decides D2. If authorised, the Social Room listing is corrected
+     first, as its own commit, so the universe is truthful before a new room
+     is added to it.
+  3  Owner decides D3 and D4 alongside the Phase 7 prompt, so the handover can
+     record them rather than leaving them implicit.
+  4  Phase 7 implemented to the scope in sections 8 to 12, with its own
+     handover report and its own evidence.
+  5  Option C, if ever, is planned separately. It is a different project in
+     everything but name, and it should be decided as one.
+
+================================================================================
+17. CONFIRMATIONS
+================================================================================
+
+  - reports/PHASE-7-PLANNING-REVIEW.txt did not exist before this review and
+    is the only file added by it.
+  - No application file was created, modified, moved, renamed or deleted.
+  - No route, page, style, script, data file, save key or save format changed.
+  - reports/PHASE-6-VERIFICATION.txt and reports/PHASE-6A-HANDOVER.txt are
+    preserved unchanged.
+  - No Creator Studio implementation was begun.
+  - No architecture change, dependency, manifest, backend, database,
+    authentication or network request was introduced.
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - The working tree was clean before this review; after the report-only
+    commit it is clean again.
+  - Nothing in this document is presented as a test result. It is a reading of
+    the branch and a set of proposals.
+
+================================================================================
+PHASE 7 PLANNING STATUS: READY FOR OWNER DECISION
+================================================================================
