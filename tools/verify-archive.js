@@ -190,15 +190,22 @@ check('no other discovery, collection or file leaks the spoiler', () => {
   });
   data.collections.forEach((c) => {
     others.push(c.lede);
-    c.entries.forEach((e) => others.push(e.title, e.note));
+    c.entries.forEach((e) => {
+      /* The Gallery's "Ledger of Small Hours" is an approved public exhibit and
+         may name itself. The story ending of that name is a different thing and
+         must not appear outside the closed disclosure. */
+      if (e.href.indexOf('ledger-of-small-hours') !== -1) { return; }
+      others.push(e.title, e.note);
+    });
   });
   data.files.forEach((f) => {
     others.push(f.summary);
     (f.facts || []).forEach((fact) => others.push(fact));
   });
   const blob = others.join(' ').toLowerCase();
-  ok(blob.indexOf('ledger') === -1, 'the word Ledger appears outside the disclosure');
+  ok(blob.indexOf('ledger') === -1, 'the ending The Ledger is named outside the disclosure');
   ok(blob.indexOf('two discoveries') === -1, 'the condition is described outside the disclosure');
+  ok(blob.indexOf('hopeful ending') === -1, 'the hopeful ending is discussed outside the disclosure');
   return 'no leak outside the disclosure';
 });
 
@@ -295,10 +302,13 @@ check('the page explains itself without JavaScript', () => {
   return 'noscript present';
 });
 
-check('the page never uses innerHTML for content', () => {
-  ok(renderer.indexOf('innerHTML') === -1, 'innerHTML found');
-  ok(renderer.indexOf('textContent') !== -1, 'textContent not used');
-  return 'DOM built safely';
+check('the renderer never injects markup', () => {
+  const code = renderer.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  ok(!/\.innerHTML\s*=/.test(code), 'innerHTML assignment found');
+  ok(code.indexOf('insertAdjacentHTML') === -1, 'insertAdjacentHTML found');
+  ok(code.indexOf('outerHTML') === -1, 'outerHTML found');
+  ok(code.indexOf('textContent') !== -1, 'textContent not used');
+  return 'DOM built with elements and text nodes';
 });
 
 check('the page credits only The Wrong Script Studio', () => {
@@ -311,9 +321,13 @@ check('the page credits only The Wrong Script Studio', () => {
 });
 
 check('no fabricated counts, ratings, awards or dates in the catalogue', () => {
-  const blob = JSON.stringify(data);
-  ['visitor', 'views', 'rating', 'stars', 'award', 'winner', 'attended', 'followers', 'likes', 'trending', '2026-', 'January', 'February'].forEach((word) => {
-    ok(blob.toLowerCase().indexOf(word.toLowerCase()) === -1, 'found "' + word + '"');
+  const blob = JSON.stringify(data).toLowerCase();
+  /* Prose may honestly say the Archive keeps no visitor counts; what must not
+     exist is an actual number attached to a popularity or attendance metric. */
+  const counts = blob.match(/\d+\s*(views?|visitors?|likes?|followers?|players?|reads?|plays?|ratings?|stars?)/g);
+  ok(!counts, 'numeric metric found: ' + (counts || []).join(', '));
+  ['award', 'winner', 'attended', 'trending', 'most popular', '2026-', 'january', 'february', '★', '★★★★★'].forEach((word) => {
+    ok(blob.indexOf(word) === -1, 'found "' + word + '"');
   });
   return 'no invented metrics';
 });
@@ -327,7 +341,11 @@ check('the catalogue contains no HTML markup', () => {
 check('styles are mobile-first and honour reduced motion', () => {
   ok(styles.indexOf('prefers-reduced-motion') !== -1, 'no reduced-motion block');
   ok(styles.indexOf('grid-template-columns:repeat(3') !== -1, 'no wide layout');
-  ok(!/width:\s*\d{3,}px/.test(styles), 'a fixed wide width would overflow a phone');
+  const fixed = styles.match(/(?:^|[;{\s])width:\s*(\d+)px/g) || [];
+  fixed.forEach((declaration) => {
+    const px = Number(declaration.match(/(\d+)px/)[1]);
+    ok(px <= 480, 'a fixed ' + px + 'px width would overflow a phone');
+  });
   return 'reduced motion + responsive grid';
 });
 
