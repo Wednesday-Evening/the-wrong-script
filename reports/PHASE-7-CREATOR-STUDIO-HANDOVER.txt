@@ -1,0 +1,493 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 7 - THE CREATOR STUDIO
+Handover report
+================================================================================
+
+Phase:           7 - The Creator Studio (read-only)
+Status:          IMPLEMENTED - AWAITING OWNER REVIEW
+Date:            25 November 2026
+Repository:      Wednesday-Evening/the-wrong-script
+Branch:          appjet
+Destination:     /creator-studio/
+Starting HEAD:   8af78b787f3c6321bdb04b5bc2bdf2489ec2e959
+Final commit:    Created after this report was written, so this file cannot
+                 contain its own hash. The exact final commit is recorded in
+                 the completion message that accompanies this handover.
+Working tree:    Clean before the pass, clean after it (git status --porcelain
+                 returned no entries).
+Deployment:      NONE. No hosting, domain, DNS or environment change. The
+                 project owner's standing instruction not to deploy was kept.
+Phase 8:         NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. PRE-FLIGHT FINDINGS
+--------------------------------------------------------------------------------
+
+Inspected before editing, on branch appjet at the starting HEAD above:
+
+  - Working tree clean; no uncommitted work to preserve or disturb.
+  - The accepted Phase 6A state was present: the Archive marker correction in
+    assets/js/archive.js and reports/PHASE-6A-HANDOVER.txt.
+  - The Phase 7 preparation correction was present:
+    assets/js/social-room-content.js "happening-archive" reads "Open now" and
+    links to ../archive/.
+  - reports/PHASE-7-PLANNING-REVIEW.txt was present, so the planning review the
+    owner asked for had already been delivered.
+  - Architecture confirmed unchanged: static HTML, CSS and vanilla JavaScript,
+    one directory per destination, one shared stylesheet (assets/css/lobby.css)
+    plus a per-room stylesheet, per-room content data kept separate from a
+    renderer, and tools/verify-*.js / tools/verify-*-ui.cjs suites that spawn
+    python3 -m http.server on port 4173.
+  - Nine routes existed before this phase: /, /film/, /stories/,
+    /stories/the-ninth-bell/, /arcade/, /arcade/signal-path/, /gallery/,
+    /social-room/, /archive/.
+  - The Lobby already carried a Creator Studio card marked as not yet open, and
+    every room already carried a disabled Creator Studio nav item. The page,
+    the content and the wiring did not exist.
+  - tools/verify-archive-ui.cjs asserted the Lobby eyebrow matched /phase six/i.
+    That assertion had to change because the Lobby eyebrow is part of the
+    authorised Phase 7 update. This is the only test-tooling change made, and it
+    is listed explicitly in section 4.
+
+No conflict was found between the current implementation and the authorisation,
+so implementation proceeded. Nothing was reset, rebased, force-pushed or
+discarded.
+
+--------------------------------------------------------------------------------
+2. WHAT WAS IMPLEMENTED
+--------------------------------------------------------------------------------
+
+A read-only Creator Studio at /creator-studio/, in the established architecture:
+a document shell with the shared platform navigation, a content data file, a
+renderer that builds nodes with createElement/textContent, and a dedicated
+stylesheet. No framework, no dependency, no backend, no storage.
+
+The page opens with a status line that states its limits plainly:
+
+    read-only - no accounts - no uploads - submissions not open
+
+2.1 The Desk
+Three paragraphs and one pull quote introducing the Studio as the creative
+space of the universe, and stating the central idea: people should eventually
+have opportunities to help create the world they explore, without implying that
+those opportunities exist yet.
+
+2.2 The Format
+Five creative formats, each with a number, a title, a lede and a short list of
+creative expectations (20 expectations in total):
+
+  01  Stories and Writing
+      Original stories, fiction and creative writing, interactive and branching
+      narratives, character and world-building.
+  02  Games and Interactive Experiences
+      Original games, puzzles and challenges, interactive experiments,
+      collaborative experiences.
+  03  Visual Art and Design
+      Illustration, digital artwork, photography and visual storytelling,
+      graphic and creative design.
+  04  Music and Sound
+      Original composition, instrumental work, original sound design, other
+      creative audio projects.
+  05  Experiences and Collaborations
+      Creative events, group projects, community challenges, experimental
+      formats that do not fit the categories above.
+
+No technical submission requirement is invented anywhere in this section.
+
+2.3 The Standard
+Seven editorial principles, each with a stable id:
+
+  originality        Your own work, and respect for everyone else's
+  teen-audience      Written for a teenage audience
+  romance            Age-appropriate romantic themes, under review
+  harassment         No harassment, bullying or targeted abuse
+  impersonation      No impersonation or deceptive representation
+  privacy            Privacy, consent and identifying details
+  review             Reviewed before anything is published
+
+The section states that acceptance is not automatic and that not every
+submission will be published.
+
+2.4 The Review Process
+The five intended stages, in order:
+
+    Draft -> Submitted -> Under review -> Changes requested -> Published
+
+plus the two other outcomes, Rejected and Unpublished, and three notes covering
+ownership of the work, how long review takes, and the scope of what is reviewed.
+The section explains that contributors keep control of their original work, that
+changes may be requested, that approval precedes publication, and that published
+material may be removed to protect the community or uphold the standards. No
+submission or moderation system was built.
+
+2.5 Not Yet
+Five clearly stated absences: creator accounts, uploads, submissions,
+collaborative creation tools, and any publication date. The wording is
+deliberate rather than apologetic, and no date is promised.
+
+2.6 Structure of the page
+Sections carry real ids (#desk, #format, #standard, #review, #not-yet) with a
+jump list of real anchors, so the page is deep-linkable. An unknown fragment
+leaves the page intact and does not throw.
+
+--------------------------------------------------------------------------------
+3. WHAT WAS DELIBERATELY EXCLUDED
+--------------------------------------------------------------------------------
+
+  - No accounts, login, profiles or authentication of any kind.
+  - No upload control, no submission form, no input element at all. The only
+    control on the page is the existing small-screen navigation toggle.
+  - No moderation dashboard, review queue or publishing path.
+  - No comments, messaging, reactions, votes, rankings or counters.
+  - No new localStorage, sessionStorage, cookie, IndexedDB or network call.
+  - No analytics, tracking or third-party service.
+  - No dependency, package manifest, framework, bundler or build step.
+  - No fake buttons, disabled controls that look active, or success messages for
+    work that is not submitted or stored.
+  - No decorative element that implies a feature that does not exist.
+
+The page therefore says what the Studio will be, and shows that none of it is
+open yet, without simulating any of it.
+
+--------------------------------------------------------------------------------
+4. FILES
+--------------------------------------------------------------------------------
+
+CREATED (7)
+
+  creator-studio/index.html             The destination: document shell, platform
+                                        navigation, five section landmarks, jump
+                                        list, noscript note, status line.
+  assets/js/creator-studio-content.js   window.CREATOR_STUDIO_CONTENT - desk,
+                                        five formats, seven principles, the
+                                        review route, three review notes, five
+                                        Not Yet items. Data only, no markup.
+  assets/js/creator-studio.js           Renderer. Builds every node with
+                                        createElement and textContent; no
+                                        innerHTML, no markup injection.
+  assets/css/creator-studio.css         Room stylesheet: mobile-first, editorial
+                                        rhythm, reduced-motion block, no remote
+                                        asset, no keyframes.
+  tools/verify-creator-studio.js        30 static checks.
+  tools/verify-creator-studio-ui.cjs    46 browser checks in real Chromium.
+  reports/PHASE-7-CREATOR-STUDIO-HANDOVER.txt
+                                        This report.
+
+MODIFIED (11)
+
+  index.html                            Lobby: Creator Studio nav item is now a
+                                        live link; the Studio card is an open
+                                        card with a working link and truthful
+                                        copy; the hero eyebrow now reads
+                                        "Phase seven - the creator studio is
+                                        open"; the room count and footer
+                                        sentence reflect the seven open rooms.
+  stories/index.html                    Nav item for the Studio became a link.
+  stories/the-ninth-bell/index.html     Nav item for the Studio became a link.
+  arcade/index.html                     Nav item for the Studio became a link.
+  arcade/signal-path/index.html         Nav item for the Studio became a link.
+  gallery/index.html                    Nav item became a link; the closing
+                                        paragraph no longer says the Studio is
+                                        being built and now points at it.
+  social-room/index.html                Nav item became a link; the closing
+                                        paragraph no longer says the Studio is
+                                        being built and now points at it.
+  archive/index.html                    Nav item for the Studio became a link.
+  assets/js/social-room-content.js      The "happening-creator-studio" entry in
+                                        What's Happening changed from
+                                        "In preparation" to "Open now" and
+                                        gained a working link to
+                                        ../creator-studio/. No other entry,
+                                        object, renderer or style was touched.
+  README.md                             Documents the Studio route, the seven
+                                        open rooms, the new files and the
+                                        read-only limits of this phase.
+  tools/verify-archive-ui.cjs           One assertion changed: the Lobby eyebrow
+                                        is now expected to match /phase seven/i
+                                        instead of /phase six/i, because the
+                                        authorised Lobby update changed that
+                                        string. Nothing else in the suite was
+                                        altered.
+
+DELETED, MOVED, RENAMED: none.
+
+INTENTIONALLY UNTOUCHED
+
+  film/ (every file)                    No diff under film/ in this phase. The
+                                        original production, its scenes,
+                                        endings, post-credits sequence and
+                                        "tws" save behaviour are unchanged.
+  assets/js/archive.js                  Unchanged since the Phase 6A correction.
+  archive/index.html content            Only the nav item changed; the
+                                        catalogue, disclosures and rendering
+                                        are untouched.
+  stories/data, arcade level data,      Unchanged.
+  gallery collection and artwork
+  assets/css/lobby.css                  Unchanged: the Studio reuses the shared
+                                        shell rather than editing it.
+  assets/js/lobby.js                    Unchanged.
+  All save keys and save formats        Unchanged.
+
+--------------------------------------------------------------------------------
+5. ROUTES AND NAVIGATION
+--------------------------------------------------------------------------------
+
+Routes after this phase:
+
+  /                          Lobby
+  /film/                     The Wrong Script: Original Production
+  /stories/                  Stories library
+  /stories/the-ninth-bell/   The Ninth Bell
+  /arcade/                   Arcade library
+  /arcade/signal-path/       SIGNAL PATH
+  /gallery/                  Gallery
+  /social-room/              Social Room
+  /archive/                  Archive
+  /creator-studio/           Creator Studio (new, read-only)
+
+Navigation behaviour:
+
+  - The platform navigation on all eight other destination pages now lists eight
+    destinations with the Studio as a live link, using a relative path that
+    resolves from each page's own depth (../creator-studio/ from a top-level
+    room, ../../creator-studio/ from a nested page).
+  - The Studio's own navigation marks itself current and reaches the Lobby and
+    every open room.
+  - The Lobby's Studio card is an open card that leads to the room.
+  - The Social Room's What's Happening lists the Studio as "Open now" with a
+    working link.
+  - The Archive and Social Room closing paragraphs now point at the Studio.
+  - /film/ keeps its own standalone full-screen experience and was given none of
+    the platform navigation, as required.
+
+--------------------------------------------------------------------------------
+6. TEST COMMANDS AND RESULTS
+--------------------------------------------------------------------------------
+
+Environment: Linux sandbox. Chromium as bundled with the workspace Playwright
+(/opt/appjet/browser). The browser suites start their own python3 http.server on
+port 4173 and drive real Chromium at a 1280px-wide and a 390px-wide viewport.
+Exit code 0 means every assertion passed.
+
+Status labels used below: PASS / FAIL / NOT TESTED / CODE REVIEW ONLY.
+
+6.1 Creator Studio static suite
+
+  Command:  node tools/verify-creator-studio.js
+  Result:   PASS - "RESULT all 30 checks passed", exit code 0
+
+  Coverage, all PASS:
+    content loads; the Desk has three paragraphs and a pull quote; the five
+    formats are the approved five, in order, each complete; the Standard
+    publishes seven principles with unique ids and covers originality, audience,
+    harassment, impersonation, privacy and review; the Review Process has its
+    five stages in order plus two other outcomes and three notes; Not Yet lists
+    its five absences; the copy never claims submissions are open; no content
+    carries markup or a URL; the page is a complete document with the shared
+    shell; the platform nav lists eight destinations with the Studio current; the
+    five parts exist as real sections; every jump link points at a section that
+    exists; every internal link resolves to a file on disk (26 links); the page
+    offers a way back to the Lobby and to every open room (7 destinations); there
+    is no form, input or upload control (1 button: the nav toggle); no page still
+    advertises the Studio as a placeholder (9 pages); every room links to the
+    Studio at a path that resolves (8 rooms); the Lobby card is open and leads
+    somewhere; the Social Room lists the Studio as open with a working link; the
+    Studio code touches no storage, cookie or network API; the Studio code
+    contains none of the three existing save keys; the renderer builds nodes
+    without innerHTML; the stylesheet respects reduced motion and loads nothing
+    remote; the page loads only local styles and scripts; the original film was
+    not given the platform nav.
+
+6.2 Creator Studio browser suite
+
+  Command:  node tools/verify-creator-studio-ui.cjs
+  Result:   PASS - "RESULT all checks passed (46)", exit code 0
+
+  Coverage, all PASS:
+    all ten routes load at 1280px and again at 390px, each 200 with a non-empty
+    document and 0px horizontal overflow; no console, page or request errors at
+    either width; the page identifies itself as the Creator Studio; the status
+    line says submissions are not open; all five parts render; the five formats
+    render with 20 expectations; seven principles render; five stages and two
+    outcomes render; Not Yet lists five items; no form or upload control exists;
+    the Lobby walks into the Studio through the platform nav; the Studio walks
+    back to the Lobby; the Lobby card is open and clickable; the Studio reaches
+    every open room from its own nav (film, stories, arcade, gallery, social
+    room, archive); a jump link moves to its section (#standard, 7 principles
+    visible); a deep link opens on its section (#review, 5 stages); an unknown
+    fragment fails gracefully with the page intact; a keyboard visitor reaches
+    the jump links with a visible focus ring (solid 2px); the small-screen menu
+    opens, navigates and closes; Escape closes the small-screen menu; twelve
+    controls on the small screen measure at least 44px, smallest 44px; reduced
+    motion removes transitions and animation (0s/0s); browsing the Studio leaves
+    the three save keys byte-identical with no fourth key created.
+
+6.3 Regression: Archive and Social Room
+
+  Command:  node tools/verify-archive.js && node tools/verify-archive-ui.cjs
+            && node tools/verify-social-room.js
+  Result:   PASS - 35/35 Archive static checks, the full Archive browser suite
+            ("RESULT all checks passed"), and 26/26 Social Room static checks,
+            exit code 0
+
+  Notable PASS rows: Completed Files still exactly three; Collections still
+  exactly three; Discoveries still eight; all 23 catalogue links return 200; the
+  six Gallery deep links still open the right exhibits; the spoiler disclosure is
+  still closed on load and still leaks nothing outside itself; only the addressed
+  node keeps the target marker (the Phase 6A correction still holds, including
+  through Back and Forward); the Archive still creates no fourth storage key; the
+  Lobby eyebrow now matches Phase seven, which is the assertion updated in
+  section 4; the Social Room still publishes four areas and 18 complete entries,
+  its What's Happening labels are still editorial, and it still reads and writes
+  no storage.
+
+6.4 Regression: Social Room browser, Gallery static and browser
+
+  Command:  node tools/verify-social-room-ui.cjs && node tools/verify-gallery.js
+            && node tools/verify-gallery-ui.cjs
+  Result:   PASS - 35/35 Social Room browser checks, the full Gallery static
+            suite, and the full Gallery browser suite, exit code 0
+
+  Notable PASS rows: all eight Social Room routes load at 1280px and 390px with
+  no overflow; the four boards render with their 18 entries; every entry link
+  reaches a real page (9 destinations, all 200); keyboard focus is visible across
+  12 stops; reduced motion removes transitions; the room leaves the three save
+  keys byte-identical with no fourth key. The Gallery still shows eight exhibits,
+  every category still filters, the exhibit panel still opens and closes by click
+  and keyboard, deep links still work, an unknown exhibit link is still
+  explained, and the film, story and arcade saves are untouched.
+
+6.5 Dependency scan
+
+  Scanner:  OSV-Scanner 2.7.0, policy workspace-dependencies-v1, repository scope.
+  Result:   NOT APPLICABLE - 0 packages resolved, 0 findings.
+
+  The project still has no package manifest, lockfile or resolved dependency, so
+  the scanner had nothing to resolve. This is an empty scan, not a security
+  certification of the source, the runtime, the hosting or the application. The
+  isolation claims in this report rest on the source scans in the static suite
+  and on the browser run, not on the dependency scanner.
+
+6.6 Historical failure, recorded in full
+
+  At revision 17 the new static suite failed with three errors. All three were
+  defects in the verifier I had just written, not in the application:
+
+    FAIL  the standard covers the required ground
+          The check looked for the word "originality" in the Standard, and the
+          first principle expressed the idea without using that word.
+          Resolution: the principle now reads "Originality is the baseline. A
+          piece must be yours, or used with permission you can show...". The
+          assertion was left strict and unweakened; the content was made to say
+          plainly what the brief requires it to say.
+
+    FAIL  the Social Room lists the Studio as open with a working link
+          The check read window.SOCIAL_ROOM from the Creator Studio's own
+          sandbox, where that object does not exist.
+          Resolution: the check now loads assets/js/social-room-content.js in its
+          own vm context before reading the object. Application code untouched.
+
+    FAIL  the renderer builds nodes without innerHTML
+          The string "innerHTML" appeared in a comment in the renderer explaining
+          that innerHTML is not used.
+          Resolution: the check strips comments before scanning, so the
+          assertion stays strict while comments cannot satisfy or trip it.
+
+  After those three corrections the suite reported all 30 checks passed, and it
+  has passed unchanged since.
+
+--------------------------------------------------------------------------------
+7. PRESERVATION EVIDENCE
+--------------------------------------------------------------------------------
+
+  - git diff --stat 8af78b7..HEAD -- film/ is empty. film/index.html and
+    everything under film/ are byte-identical to the accepted baseline.
+  - The static suite asserts that the film was given none of the platform
+    navigation and that no diff exists under film/.
+  - The film keeps localStorage key "tws"; the story keeps
+    wrong-script.story.the-ninth-bell.v1; the arcade keeps
+    wrong-script.arcade.signal-path.v1. The Studio's own browser run seeded all
+    three keys, browsed the page, and compared full key/value snapshots: all
+    three were byte-identical afterwards and no fourth key existed.
+  - The Studio's scripts contain no storage, cookie or network API and none of
+    the three save-key strings, which the static suite asserts directly.
+  - Stories, Arcade, Gallery and Archive content and behaviour were not changed;
+    their own suites pass (section 6.3 and 6.4).
+  - The Phase 7 preparation correction in the Social Room is intact: the Archive
+    listing still reads "Open now" and still links to ../archive/. Only the
+    separate Studio listing changed in this phase.
+
+--------------------------------------------------------------------------------
+8. COMMITS
+--------------------------------------------------------------------------------
+
+The workspace commits each write, so the phase appears as a short series rather
+than one squashed commit. Every commit listed is on appjet, after the starting
+HEAD 8af78b7:
+
+  d0e9b39  Creator Studio page shell, content data, renderer, stylesheet
+  79669ad  Creator Studio page and assets
+  88d9e2c  Nav, Lobby card, Social Room listing, README (8 files)
+  d0e9b39..88d9e2c  all application changes in this phase
+  c875165  Social Room Studio listing correction
+  909da4e  Creator Studio content and renderer refinement
+  ee55cc2  Creator Studio browser verifier
+  0df3bdc  Archive verifier eyebrow assertion
+  573362f  Creator Studio static verifier corrections
+
+This report is committed after them; its own hash therefore appears in the
+completion message rather than in this file. No commit was amended, rewritten or
+force-pushed, and no commit outside this phase's scope was made.
+
+--------------------------------------------------------------------------------
+9. KNOWN LIMITATIONS
+--------------------------------------------------------------------------------
+
+  1. Chromium only. Firefox, Safari and Edge were not exercised.
+  2. No physical device. The 390px runs are viewport emulation with touch
+     enabled, not a real phone, and no real touch gestures were performed.
+  3. No screen-reader or assistive-technology audit. Focus rings, names and
+     landmarks were checked in the DOM and in the browser, but nothing here
+     should be read as an accessibility certification. The separately authorised
+     cross-browser, physical-device and assistive-technology pass is still
+     outstanding and was not absorbed into this phase.
+  4. The dependency scan is not applicable rather than clean (section 6.5).
+  5. The Studio has no interactive functionality beyond navigation and jump
+     links, so there is no user workflow to exercise beyond what section 6.2
+     records. This is the intended scope, not an untested area.
+  6. The Lobby eyebrow is now Phase seven. Any future owner-authored copy change
+     to that line will again require the single Archive assertion to be updated;
+     that dependency is noted so it is not mistaken for a regression next time.
+  7. No publication date, submission route or account system exists, and none is
+     promised on the page.
+
+--------------------------------------------------------------------------------
+10. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - Phase 8 was not started, and no accounts, submissions, moderation,
+    publishing, social or backend work was touched.
+  - The only application file whose behaviour changed beyond navigation wiring
+    and copy is assets/js/social-room-content.js, and only in the single
+    "happening-creator-studio" object.
+  - The only test-tooling change is the one Archive eyebrow assertion described
+    in section 4; no assertion was weakened to obtain a pass.
+  - The working tree is clean after the phase.
+
+--------------------------------------------------------------------------------
+11. RECOMMENDED NEXT STEP (not started)
+--------------------------------------------------------------------------------
+
+Review this handover. If it is accepted, the Creator Studio can be treated as
+closed for the read-only phase, and the honest next move is the separately
+authorised cross-browser, physical-device and assistive-technology verification
+pass, since the remaining gaps in section 9 are all of that kind. Any move
+towards actual submissions - accounts, uploads, a review queue, a moderation
+path - is a different class of work with privacy and safety consequences and
+should be planned on its own, not folded into a room-building phase.
+
+================================================================================
+PHASE 7 CREATOR STUDIO: IMPLEMENTED - AWAITING OWNER REVIEW
+================================================================================
