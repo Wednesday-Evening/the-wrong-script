@@ -160,10 +160,10 @@ const ROUTES = [
 
     for (const href of galleryDeep) {
       await page.goto(BASE + '/archive/' + href, { waitUntil: 'load' });
-      const opened = await page.locator('.exhibit-panel:not([hidden])').count();
-      const hash = await page.evaluate(function () { return location.hash; });
-      check(opened >= 1 || hash.length > 1, 'gallery deep link ' + href.split('#')[1] + ' opens the exhibit',
-        'panel ' + opened);
+      const panel = page.locator('#exhibit-panel');
+      const open = (await panel.count()) === 1 && (await panel.isVisible());
+      const title = open ? (await page.locator('#exhibit-title').innerText()).trim() : '';
+      check(open && title.length > 0, 'gallery deep link ' + href.split('#')[1] + ' opens the exhibit', title.slice(0, 40));
     }
 
     /* ---------- 4. spoilers ---------- */
@@ -184,18 +184,29 @@ const ROUTES = [
     check(/spoiler/i.test(summaryText), 'summary is labelled Spoiler', summaryText);
 
     const leaked = await page.evaluate(function () {
-      const visible = document.querySelector('.discovery-note').innerText
-        + ' ' + document.querySelector('.discovery h3').innerText
-        + ' ' + document.querySelector('.discovery summary').getAttribute('title');
-      const hidden = Array.from(document.querySelectorAll('.discovery details p')).map(function (p) {
+      const item = document.querySelector('#discovery-five-hours-five-endings');
+      const visible = [
+        item.querySelector('h3').innerText,
+        item.querySelector('.discovery-note').innerText,
+        item.querySelector('.discovery-room').innerText
+      ].join(' ');
+      const summary = item.querySelector('summary');
+      const hidden = Array.from(item.querySelectorAll('details p')).map(function (p) {
         return p.textContent;
       }).join(' ');
-      return { visible: visible.toLowerCase(), hidden: hidden.toLowerCase() };
+      return {
+        visible: visible.toLowerCase(),
+        hidden: hidden.toLowerCase(),
+        summaryTitle: summary.getAttribute('title')
+      };
     });
     check(leaked.hidden.indexOf('ledger') !== -1, 'spoiler text does name the ending once opened',
       'inside the disclosure only');
-    check(leaked.visible.indexOf('ledger') === -1, 'spoiler is not in the visible summary or note');
-    check(leaked.visible.indexOf('null') !== 0, 'no title attribute on the summary');
+    check(leaked.visible.indexOf('ledger') === -1, 'spoiler is not in the visible title, note or room',
+      leaked.visible.slice(0, 40));
+    check(leaked.visible.indexOf('two discoveries') === -1, 'the condition is not in the visible text');
+    check(leaked.summaryTitle === null, 'summary carries no title attribute that would reveal it',
+      String(leaked.summaryTitle));
 
     await page.locator('.discovery summary').click();
     const openAfter = await page.locator('.discovery details').evaluate(function (n) { return n.open; });
