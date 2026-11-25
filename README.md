@@ -20,6 +20,16 @@ external assets. The whole thing is a static site.
 | `assets/js/story-engine.js` | The reader: scenes, choices, saves, endings, browser history. |
 | `stories/data/the-ninth-bell.js` | *The Ninth Bell*, written as data: scenes, lines, choices, endings. |
 | `stories/the-ninth-bell/index.html` | The reading page for *The Ninth Bell*. |
+| `arcade/index.html` | The Arcade: the library page. |
+| `assets/css/arcade.css` | The Arcade's identity, plus the SIGNAL PATH board, pad and side panel. Loaded after `lobby.css`. |
+| `assets/js/arcade-shell.js` | The Arcade's small-screen navigation, wired like the Lobby's. |
+| `assets/js/arcade-games.js` | The cabinet: one record per finished game. Data only. |
+| `assets/js/arcade-library.js` | Draws the cabinet from that catalogue. |
+| `assets/js/signal-path-core.js` | SIGNAL PATH's rules and save validation. No DOM, no storage, no timers. |
+| `assets/js/signal-path.js` | SIGNAL PATH's page: board, controls, saves, reset. |
+| `arcade/data/signal-path-levels.js` | The six SIGNAL PATH levels, written as data. |
+| `arcade/signal-path/index.html` | The SIGNAL PATH page. |
+| `tools/verify-signal-path.js` | Development check: solves every level, exercises the rules and the save reader. |
 
 ## Running it
 
@@ -28,7 +38,8 @@ python3 -m http.server 8000
 ```
 
 Then open <http://localhost:8000>. The Lobby is at `/`, the film at `/film/`, the
-library at `/stories/` and the first story at `/stories/the-ninth-bell/`.
+library at `/stories/`, the first story at `/stories/the-ninth-bell/`, the Arcade
+at `/arcade/` and SIGNAL PATH at `/arcade/signal-path/`.
 Opening `film/index.html` directly from disk also works, because the film carries
 its own styles and scripts inline. The Stories pages need to be served over HTTP
 (they load shared CSS and JavaScript by relative path, which is also how they
@@ -40,9 +51,11 @@ deploy).
 - **Phase 2 (done):** The Stories. A library at `/stories/` and one complete
   original story, *The Ninth Bell*. The film is untouched in content, and gained
   Back/Forward support plus defensive save reading.
-- **Reserved:** The Arcade, The Gallery, The Social Room, The Archive and The
-  Creator Studio. Each has a card that states its state. None of them is a button
-  that pretends to work.
+- **Phase 3 (done):** The Arcade. A library at `/arcade/` and one complete game,
+  SIGNAL PATH, with six handcrafted levels and its own save key.
+- **Reserved:** The Gallery, The Social Room, The Archive and The Creator Studio.
+  Each has a card that states its state. None of them is a button that pretends
+  to work.
 
 ## The Stories
 
@@ -78,6 +91,38 @@ have been found. **No story code reads, writes or clears `tws`.** Every save is
 validated when read: wrong shape, unknown scene or a mismatched slug is treated as
 "no save" rather than being half-applied, and an invalid value is never written
 over a valid one.
+
+## The Arcade
+
+One room, one cabinet, one finished game. `assets/js/arcade-games.js` holds one
+record per game and a record is only drawn when it is marked `live`, so the
+library cannot show a game that does not work. There are no scores, no player
+counts, no leaderboards and no placeholder cards.
+
+**SIGNAL PATH** is a grid puzzle: walk a signal unit from its start cell to the
+beacon, collecting every fragment first. Six handcrafted levels, arrow keys or
+WASD, an on-screen pad for touch, restart and undo. No timer, no lives, no
+failure state.
+
+### Adding a game in a later phase
+
+1. Put the levels in a data file under `arcade/data/`.
+2. Add the rules as a DOM-free module under `assets/js/`, so it can be checked
+   without a browser.
+3. Add `arcade/<slug>/index.html` and a page script that draws it.
+4. Add a record to `assets/js/arcade-games.js` with its own `saveKey`.
+
+The level format for SIGNAL PATH is a list of rows: `#` wall, `.` floor, `S`
+start, `B` beacon, `*` fragment. Levels are drawn by hand, never generated.
+
+### Saves
+
+SIGNAL PATH saves under `wrong-script.arcade.signal-path.v1`, and stores only
+`{ v, unlocked, completed, best }`. It does not read, write or clear `tws` or
+`wrong-script.story.the-ninth-bell.v1`. A save is validated on read: an unknown
+version, a wrong shape or out-of-range numbers are treated as "no save" in
+memory, and the stored value is left exactly as it was until the player chooses
+"Reset progress". Progress never leaves the browser and does not sync.
 
 ## The original film
 
