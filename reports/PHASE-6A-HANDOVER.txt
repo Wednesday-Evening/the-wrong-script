@@ -1,0 +1,315 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 6A - MAINTENANCE CORRECTION: F1 TARGET MARKER
+Handover report
+================================================================================
+
+Phase:            6A (maintenance correction inside the Phase 6 scope)
+Status:           COMPLETE - awaiting owner review
+Date:             25 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    473fab70d2cb76f859d52d4d766522336e38b3ed
+                  "Add Phase 6 verification-only report: Archive mobile
+                  navigation and browser history"
+Final commit:     Created after this report was written, so this file cannot
+                  contain its own hash. The exact final commit is recorded in
+                  the completion message that accompanies this handover.
+Working tree:     Clean at the start of the pass. The pass adds exactly one
+                  report and modifies exactly three tracked files, all committed
+                  together. Nothing else is pending.
+Deployment:       NONE. No hosting, domain, DNS or environment change.
+Phase 7:          NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. SCOPE OF THIS PASS
+--------------------------------------------------------------------------------
+
+Authorised work: the single defect recorded as F1 in
+reports/PHASE-6-VERIFICATION.txt (section F) - the Archive's section/entry
+highlight marker accumulated instead of moving.
+
+In scope:
+  - Clear previous ".is-target" markers in assets/js/archive.js.
+  - Add regression assertions proving exclusive highlighting.
+  - Run the complete existing Archive static and browser suites.
+  - Verify the three existing save keys are untouched.
+  - Write this report.
+
+Out of scope and not done: no deployment, no hosting change, no Phase 7 work,
+no content, style, route, data, save-format or navigation change, no dependency,
+no framework, no backend.
+
+--------------------------------------------------------------------------------
+2. ROOT CAUSE (F1)
+--------------------------------------------------------------------------------
+
+assets/js/archive.js, resolveHash(), before this pass:
+
+    if (!id) { return; }
+
+    var target = document.getElementById(id);
+    var isSection = SECTIONS.indexOf(id) !== -1;
+
+    if (target && (isSection || target.closest('.file, .collection, .discovery'))) {
+      target.classList.add('is-target');
+      return;
+    }
+
+The class was added and never removed anywhere in the codebase. A search for
+"is-target" returned only that add call, the ".is-target" rule at
+assets/css/archive.css:493 (a gold inset bar: box-shadow: inset 2px 0 0
+var(--gold)), and report prose. There was no removal call.
+
+Consequence: the marker latched for the lifetime of the document. Each fragment
+visit added another marked node, so after visiting Completed Files and then
+Discoveries both carried it. Back and Forward re-run resolveHash() and added
+again, so an earlier marker survived the return trip. A reload cleared it only
+because the DOM is rebuilt, which is why the Phase 6 verification pass saw a
+clean state after a fresh load (B10) but accumulation within a session (B7/B8).
+
+--------------------------------------------------------------------------------
+3. THE CORRECTION
+--------------------------------------------------------------------------------
+
+assets/js/archive.js, resolveHash(), after this pass - one loop, inserted before
+the fragment is resolved:
+
+    if (note) {
+      note.hidden = true;
+      clear(note);
+    }
+
+    /* Phase 6A (F1): the marker belongs to whatever the fragment addresses, so
+       any earlier target is unmarked before this one is resolved. An empty or
+       unknown fragment therefore highlights nothing, exactly as a reload of the
+       same URL would. */
+    var marked = document.querySelectorAll('.is-target');
+    for (var i = 0; i < marked.length; i += 1) {
+      marked[i].classList.remove('is-target');
+    }
+
+    if (!id) { return; }
+
+    var target = document.getElementById(id);
+    var isSection = SECTIONS.indexOf(id) !== -1;
+
+    if (target && (isSection || target.closest('.file, .collection, .discovery'))) {
+      target.classList.add('is-target');
+      return;
+    }
+
+No other line of application code changed. No CSS change was required: the
+".is-target" rule at assets/css/archive.css:493 is untouched and now simply
+applies to one node at a time.
+
+3.1 DESIGN DECISION - where the clear happens
+
+F1 sketched the clear inside the valid-target branch. This pass clears once per
+resolveHash() run, before the fragment is resolved. For every valid navigation
+the outcome is identical, and requirement 1 ("clear previous markers before
+marking the newly resolved valid target") is satisfied. The difference is the
+unknown and empty fragment case: nothing is highlighted.
+
+Rationale: an unknown fragment addresses no section or entry, so highlighting a
+previous one while the recovery note says "No entry is filed under X" would be
+contradictory. Clearing makes in-session behaviour agree with a reload of the
+same URL, which already showed no marker. This is a deliberate decision, stated
+here so it can be reviewed, and it is asserted by the new tests.
+
+3.2 RESULTING BEHAVIOUR
+
+  Fragment state                          Markers   Recovery note
+  --------------------------------------  --------  --------------
+  no fragment (/archive/)                 0         hidden
+  valid section (#collections)            1         hidden
+  valid entry (#file-the-ninth-bell)      1         hidden
+  second valid target in one session      1 (new)   hidden
+  Back / Forward between targets          1 (match) hidden
+  unknown fragment (#not-a-real-entry)    0         visible
+  reload on any of the above              same      same
+
+--------------------------------------------------------------------------------
+4. FILES
+--------------------------------------------------------------------------------
+
+CREATED (1)
+
+  reports/PHASE-6A-HANDOVER.txt   This report.
+
+MODIFIED (3)
+
+  assets/js/archive.js            The F1 correction (section 3). This is the
+                                  ONLY modified application file.
+  tools/verify-archive.js         One new static regression check asserting the
+                                  renderer clears earlier markers before marking
+                                  (section 5.2).
+  tools/verify-archive-ui.cjs     Eight new browser assertions for exclusive
+                                  highlighting, in a new section "5b"
+                                  (section 5.3).
+
+DELETED / MOVED / RENAMED: none.
+
+INTENTIONALLY UNTOUCHED
+
+  reports/PHASE-6-VERIFICATION.txt  Preserved exactly as committed at 473fab7,
+                                    as the historical record of that pass. Its
+                                    F1 entry still describes the defect as open,
+                                    which is correct for that document.
+  reports/PHASE-6-HANDOVER.txt      Unchanged.
+  archive/index.html                Unchanged.
+  assets/css/archive.css            Unchanged, including the .is-target rule.
+  assets/js/archive-content.js      Unchanged.
+  index.html, lobby CSS/JS          Unchanged.
+  film/ (all files)                 Unchanged. The original production, its
+                                    scenes, endings, post-credits sequence and
+                                    "tws" save behaviour are untouched.
+  stories/, arcade/, gallery/,      Unchanged.
+  social-room/
+  README.md                         Unchanged; the route and behaviour it
+                                    documents are unaffected by this correction.
+  All save keys and save formats    Unchanged.
+
+--------------------------------------------------------------------------------
+5. TEST EVIDENCE
+--------------------------------------------------------------------------------
+
+Command, run from the repository root:
+
+    node tools/verify-archive.js && node tools/verify-archive-ui.cjs
+
+The browser suite starts its own static server on port 4173 and drives real
+Chromium. Exit code 0 = all checks passed. Environment: Chromium as bundled with
+the workspace Playwright, Linux sandbox, no physical device.
+
+Baseline before this pass (same suites, Phase 6 revision): 34 static checks and
+88 browser assertions, all passing.
+After this pass: 35 static checks and 96 browser assertions, all passing.
+
+5.1 SUITE RESULT
+
+  PASS   node tools/verify-archive.js      all 35 static checks passed
+  PASS   node tools/verify-archive-ui.cjs  RESULT all checks passed
+  PASS   combined exit code                0
+
+5.2 NEW STATIC CHECK (tools/verify-archive.js)
+
+  PASS  only the addressed node keeps the target marker
+        [earlier markers cleared first]
+
+        Asserts that the renderer contains both a classList.add('is-target') and
+        a classList.remove('is-target'), and that the removal appears before the
+        addition in source order. Comments are stripped before the comparison, so
+        the assertion cannot be satisfied by prose.
+
+5.3 NEW BROWSER ASSERTIONS (tools/verify-archive-ui.cjs, section 5b)
+
+All eight PASS, with the observed marker id list shown in brackets:
+
+  PASS  a plain visit marks nothing                                  [[]]
+  PASS  clicking a jump link marks exactly its own section           [["completed-files"]]
+  PASS  a second section jump leaves exactly one marker              [["discoveries"]]
+  PASS  an entry jump replaces the section marker                    [["discovery-the-closed-beacon"]]
+  PASS  Back leaves exactly one marker on the previous section       [["discoveries"]]
+  PASS  Forward leaves exactly one marker on the entry               [["discovery-the-closed-beacon"]]
+  PASS  an unknown fragment clears the previous marker               [[]]
+  PASS  the unknown fragment still shows its recovery note
+
+Method: a fresh cross-document load of /archive/ (via / first, so the document is
+genuinely new). The first jump is a real click on the page's own
+"Completed Files" jump link; subsequent targets are reached by assigning
+location.hash, which is the same hashchange path the jump links and entry links
+use. After each navigation the assertion waits for the settled state - exactly
+one node with the expected id, or zero for the unknown case - before reading the
+marker list, so a stale marker cannot be mistaken for the correct one. Back and
+Forward use the browser's own history.
+
+Requirement coverage:
+  Requirement 1 (clear before marking)          PASS - 5.2 and 5.3
+  Requirement 2 (exactly one after section,     PASS - four assertions above,
+                entry, Back and Forward)               including both directions
+  Requirement 3 (unknown fragment after a       PASS - marker list [] and the
+                marked valid target)                   recovery note visible
+
+5.4 REGRESSION WITHIN THE SAME RUN
+
+The rest of both suites passed unchanged, including:
+  - Nine routes at 390px and 1280px, 0px horizontal overflow on every one.
+  - No console errors, no page errors, no failed local requests.
+  - Three completed files, three collections, eight discoveries, four record
+    paragraphs, closing note present.
+  - All 23 catalogue links return 200; six Gallery deep links open the correct
+    exhibit.
+  - Spoiler disclosure still closed on load, opens and closes by click and by
+    Enter/Space, no leak outside the disclosure.
+  - Six relative Archive navigation links resolve from the other rooms.
+  - Visible focus ring (solid 2px) on jump links; smallest touch target 44px.
+  - Reduced motion: transition 0ms, animation 0ms.
+
+5.5 SAVE-KEY ISOLATION (requirement 6)
+
+Executed inside the suite's own isolated browser context, which seeds the three
+keys before the Archive loads:
+
+  PASS  browsing the Archive leaves stored values byte-identical   [3 keys]
+  PASS  no fourth storage key was created
+        [tws, wrong-script.arcade.signal-path.v1,
+         wrong-script.story.the-ninth-bell.v1]
+
+The comparison is a full key/value snapshot of localStorage taken before and
+after browsing, so "byte-identical" means every stored string matched exactly.
+The static suite independently asserts that the Archive scripts contain no
+storage, cookie or network API and none of the three save-key strings. This
+correction adds no storage access of any kind.
+
+--------------------------------------------------------------------------------
+6. LIMITATIONS
+--------------------------------------------------------------------------------
+
+1.  Chromium only. Firefox, Safari and Edge were not exercised.
+2.  No physical device. The 390px runs use viewport emulation, not a real phone,
+    and no real touch gestures were performed.
+3.  No screen-reader or assistive-technology audit. Nothing here should be read
+    as an accessibility certification.
+4.  The new assertions navigate fragments by assigning location.hash, with the
+    first jump performed by clicking the page's own jump link. Entry links are
+    covered by the suite's existing deep-link checks rather than by a click in
+    this new block; both paths converge on the same hashchange handler.
+5.  Focus position after Back/Forward is still not asserted, as in the Phase 6
+    verification pass.
+6.  The dependency security scan remains not_applicable: the project has no
+    package manifest, lockfile or resolved packages. That is an empty scan, not
+    a security certification of the source, the runtime or the application.
+7.  reports/PHASE-6-VERIFICATION.txt still records F1 as open. That is
+    intentional - it is the historical record of that pass, and it was not
+    rewritten. This report is the record of the correction.
+
+--------------------------------------------------------------------------------
+7. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - assets/js/archive.js is the only modified application file. The other two
+    modified files are test tooling under tools/, changed only to add the
+    regression assertions this pass was asked to provide.
+  - No route, page content, style, level, story, exhibit, navigation element or
+    save format changed.
+  - reports/PHASE-6-VERIFICATION.txt is preserved unchanged.
+  - The three existing save keys are neither read nor written by the correction,
+    and the suites confirm their values are unchanged after browsing.
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - Phase 7 was not started, and no Creator Studio, account, submission, social
+    or backend work was touched.
+
+--------------------------------------------------------------------------------
+8. RECOMMENDED NEXT STEP (not started)
+--------------------------------------------------------------------------------
+
+Review this correction against reports/PHASE-6-VERIFICATION.txt section F. If it
+is accepted, F1 can be treated as closed and the Archive's highlighting can be
+considered correct for one marker at a time; no further work on this defect is
+needed. Phase 7 planning can then proceed on the owner's instruction, with the
+untested items listed in section 6 still outstanding from the Phase 6 pass.
+
+================================================================================
+PHASE HANDOVER STATUS: READY FOR REVIEW
+================================================================================
