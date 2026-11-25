@@ -20,6 +20,8 @@ external assets. The whole thing is a static site.
 | `assets/js/story-engine.js` | The reader: scenes, choices, saves, endings, browser history. |
 | `stories/data/the-ninth-bell.js` | *The Ninth Bell*, written as data: scenes, lines, choices, endings. |
 | `stories/the-ninth-bell/index.html` | The reading page for *The Ninth Bell*. |
+| `stories/data/the-returns-hatch.js` | *The Returns Hatch*, written as data: three looks, five endings. |
+| `stories/the-returns-hatch/index.html` | The reading page for *The Returns Hatch*. |
 | `arcade/index.html` | The Arcade: the library page. |
 | `assets/css/arcade.css` | The Arcade's identity, plus the SIGNAL PATH board, pad and side panel. Loaded after `lobby.css`. |
 | `assets/js/arcade-shell.js` | The Arcade's small-screen navigation, wired like the Lobby's. |
@@ -29,6 +31,8 @@ external assets. The whole thing is a static site.
 | `assets/js/signal-path.js` | SIGNAL PATH's page: board, controls, saves, reset. |
 | `arcade/data/signal-path-levels.js` | The six SIGNAL PATH levels, written as data. |
 | `arcade/signal-path/index.html` | The SIGNAL PATH page. |
+| `arcade/data/lamplight-levels.js` | The six LAMPLIGHT rooms, written as data. |
+| `arcade/lamplight/index.html` | The LAMPLIGHT page. |
 | `gallery/index.html` | The Gallery: the exhibition page. |
 | `assets/css/gallery.css` | The Gallery's own identity: the wall, the frames, the filters, the exhibit panel. Loaded after `lobby.css`. |
 | `assets/js/gallery-exhibits.js` | The collection: six categories and eight exhibits. Data only. |
@@ -60,11 +64,11 @@ external assets. The whole thing is a static site.
 python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000>. The Lobby is at `/`, the film at `/film/`, the
-library at `/stories/`, the first story at `/stories/the-ninth-bell/`, the Arcade
-at `/arcade/`, SIGNAL PATH at `/arcade/signal-path/`, the Gallery at
-`/gallery/`, the Social Room at `/social-room/`, the Archive at `/archive/` and the
-Creator Studio at `/creator-studio/`.
+Then open <http://localhost:8000>. The Lobby is at `/` and the film at `/film/`.
+The rooms are `/stories/`, with *The Ninth Bell* at `/stories/the-ninth-bell/` and
+*The Returns Hatch* at `/stories/the-returns-hatch/`; `/arcade/`, with SIGNAL PATH
+at `/arcade/signal-path/` and LAMPLIGHT at `/arcade/lamplight/`; then `/gallery/`,
+`/social-room/`, `/archive/` and `/creator-studio/`.
 Opening `film/index.html` directly from disk also works, because the film carries
 its own styles and scripts inline. The Stories pages need to be served over HTTP
 (they load shared CSS and JavaScript by relative path, which is also how they
@@ -94,6 +98,17 @@ deploy).
   with five parts: the Desk, the five Formats, the Standard, the Review Process
   and Not Yet. No accounts, no uploads, no submissions, no forms and no storage;
   the page says so rather than implying otherwise.
+- **Phase 8 (verification only):** a Chromium pass over every route at 390px and
+  1280px, keyboard focus, Archive Back/Forward, reduced motion and storage
+  isolation. Firefox, WebKit, physical phones and assistive technology could not
+  run in that environment and are recorded as gaps, not as passes, in
+  `reports/PHASE-8-VERIFICATION-HANDOVER.txt`.
+- **Phase 9 (done):** depth, added through the patterns that already existed. A
+  second story, *The Returns Hatch* (three looks, five endings, its own save key),
+  and a second game, LAMPLIGHT (six mirror rooms, its own save key). No story or
+  arcade engine was rewritten: both are new data plus a new page. DEF-01 and
+  DEF-03 touch-target findings are fixed, and four verification tools are under
+  `tools/`.
 
 ## The Stories
 
