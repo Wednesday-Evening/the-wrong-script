@@ -1,0 +1,452 @@
+/* =====================================================================
+   THE WRONG SCRIPT - The Social Room
+   ---------------------------------------------------------------------
+   Layered on top of lobby.css, which supplies the palette, the header,
+   the navigation, the buttons and the footer. This file only adds the
+   Social Room: a hero, one honesty note, the jump list and four boards
+   of cards.
+
+   Identity: the quietest room in the building. The Gallery is a wall,
+   the Arcade is a cabinet; this is a pinboard in a corridor. Parchment
+   on near-black, gold hairlines, no counters and no badges that imply
+   activity.
+
+   Nothing here animates on a loop. The only transitions are colour and
+   border changes on hover and focus, and they collapse under
+   prefers-reduced-motion.
+   ===================================================================== */
+
+:root {
+  --sr-ink: #0b0a09;
+  --sr-board: #121010;
+  --sr-card: #161312;
+  --sr-line: rgba(185, 154, 98, 0.26);
+  --sr-line-soft: rgba(232, 221, 203, 0.13);
+  --sr-parch: #e8ddcb;
+  --sr-parch-dim: #b9ad9a;
+  --sr-gold: #b99a62;
+  --sr-red: #7a171c;
+}
+
+body.social {
+  background: var(--sr-ink);
+  color: var(--sr-parch);
+}
+
+.social main {
+  display: block;
+}
+
+/* ---------------------------------------------------------------------
+   Hero
+   --------------------------------------------------------------------- */
+
+.sr-hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 92px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 38px);
+  border-bottom: 1px solid var(--sr-line);
+}
+
+.sr-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(2.1rem, 5.8vw, 4.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(16px, 2.4vw, 22px);
+  max-width: 22ch;
+}
+
+.sr-lede {
+  max-width: 64ch;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.72;
+  color: var(--sr-parch-dim);
+  margin: 0 0 20px;
+}
+
+.sr-open {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sr-gold);
+}
+
+/* ---------------------------------------------------------------------
+   The honesty note
+   --------------------------------------------------------------------- */
+
+.sr-note {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 42px) clamp(20px, 5vw, 56px);
+  border-bottom: 1px solid var(--sr-line-soft);
+  background: linear-gradient(180deg, rgba(122, 23, 28, 0.10), rgba(11, 10, 9, 0));
+}
+
+.sr-note-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.15rem, 2.2vw, 1.42rem);
+  margin: 0 0 14px;
+  color: var(--sr-parch);
+}
+
+.sr-note p {
+  max-width: 74ch;
+  line-height: 1.72;
+  color: var(--sr-parch-dim);
+  margin: 0 0 12px;
+}
+
+.sr-note p:last-child {
+  margin-bottom: 0;
+}
+
+.sr-note strong {
+  color: var(--sr-parch);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------
+   Jump list
+   --------------------------------------------------------------------- */
+
+.sr-jump {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(26px, 4vw, 40px) clamp(20px, 5vw, 56px);
+  border-bottom: 1px solid var(--sr-line-soft);
+}
+
+.sr-jump-title {
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sr-gold);
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.jump-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.jump-list a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 1px solid var(--sr-line-soft);
+  border-left: 3px solid transparent;
+  color: var(--sr-parch-dim);
+  text-decoration: none;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  transition: color 140ms linear, border-color 140ms linear, background-color 140ms linear;
+}
+
+.jump-list a:hover,
+.jump-list a:focus-visible {
+  color: var(--sr-parch);
+  border-color: var(--sr-line);
+  background: rgba(232, 221, 203, 0.04);
+}
+
+.jump-list a[aria-current="location"] {
+  color: var(--sr-parch);
+  border-left-color: var(--sr-gold);
+  background: rgba(185, 154, 98, 0.09);
+}
+
+.hash-note {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--sr-line);
+  border-left: 3px solid var(--sr-red);
+  background: rgba(122, 23, 28, 0.12);
+  color: var(--sr-parch-dim);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.hash-note a {
+  color: var(--sr-gold);
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------
+   The boards
+   --------------------------------------------------------------------- */
+
+.boards {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 56px);
+}
+
+.sr-area {
+  padding: clamp(30px, 5vw, 52px) 0;
+  border-bottom: 1px solid var(--sr-line-soft);
+}
+
+.area-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.area-head .eyebrow {
+  margin: 0;
+  flex: 1 1 100%;
+}
+
+.area-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  line-height: 1.15;
+  margin: 0;
+  color: var(--sr-parch);
+}
+
+.area-title:focus-visible {
+  outline: 2px solid var(--sr-gold);
+  outline-offset: 6px;
+}
+
+.area-count {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sr-gold);
+  white-space: nowrap;
+}
+
+.area-lede {
+  max-width: 62ch;
+  line-height: 1.7;
+  color: var(--sr-parch-dim);
+  margin: 0 0 clamp(18px, 3vw, 26px);
+}
+
+.sr-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.sr-entry {
+  padding: 18px 18px 20px;
+  border: 1px solid var(--sr-line-soft);
+  border-left: 3px solid var(--sr-gold);
+  background: var(--sr-card);
+  min-width: 0;
+}
+
+.sr-entry:target {
+  border-color: var(--sr-line);
+  background: var(--sr-board);
+}
+
+.sr-entry-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.sr-kind {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sr-gold);
+}
+
+.sr-status {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border: 1px solid var(--sr-line);
+  color: var(--sr-parch-dim);
+}
+
+.sr-status[data-status="open-now"] {
+  color: var(--sr-parch);
+  border-color: rgba(185, 154, 98, 0.55);
+  background: rgba(185, 154, 98, 0.10);
+}
+
+.sr-entry-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.08rem, 2vw, 1.26rem);
+  line-height: 1.3;
+  margin: 0 0 10px;
+  color: var(--sr-parch);
+  overflow-wrap: anywhere;
+}
+
+.sr-entry-title:focus-visible {
+  outline: 2px solid var(--sr-gold);
+  outline-offset: 4px;
+}
+
+.sr-entry-text {
+  margin: 0 0 10px;
+  line-height: 1.68;
+  color: var(--sr-parch-dim);
+  font-size: 0.96rem;
+  overflow-wrap: anywhere;
+}
+
+.sr-entry-text:last-of-type {
+  margin-bottom: 0;
+}
+
+.sr-entry-note {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(185, 173, 154, 0.86);
+  border-top: 1px solid var(--sr-line-soft);
+  padding-top: 10px;
+  overflow-wrap: anywhere;
+}
+
+.sr-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 6px 2px;
+  color: var(--sr-gold);
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(185, 154, 98, 0.5);
+}
+
+.sr-link:hover {
+  color: var(--sr-parch);
+  border-bottom-color: var(--sr-parch);
+}
+
+.sr-link:focus-visible {
+  outline: 2px solid var(--sr-gold);
+  outline-offset: 4px;
+}
+
+.sr-footnote {
+  max-width: 70ch;
+  margin: 18px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: rgba(185, 173, 154, 0.86);
+}
+
+.sr-empty {
+  max-width: 60ch;
+  margin: 32px 0 0;
+  line-height: 1.7;
+  color: var(--sr-parch-dim);
+}
+
+.sr-noscript {
+  max-width: 60ch;
+  margin: 0 auto;
+  padding: 24px clamp(20px, 5vw, 56px);
+  color: var(--sr-parch-dim);
+  line-height: 1.7;
+}
+
+.sr-noscript a {
+  color: var(--sr-gold);
+}
+
+/* ---------------------------------------------------------------------
+   Elsewhere
+   --------------------------------------------------------------------- */
+
+.sr-out {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(30px, 5vw, 52px) clamp(20px, 5vw, 56px) clamp(44px, 7vw, 80px);
+}
+
+.sr-out h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.8vw, 1.75rem);
+  margin: 0 0 12px;
+}
+
+.sr-out p {
+  max-width: 64ch;
+  line-height: 1.7;
+  color: var(--sr-parch-dim);
+  margin: 0 0 20px;
+}
+
+.sr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sr-actions .btn {
+  min-height: 44px;
+}
+
+/* ---------------------------------------------------------------------
+   Wider screens
+   --------------------------------------------------------------------- */
+
+@media (min-width: 620px) {
+  .jump-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sr-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .jump-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Reduced motion
+   --------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .jump-list a,
+  .sr-link,
+  .sr-entry {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .sr-hero,
+  .sr-area {
+    animation: none !important;
+  }
+}
