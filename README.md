@@ -38,9 +38,15 @@ external assets. The whole thing is a static site.
 | `assets/css/social-room.css` | The Social Room's own identity: the boards, the jump list, the note. Loaded after `lobby.css`. |
 | `assets/js/social-room-content.js` | The four boards, written as data. Data only. |
 | `assets/js/social-room.js` | Draws the boards, the jump list and the deep links. No storage, no network. |
+| `archive/index.html` | The Archive: completed files, collections, discoveries and the record. |
+| `assets/css/archive.css` | The Archive's own identity: the file cards, the collection shelves, the record. Loaded after `lobby.css`. |
+| `assets/js/archive-content.js` | The catalogue, written as data: three files, three collections, eight discoveries. Data only. |
+| `assets/js/archive.js` | Draws the catalogue, the jump list, the closed spoiler disclosures and the deep links. No storage, no network. |
 | `tools/verify-signal-path.js` | Development check: solves every level, exercises the rules and the save reader. |
 | `tools/verify-gallery.js` | Development check: validates the collection, the artwork on disk and the Gallery's isolation from other rooms' saves. |
 | `tools/verify-social-room.js` | Development check: validates the boards, every destination link on disk, and the room's isolation from storage. |
+| `tools/verify-archive.js` | Development check: validates the catalogue, every link and Gallery deep link, the spoiler containment, and the Archive's isolation from storage. |
+| `tools/verify-archive-ui.cjs` | Development check: drives all nine routes in Chromium at 390px and 1280px, and checks the disclosures, deep links, focus, reduced motion and save isolation. |
 
 ## Running it
 
@@ -51,7 +57,7 @@ python3 -m http.server 8000
 Then open <http://localhost:8000>. The Lobby is at `/`, the film at `/film/`, the
 library at `/stories/`, the first story at `/stories/the-ninth-bell/`, the Arcade
 at `/arcade/`, SIGNAL PATH at `/arcade/signal-path/`, the Gallery at
-`/gallery/` and the Social Room at `/social-room/`.
+`/gallery/`, the Social Room at `/social-room/` and the Archive at `/archive/`.
 Opening `film/index.html` directly from disk also works, because the film carries
 its own styles and scripts inline. The Stories pages need to be served over HTTP
 (they load shared CSS and JavaScript by relative path, which is also how they
@@ -73,9 +79,12 @@ deploy).
   four boards: the Noticeboard, the Open Questions, the Gathering Board and
   What's Happening. Curated studio writing only. No accounts, no posting, no
   comments, no reactions, no storage.
-- **Reserved:** The Archive and The Creator Studio.
-  Each has a card that states its state. Neither is a button that pretends to
-  work.
+- **Phase 6 (done):** The Archive. A catalogue at `/archive/` with three completed
+  experiences, three curated collections, eight verified discoveries and a short
+  record of what the Archive keeps. Read-only, curated, and it does not read
+  anyone's saved progress.
+- **Reserved:** The Creator Studio. Its card states its state; it is not a button
+  that pretends to work.
 
 ## The Stories
 
@@ -178,6 +187,42 @@ The room has no save key and needs none. Nothing here reads, writes or clears
 `wrong-script.arcade.signal-path.v1`, and there is no member account, post,
 comment, reaction, message or upload to persist. Community participation is not
 available yet, and the room says so instead of implying otherwise.
+
+## The Archive
+
+The Archive is the universe keeping its records: a curated, read-only catalogue at
+`/archive/`, not a progress tracker. `assets/js/archive-content.js` holds the whole
+catalogue as data and `assets/js/archive.js` draws it; the page has no forms and no
+way to write anything.
+
+Four parts, each doing a different job:
+
+- **Completed Files** - the three experiences with a real conclusion: *The Ninth
+  Bell*, *The Wrong Script: Original Production* and SIGNAL PATH. The film is
+  filed as its own room, not as a Stories entry.
+- **Collections** - three editorial groupings of existing work: Choices and
+  Consequences, Close Observation, and Rooms and Doors. Every entry links to the
+  room and exhibit it names.
+- **Discoveries** - eight details worth walking back for, each grounded in the
+  implementation. Anything that would give away an ending sits inside a closed
+  `<details>` disclosure whose summary begins with the word "Spoiler".
+- **The Record** - a short explanation of what the Archive keeps and why.
+
+### No storage, no progress tracking
+
+The Archive has no save key and needs none. It does not read, write or clear
+`tws`, `wrong-script.story.the-ninth-bell.v1` or
+`wrong-script.arcade.signal-path.v1`, and it does not work out what a particular
+visitor has finished. Every entry is useful on a first visit.
+
+### Adding an entry
+
+Add an object to `files`, `collections` or `discoveries` in
+`assets/js/archive-content.js`. Ids double as deep links (`/archive/#<id>`), so keep
+them unique; collections use `collections/#<collection-id>`. A discovery that gives
+anything away takes a `spoiler: { summary, body }` and is then rendered closed.
+`node tools/verify-archive.js` checks the shape, the counts, that every link exists
+on disk and that every Gallery deep link names a real exhibit.
 
 ## The original film
 
