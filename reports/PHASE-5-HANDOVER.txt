@@ -10,12 +10,19 @@ Date:             2026-11-25
 Repository:       Wednesday-Evening/the-wrong-script
 Branch:           appjet
 Starting HEAD:    ef1bb8218d7b5d159321e5346f1ef79ea7d73a3c (ef1bb82)
-HEAD at writing:  65038cb34067da6294c02653ebf249cc39288dae (65038cb)
-Working tree:     clean at the time of writing
-Report commit:    this file is committed immediately after the implementation
-                  HEAD above, as a separate report-only commit. Its hash is
-                  stated in the completion message, because a file cannot
-                  contain the hash of the commit that adds it.
+Implementation
+HEAD:             65038cb34067da6294c02653ebf249cc39288dae (65038cb)
+Report commits:   8c26c899f50417c1746edb75ee6ba4d68a0873df (8c26c89 — this
+                  report), b28d168924e0c9c91ed2e67470445676bd168d36 (b28d168 —
+                  dependency-scan wording), plus one further report-only
+                  reconciliation commit whose hash is stated in the completion
+                  message, because a file cannot contain the hash of the
+                  commit that adds it.
+HEAD at this
+reconciliation:   b28d168924e0c9c91ed2e67470445676bd168d36 (b28d168)
+Working tree:     clean before and after this reconciliation (verified)
+Revision labels:  the "revision N" labels in sections 10 and E are internal
+                  verification counters, not git revisions — see section 17.
 Deployment:       NONE. No hosting, DNS, domain or environment change.
 Phase 6:          NOT STARTED.
 
@@ -203,7 +210,9 @@ Statuses used exactly as instructed: PASS, FAIL, NOT TESTED, CODE REVIEW ONLY,
 NOT APPLICABLE.
 
 A. STATIC SUITE — `node tools/verify-social-room.js`
-   Final result: 26 of 26 PASS (revision 19; unchanged since revision 16).
+   Final result: 26 of 26 PASS (label "revision 19" in the session check
+   record; unchanged since the "revision 16" run). Those labels are internal
+   verification counters, not git revisions — see section 17.
 
    1  the content file publishes four areas ............................... PASS
    2  areas in reading order with their labels ............................ PASS
@@ -233,7 +242,8 @@ A. STATIC SUITE — `node tools/verify-social-room.js`
    26 the film is unchanged against the last commit ....................... PASS
 
 B. BROWSER SUITE — `node tools/verify-social-room-ui.cjs`
-   Final result: 35 of 35 PASS (revision 19).
+   Final result: 35 of 35 PASS (label "revision 19" in the session check
+   record, the same counter as in A). Not a git revision — see section 17.
    17 checks at 1280x900, 17 at 390x844, plus 1 mobile-only target check.
 
    B1  all eight routes load, HTTP 200, non-empty body, no horizontal
@@ -293,7 +303,8 @@ D. DEPENDENCY / SECURITY SCAN
    manifest and no lockfile, so the advisory scanner (OSV-Scanner 2.7.0,
    workspace-dependencies policy) resolved 0 packages, reported 0 findings and
    0 blocking findings, with status "not_applicable". The scan was run against
-   the final revision and needs no build, install or application execution.
+   a tree whose only difference from implementation HEAD 65038cb is this
+   report file, and needs no build, install or application execution.
    This is not a certification of the source, the runtime or overall security,
    and it does not cover unlocked, vendored or CDN content. The isolation claims
    in section 9 rest on the source scan and the browser run above, not on a
@@ -301,7 +312,9 @@ D. DEPENDENCY / SECURITY SCAN
 
 E. CHRONOLOGY OF FAILED CHECKS AND THEIR RESOLUTION
    Earlier failures are retained here rather than replaced, so the record is
-   complete. All three were resolved and rerun.
+   complete. All three were resolved and rerun. The "revision N" labels below
+   are the internal verification counters used in the session check record, not
+   git commits; see section 17.
 
    E1  Revision 13 — static suite FAIL (2 of 24).
        "every existing page links to the Social Room: film/index.html has no
@@ -414,6 +427,82 @@ None block this phase. Two points for a later phase, not for this one:
 - Any future member participation needs an approved submission-and-review model
   before any route, upload or publishing control is built. This phase created
   none.
+
+17. REVISION AND EVIDENCE RECONCILIATION
+--------------------------------------------------------------------------------
+Added by a documentation-only reconciliation commit. No application file,
+test, asset, save key, manifest or configuration was changed to produce it.
+
+17.1 WHAT THE "REVISION N" LABELS ARE
+   The labels "revision 13 / 16 / 17 / 19 / 20 / 21" in sections 10 and E are
+   internal verification counters from this phase's session check record: they
+   count successive verification states during implementation. They are NOT git
+   commits, tags or branch revisions, and the repository contains no reference
+   to them.
+
+17.2 WHAT THE GIT HISTORY ACTUALLY SHOWS
+   Branch appjet, inspected for this reconciliation:
+   - 13 commits lie between the accepted Phase 4 HEAD ef1bb82 and HEAD.
+   - The last commit touching application code is the implementation HEAD
+     65038cb34067da6294c02653ebf249cc39288dae.
+   - After it, exactly two commits existed before this reconciliation:
+     8c26c89 (this report) and b28d168 (dependency-scan wording).
+   - `git diff --name-only 65038cb..HEAD` returns exactly one path:
+     reports/PHASE-5-HANDOVER.txt.
+   So the application code at HEAD is identical to the implementation HEAD.
+   Every suite below therefore describes code identical to 65038cb, whatever
+   the exact working-tree state was when it ran.
+
+17.3 EVIDENCE TABLE
+
+   Verification          Revision / commit                      Result                Evidence source
+   --------------------  -------------------------------------  --------------------  ---------------------------
+   Static suite          Application code identical to 65038cb; 26 / 26 PASS          Session command output for
+   tools/verify-         most recent execution after report                           node tools/verify-social-room.js
+   social-room.js        commit b28d168                                               (exit 0)
+
+   Browser suite         Application code identical to 65038cb; 35 / 35 PASS          Session command output for
+   tools/verify-         executed before the two report                               node tools/verify-
+   social-room-ui.cjs    commits                                                      social-room-ui.cjs (exit 0)
+
+   Dependency scan       Application code identical to 65038cb; NOT APPLICABLE,       Managed scanner result,
+   workspace-            executed before report commit         0 packages,           OSV-Scanner 2.7.0
+   dependencies policy   b28d168                               0 findings,
+                                                               0 blocking
+
+   Labels "revision       NOT ESTABLISHED as a git revision —   n/a                   Session check record only
+   13/16/17/19/20/21"    internal verification counters
+
+17.4 WHAT CANNOT BE ESTABLISHED
+   The exact git commit checked out at the moment each suite ran cannot be
+   established from repository evidence: the run records carry the internal
+   counter labels rather than hashes, and no test output was committed. This is
+   recorded as a limitation, not resolved by assumption. The original labels
+   are preserved and not renumbered.
+   What can be established is stronger for the code itself: because only this
+   report file changed after 65038cb, every suite ran against application code
+   identical to the implementation HEAD.
+
+17.5 FILES CHANGED BY THIS RECONCILIATION COMMIT
+   reports/PHASE-5-HANDOVER.txt — this file only. Verified with `git show
+   --stat` on the commit: 1 file changed, no other path. No application file,
+   test script, README, stylesheet, script, asset, save key, dependency file or
+   configuration was modified. No suite was rerun in order to make this report
+   appear consistent, and no result, limitation or historical failure was
+   altered or upgraded.
+
+17.6 STATE AFTER THIS RECONCILIATION
+   - Working tree: clean after the report-only commit (verified with
+     `git status --porcelain`, empty output).
+   - Implementation commit: unchanged at
+     65038cb34067da6294c02653ebf249cc39288dae.
+   - Read-only behaviour: unchanged. The Social Room still has no forms, no
+     storage calls of its own and no network requests; the three existing save
+     keys remain untouched, as recorded in section 9.
+   - Deployment: NONE. Phase 6: NOT STARTED.
+   - The dependency result remains not_applicable because the repository has no
+     manifest or lockfile and zero packages resolved. It is not a certification
+     of source code, runtime, hosting or the application as a whole.
 
 ================================================================================
 PHASE HANDOVER STATUS: READY FOR REVIEW
