@@ -1,0 +1,430 @@
+THE WRONG SCRIPT
+PHASE 6 — VERIFICATION-ONLY PASS
+Archive: Mobile Navigation and Browser History
+================================================================================
+
+Report file:   reports/PHASE-6-VERIFICATION.txt
+Scope:         verification only. No application code was written, changed,
+               refactored or deleted in this pass.
+Companion:     reports/PHASE-6-HANDOVER.txt (unchanged by this pass)
+
+--------------------------------------------------------------------------------
+A. PROJECT IDENTITY
+--------------------------------------------------------------------------------
+
+Repository:            Wednesday-Evening/the-wrong-script
+Branch:                appjet
+Starting HEAD:         8d493496ecedfc232d809a2acbbed7823c037936
+                       ("Add Phase 6 handover report for The Archive")
+Parent history:        363b98a (README), b510ca2 (verify-archive-ui.cjs),
+                       1add4c5 and 01895d9 (verify-archive.js) — the Phase 6
+                       implementation and its checks are all present in branch
+                       history before this pass.
+Working tree, before:  clean (git status --porcelain returned no entries)
+Final HEAD:            the report-only commit that adds this file; its parent is
+                       8d493496ecedfc232d809a2acbbed7823c037936. The exact hash is
+                       stated in the completion message, because the commit
+                       contains this report and cannot contain its own hash.
+Working tree, after:   clean; the only tracked change in the report commit is
+                       this file (verified with git status before committing).
+
+Phase 6 artefacts confirmed present before testing:
+
+  archive/index.html                    6840 bytes
+  assets/js/archive.js                  8524 bytes
+  assets/js/archive-content.js         14306 bytes
+  assets/css/archive.css               10730 bytes
+  tools/verify-archive.js              16043 bytes
+  tools/verify-archive-ui.cjs          16940 bytes
+  reports/PHASE-6-HANDOVER.txt         32120 bytes
+
+No discrepancy with the accepted Phase 6 state was found, so testing proceeded.
+
+What was actually inspected, rather than assumed:
+
+  Navigation toggle   <button class="nav-toggle" id="nav-toggle" type="button"
+                      aria-expanded="false" aria-controls="site-nav">, containing
+                      .nav-toggle-bars and the text "Menu". Present on
+                      archive/index.html line 23, identical to the other
+                      platform pages.
+
+  Navigation panel    <nav class="site-nav" id="site-nav" aria-label="Platform">
+                      with eight links: Lobby (../), The Original Production
+                      (../film/), The Stories (../stories/), The Arcade
+                      (../arcade/), The Gallery (../gallery/), The Social Room
+                      (../social-room/), The Archive (./, aria-current="page")
+                      and The Creator Studio (../#creator-studio, labelled
+                      "Soon").
+
+  Open/close logic    assets/js/archive.js, wireNavigation(): a click on the
+                      toggle flips aria-expanded and toggles .is-open on
+                      #site-nav; a document keydown handler closes on Escape and
+                      returns focus to the toggle; a click on an A inside the nav
+                      closes the panel. There is no other open/close path, and no
+                      focus trap.
+
+  Section/entry links <nav class="arc-jump"> with four in-page links:
+                      #completed-files, #collections, #discoveries, #record.
+
+  Hash mechanism      assets/js/archive.js, resolveHash(): runs on boot and on
+                      every window "hashchange". A fragment is accepted if it is
+                      one of the four section ids or an element inside
+                      .file, .collection or .discovery; the target element gains
+                      the class .is-target. An unknown fragment reveals the
+                      hidden #hash-note with a recovery message and links to
+                      #completed-files and the Lobby, without redirecting.
+
+Consequence for testing: the Archive does not intercept clicks, does not use
+history.pushState or replaceState, and does not block the browser's own history.
+Back/Forward therefore operate on ordinary browser history entries created by
+the fragment links, and the tests were written to observe exactly that.
+
+--------------------------------------------------------------------------------
+B. TEST ENVIRONMENT
+--------------------------------------------------------------------------------
+
+Browser:            Chromium 151.0.7922.34 (Playwright-bundled build,
+                    chromium-1234), launched headless.
+Driver:             Playwright, /opt/appjet/browser/node_modules/playwright
+Runtime:            Node.js v20.20.2
+Operating system:   Linux (AppJet E2B sandbox)
+Server:             python3 -m http.server 4173 --bind 127.0.0.1, serving the
+                    repository root; the harness starts and stops it itself.
+Testing method:     A purpose-written Playwright script executed outside the
+                    repository at /tmp/phase6-verify.cjs. It was kept out of the
+                    repository deliberately, so that this verification pass adds
+                    no tool file and the only repository change is this report.
+                    The script asserts and exits non-zero on any failure.
+
+Viewports:
+  Test A   390 x 844 CSS px, deviceScaleFactor 3, isMobile true, hasTouch true
+           (small-screen phone emulation, not a physical device)
+  Test B   1280 x 800 CSS px, desktop context
+  Test C   1280 x 800 CSS px, desktop context
+
+Commands and outcomes:
+
+  Run 1   node /tmp/phase6-verify.cjs   exit 1   1 of 57 checks failed
+  Run 2   node /tmp/phase6-verify.cjs   exit 0   all checks passed
+
+  Run 1's single failure was a harness defect, not an application defect. It is
+  recorded in section F rather than removed from the record.
+
+Every PASS below means the check was executed in that Chromium session and the
+assertion held. Nothing in this report is a code-reading claim presented as a
+browser result.
+
+--------------------------------------------------------------------------------
+C. TEST A — SMALL-SCREEN ARCHIVE NAVIGATION
+--------------------------------------------------------------------------------
+
+Route:   /archive/   (http://127.0.0.1:4173/archive/)
+Viewport: 390 x 844, touch emulation
+Console/page/request errors during the whole test: none
+
+A1  Load
+    PASS  /archive/ returned HTTP 200.
+    PASS  The rendered document was non-empty (20,019 characters of HTML).
+    PASS  document.title was "The Archive - The Wrong Script".
+
+A2  Toggle present and initially collapsed
+    PASS  #nav-toggle was visible at 390px.
+    PASS  aria-expanded was "false" before any interaction.
+    PASS  #site-nav did not carry .is-open before any interaction.
+    Observed closed state: #site-nav computed display:none, height 0px. The
+    panel is therefore genuinely hidden before the toggle is used, not merely
+    transparent.
+
+A3  Opening with a pointer click
+    PASS  After clicking #nav-toggle, aria-expanded became "true".
+    PASS  #site-nav gained .is-open.
+    PASS  The open panel occupied real space: 402px tall.
+
+A4  Links inside the open panel
+    PASS  All eight navigation links were present.
+    PASS  All eight were rendered inside the open panel (8/8 had non-zero
+          width and height).
+    PASS  All eight hrefs resolved to real pages: 8/8 returned HTTP 200.
+          Targets checked: ../ , ../film/ , ../stories/ , ../arcade/ ,
+          ../gallery/ , ../social-room/ , ./ , ../#creator-studio
+    PASS  Every link met the 44px touch target (smallest measured height 48px).
+    PASS  A link was actually activated: clicking the "The Stories" link
+          navigated to http://127.0.0.1:4173/stories/.
+    PASS  Browser Back after that navigation returned to
+          http://127.0.0.1:4173/archive/.
+
+A5  Horizontal overflow
+    PASS  With the panel open: 0px horizontal overflow
+          (scrollWidth - clientWidth).
+    PASS  After the keyboard open/close cycle: 0px horizontal overflow.
+
+A6  Closing
+    PASS  Clicking the toggle a second time closed the panel
+          (aria-expanded="false", .is-open removed).
+    PASS  Activating a navigation link closes the panel. Verified by
+          instrumenting the current-page link with preventDefault in the test
+          harness only, then clicking it: aria-expanded became "false" and the
+          URL stayed at /archive/ (no navigation away).
+    PASS  The panel is not left open after following a real link: after the
+          navigation to /stories/ in A4 the destination page loads with the
+          toggle collapsed.
+
+A7  Keyboard and focus
+    PASS  Tab reached #nav-toggle from the top of the document.
+    PASS  The focused toggle showed a visible focus ring. Measured computed
+          style: outline-style "auto", outline-width 1px, box-shadow none.
+          Note: this is the browser's default focus ring, not the project's
+          own gold ring used on other controls; it is visible, but the toggle
+          does not receive bespoke focus styling.
+    PASS  Enter on the focused toggle opened the panel (aria-expanded="true").
+    PASS  Tab moved focus into the open panel; the focused element was the
+          "Lobby" link inside #site-nav.
+    PASS  Escape closed the panel (aria-expanded="false").
+    PASS  Escape returned focus to #nav-toggle (document.activeElement.id was
+          "nav-toggle").
+
+A8  Errors
+    PASS  No console errors, no uncaught page errors and no failed local
+          requests during Test A.
+
+Test A verdict: the small-screen navigation works. It is hidden until opened,
+opens and closes by pointer and keyboard, exposes eight working destinations of
+at least 48px, closes on link activation, returns focus on Escape, and produces
+no overflow or errors at 390px.
+
+--------------------------------------------------------------------------------
+D. TEST B — BROWSER BACK AND FORWARD
+--------------------------------------------------------------------------------
+
+Viewport: 1280 x 800. Route: /archive/. history.length recorded at each step.
+
+Sequence and observed results:
+
+  B1  Start
+      GET /archive/                                    status 200
+      location.hash                                    "" (empty)
+      history.length                                   2
+      Rendered catalogue: 3 .file, 3 .collection, 8 .discovery, 4 .arc-section
+      PASS  Page loads, starts with no fragment, and renders the catalogue
+            exactly once.
+
+  B2  Jump to Completed Files
+      Click ".jump-list a[href='#completed-files']"
+      URL hash                                          #completed-files
+      history.length                                    3
+      .is-target                                        [completed-files]
+      PASS  The fragment is set and the section is marked as the target.
+
+  B3  Jump to Discoveries
+      Click ".jump-list a[href='#discoveries']"
+      URL hash                                          #discoveries
+      history.length                                    4
+      .is-target                                        [completed-files, discoveries]
+      PASS  The new section is marked as the target.
+      PASS  No duplicate content: still 3 files, 3 collections, 8 discoveries,
+            4 sections.
+      OBSERVATION  The earlier marker was not cleared, so two sections carried
+                   .is-target at once. See section F, finding F1.
+
+  B4  Browser Back
+      page.goBack()
+      URL hash                                          #completed-files
+      .is-target                                        [completed-files, discoveries]
+      PASS  Back restores the previous fragment.
+      PASS  Back restores the marking for that section.
+      PASS  Back leaves the catalogue intact (3 / 3 / 8 / 4, single render).
+
+  B5  Browser Forward
+      page.goForward()
+      URL hash                                          #discoveries
+      .is-target                                        [completed-files, discoveries]
+      PASS  Forward returns to the later fragment.
+      PASS  Forward restores the marking for that section.
+      PASS  Forward does not duplicate content (8 discoveries).
+
+  B6  Reload of a deep-linked location
+      page.reload() on /archive/#discoveries
+      URL hash after reload                             #discoveries
+      .is-target                                        [discoveries]
+      PASS  The fragment survives reload and the target is re-marked from a
+            fresh document.
+      PASS  The catalogue renders once after reload (3 / 3 / 8 / 4).
+      Note: the fresh document carries only one marker, which confirms the
+      accumulation in B3-B5 is in-session state rather than persisted state.
+
+  B7  Entry deep link
+      GET /archive/#file-the-ninth-bell
+      .is-target                                        [file-the-ninth-bell, discoveries]
+      PASS  The entry is marked as the target.
+      PASS  The entry is actually rendered (non-zero box for #file-the-ninth-bell).
+      Note: the entry deep link was reached from the same document, so the
+      earlier #discoveries marker persisted; see F1.
+
+  B8  Back out of the entry deep link
+      page.goBack()                                     /archive/#discoveries
+      PASS  Back leaves the entry deep link without breaking the page or
+            producing an error state.
+
+  B9  Unknown fragment
+      GET /archive/#not-a-real-entry
+      PASS  The Archive page is still served. (This navigation was same-document,
+            so no new HTTP response object exists; verified instead that
+            document.readyState was "complete", #main was present, three
+            .file entries were rendered and the title was
+            "The Archive - The Wrong Script".)
+      PASS  #hash-note became visible with the recovery message beginning
+            "No entry is filed under “not-a-real-entry”. The Archive has four
+            parts — Completed Files, ...".
+      PASS  The unknown fragment was not silently rewritten: location.hash
+            remained #not-a-real-entry, and no redirect occurred.
+      PASS  The catalogue stayed intact (3 files, 8 discoveries).
+
+  B10 Leaving the Archive and coming back
+      Click "#site-nav a[href='../gallery/']"           /gallery/
+      page.goBack()                                     /archive/
+      PASS  Navigation to another room works from the Archive.
+      PASS  Back restores the Archive.
+      PASS  The restored Archive is clean and single-rendered (3 / 3 / 8 / 4)
+            with no .is-target markers, because it is a fresh document load.
+
+  B11 Errors
+      PASS  No console errors, no uncaught page errors and no failed local
+            requests during Test B.
+
+Test B verdict: Back and Forward work correctly for the Archive's real
+section and entry navigation. Each fragment navigation creates one history
+entry, Back and Forward restore the matching fragment and marking, reload
+restores a deep link, unknown fragments are explained rather than redirected,
+and no step duplicated content or raised an error. The only imperfection is
+visual marker accumulation, described as F1.
+
+--------------------------------------------------------------------------------
+E. PRESERVATION
+--------------------------------------------------------------------------------
+
+No application files were modified in this pass.
+
+  git status --porcelain, before testing:   no entries (clean)
+  git status --porcelain, before commit:    only reports/PHASE-6-VERIFICATION.txt
+  Application source, styles, data, tests, README, save keys and configuration:
+  unchanged. The test harness was written to /tmp/phase6-verify.cjs, outside the
+  repository, precisely to avoid adding a file under tools/.
+
+Save-key preservation (Test C, executed at 1280 x 800 in a fresh browser
+context):
+
+  Three keys were seeded in localStorage after loading /archive/, a snapshot was
+  taken, the Archive was browsed (jump to #collections, jump to #discoveries,
+  jump to #record, open and close the spoiler disclosure twice, browser Back),
+  and a second snapshot was taken.
+
+  Seeded values:
+    tws                                     {"scene":"cast","v":1,"sentinel":"phase6-verification"}
+    wrong-script.story.the-ninth-bell.v1    {"watch":2,"sentinel":"phase6-verification"}
+    wrong-script.arcade.signal-path.v1      {"unlocked":3,"sentinel":"phase6-verification"}
+
+  PASS  Three keys were present before browsing.
+  PASS  After browsing, all three values were byte-identical to the seeded
+        values (compared as sorted key=value strings, full values).
+  PASS  No additional storage key was created; localStorage held exactly those
+        three keys afterwards.
+  PASS  No console errors, page errors or failed requests during Test C.
+
+This is consistent with the Phase 6 handover's claim that the Archive is a
+read-only catalogue. It also matches the static check in tools/verify-archive.js,
+which asserts that the Archive scripts contain no storage, cookie or network API
+and none of the three save-key strings.
+
+--------------------------------------------------------------------------------
+F. DEFECTS AND LIMITATIONS
+--------------------------------------------------------------------------------
+
+F1  MINOR COSMETIC DEFECT — target markers accumulate within a session
+    Status: OPEN. Not fixed, because this pass carries no authorisation to
+    change application code.
+
+    Reproduction:
+      1. Open /archive/.
+      2. Click the "Completed Files" jump link, then the "Discoveries" jump link.
+      3. Observe that both #completed-files and #discoveries carry .is-target.
+      4. Use Back and Forward; both markers remain.
+
+    Observed:      multiple sections simultaneously carry .is-target
+                   ([completed-files, discoveries]); after an entry deep link the
+                   entry and the previous section both carry it.
+    Expected:      only the currently addressed section or entry is highlighted.
+    Cause:         assets/js/archive.js, resolveHash() adds .is-target to the
+                   resolved target and never removes it from a previous target.
+                   .is-target is styled in assets/css/archive.css as
+                   box-shadow: inset 2px 0 0 var(--gold), so each stale marker
+                   keeps a gold inset bar.
+    Impact:        cosmetic and confined to one browsing session. It does not
+                   break navigation, duplicate content, corrupt state, persist
+                   anything, or raise errors; a reload leaves exactly one marker.
+                   Back/Forward still restore the correct fragment.
+    Suggested fix (not applied): remove .is-target from previously marked nodes
+                   before marking the new target inside resolveHash().
+    Authorisation required before changing assets/js/archive.js.
+
+F2  FALSE-POSITIVE TEST FAILURE (harness defect, not an application defect)
+    Recorded so the audit trail is complete.
+
+    Run 1 reported: FAIL  B9 an unknown fragment still returns the Archive page
+                    [status null]
+    Cause:         page.goto() from /archive/#discoveries to
+                   /archive/#not-a-real-entry is a same-document fragment
+                   navigation, so Playwright returns no response object and the
+                   asserted status was null. The page itself was correct: the
+                   same run's later B9 checks passed (recovery note visible,
+                   fragment preserved, catalogue intact).
+    Resolution:    the assertion was corrected in the harness to verify the
+                   document (readyState, #main, rendered entries, title) when no
+                   response object exists. No application code was touched.
+    Run 2:         PASS on the corrected assertion; the full suite exited 0.
+
+F3  Checks not performed, and why
+
+    NOT TESTED      A physical phone or tablet. Mobile coverage is Chromium
+                    emulation at 390 x 844 with touch enabled and a device scale
+                    factor of 3.
+    NOT TESTED      Real touch gestures (swipe, tap pressure). The toggle and
+                    links were operated with pointer clicks in a touch-enabled
+                    context.
+    NOT TESTED      Screen-reader or other assistive-technology testing. No AT
+                    was run; no accessibility certification is implied. The
+                    aria-expanded/aria-controls state machine was observed, but
+                    that is not an AT audit.
+    NOT TESTED      Firefox, Safari or Edge. Chromium only.
+    NOT TESTED      Focus behaviour after Back/Forward (which element holds
+                    focus) — not asserted in this pass.
+    NOT TESTED      prefers-reduced-motion. Out of scope for this pass; it was
+                    verified in the Phase 6 handover and its browser suite.
+    CODE REVIEW ONLY  The absence of a focus trap in the open mobile panel, and
+                    whether the panel overlays page content. Inspected in
+                    assets/js/archive.js and the computed layout, not judged
+                    against an accessibility standard.
+
+    Environmental limitation: the sandbox provides no physical device and no
+    assistive technology, so those rows cannot be closed here.
+
+--------------------------------------------------------------------------------
+G. FINAL CONCLUSION
+--------------------------------------------------------------------------------
+
+Both requested checks were completed in a real browser and both pass.
+
+  Test A — small-screen Archive navigation:  PASS (26 assertions, all passed)
+  Test B — browser Back and Forward:         PASS (24 assertions, all passed)
+  Test C — save-key preservation:            PASS (4 assertions, all passed)
+
+One genuine, minor cosmetic defect was found and is reported openly as F1
+(target markers accumulate within a session). It is not a functional failure, it
+does not affect navigation, history behaviour or stored data, and it was not
+fixed because this pass is verification-only. It does not block review of this
+verification pass, but it should be scheduled as a small fix before or alongside
+Phase 7 if the owner wants the marker to stay exclusive.
+
+No application file, route, style, script, data file, save key, dependency or
+configuration was changed. The only repository change is this report.
+
+PHASE 6 VERIFICATION STATUS: READY FOR REVIEW
