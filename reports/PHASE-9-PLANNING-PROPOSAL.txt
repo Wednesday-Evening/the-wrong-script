@@ -1,0 +1,587 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 9 PLANNING PROPOSAL
+Planning only. No implementation, no commit, no push, no deployment.
+================================================================================
+
+Basis of this proposal: read-only inspection of Wednesday-Evening/the-wrong-script,
+branch appjet, at HEAD 3a2db224b79b65538fc4db820f0a7f65bd5e9a2d, working tree
+clean. Two shell inspections (repository history, route inventory, storage-API
+usage, line counts) plus reads of README.md and index.html. No file was created,
+modified or deleted; reports/PHASE-8-VERIFICATION-HANDOVER.txt is untouched and
+keeps its historical status.
+
+--------------------------------------------------------------------------------
+1. CURRENT PROJECT STATE
+--------------------------------------------------------------------------------
+
+1.1 Repository and branch
+
+  HEAD                 3a2db224b79b65538fc4db820f0a7f65bd5e9a2d
+                       "Edit reports/PHASE-8-VERIFICATION-HANDOVER.txt"
+  Working tree         clean (git status --porcelain empty)
+  Recent history       3a2db22 -> f40ca76 (Phase 8 report) -> 8c4bff1 (Phase 7
+                       report correction) -> d9fffec (Phase 7 report) ->
+                       573362f, 0df3bdc, ee55cc2 (Creator Studio implementation)
+  Reports retained     14 files in reports/, Phases 1-8 including scope review,
+                       verification and the 6A correction
+  Verification tools   9 files in tools/
+  Package manifest     none - consistent with the Phase 8 dependency scan:
+                       not_applicable, 0 packages
+
+1.2 Routes and rooms
+
+Ten routes, each a real directory with its own index.html:
+
+  Route                          Room                      State
+  -----------------------------  ------------------------  -------------------
+  /                              Lobby                     open, 199 lines
+  /film/                         Original Production       open, 209 lines,
+                                                           self-contained,
+                                                           protected
+  /stories/                      Stories library           open, 1 story live
+  /stories/the-ninth-bell/       The Ninth Bell            open, 5 endings,
+                                                           4-watch structure
+  /arcade/                       Arcade library            open, 1 game live
+  /arcade/signal-path/           SIGNAL PATH               open, 6 levels
+  /gallery/                      Gallery                   open, 6 categories,
+                                                           8 exhibits
+  /social-room/                  Social Room               open, 4 curated
+                                                           boards, read-only
+  /archive/                      Archive                   open, 3 files /
+                                                           3 collections /
+                                                           8 discoveries
+  /creator-studio/               Creator Studio            open, 5 read-only
+                                                           parts
+
+1.3 Code shape
+
+Plain HTML, CSS and vanilla JavaScript; no framework, no bundler, no backend, no
+external assets. Roughly 4,066 lines of JavaScript and 3,875 lines of CSS across
+17 JS and 7 CSS files, plus 11 HTML pages.
+
+A consistent layering has emerged, and it is the project's main architectural
+asset:
+
+  - Content as data      stories-index.js, arcade-games.js,
+                         signal-path-levels.js, gallery-exhibits.js,
+                         social-room-content.js, archive-content.js,
+                         creator-studio-content.js, the-ninth-bell.js.
+  - Rendering as code    one page script per room, DOM construction via
+                         createElement/textContent.
+  - DOM-free rules       signal-path-core.js, testable without a browser.
+  - Shared presentation  lobby.css first, then a per-room stylesheet for that
+                         room's identity.
+  - Per-room navigation  the same <nav id="site-nav" aria-label="Platform">
+                         markup, hand-written into every page with relative
+                         paths.
+
+1.4 Persistence map (verified by search)
+
+  Key                                   Written by              Read by
+  ------------------------------------  ----------------------  ------------
+  tws (+ tws.corrupt recovery copy)     film/index.html only    film/index
+                                                                .html;
+                                                                lobby.js
+                                                                read-only
+  per-story save key + per-story        story-engine.js         story-engine
+  endings key (SAVE_KEY / FOUND_KEY)                            .js;
+                                                                stories-
+                                                                library.js
+                                                                reads
+                                                                story.saveKey
+  wrong-script.arcade.signal-path.v1    signal-path.js          signal-path
+                                                                .js
+
+Gallery, Social Room, Archive and Creator Studio code contains no localStorage,
+sessionStorage, cookie or IndexedDB call at all. That is a strong invariant and
+should be defended explicitly in every future phase.
+
+1.5 Verification inventory - and its shape
+
+  Suite                      Covers
+  -------------------------  -----------------------------------------------
+  verify-archive.js / -ui    Archive content, links, spoilers, 9-10 routes x
+                             2 viewports, focus, reduced motion, save
+                             isolation, film-unchanged Git assertion
+  verify-gallery.js / -ui    Exhibits, on-disk artwork, isolation; route matrix
+  verify-social-room.js/-ui  Boards, every destination on disk, isolation
+  verify-creator-studio      Content shape, links, isolation; 10 routes, 5 parts
+  verify-signal-path.js      Solves all six levels, rules, save reader
+
+Coverage asymmetry: the newest four rooms have dedicated suites; the Lobby,
+/stories/, /stories/the-ninth-bell/ and /film/ have none of their own. They are
+covered only as route-smoke rows inside other rooms' UI suites. The film's
+protection currently rests on one Git-based assertion inside verify-archive.js.
+
+1.6 Documentation state
+
+README.md is unusually good - a full file map, a "how to add a story" recipe, a
+"how to add a game" recipe, the reader contract, the save contracts and a
+Phase 1-7 status list. But it stops at Phase 7, the Lobby eyebrow still reads
+"Phase seven - the creator studio is open", the Lobby footer still says
+"Phase seven: ...", and the Lobby discovery strip still carries three "Sample"
+placeholder cards. These are honest, but they are now the most visible remaining
+placeholders in the product.
+
+1.7 The platform in one paragraph
+
+Seven rooms are open, all of them curated and read-only, all reachable from a
+single Lobby, with three isolated save keys and no accounts, tracking, network
+calls or dependencies. The universe has breadth. What it does not yet have is
+depth (one story, one game) or a proven growth path (the "add a story/game"
+recipes have each been exercised exactly once - on the content that created
+them).
+
+--------------------------------------------------------------------------------
+2. OUTSTANDING WORK AND TECHNICAL LIMITATIONS
+--------------------------------------------------------------------------------
+
+2.1 Recorded defects (none fixed; Phase 8 was verification-only)
+
+  ID      Finding                                              Status
+  ------  -----------------------------------------------------  ------------
+  DEF-01  Lobby card meta links measure 252x13px; siblings      Recommended
+          255x23px; "Read it" 49x16px - below the 24px minimum  for correction
+  DEF-03  One 41px standalone control on /gallery/, /archive/,  Recommended
+          /creator-studio/, /social-room/                       for correction
+  DEF-02  /film/ has no heading structure                       Protected -
+                                                                do not touch
+                                                                unless the
+                                                                owner grants an
+                                                                explicit
+                                                                preservation
+                                                                exception
+
+2.2 Verification gaps still open after Phase 8
+
+  Gap                                   Phase 8 status   What would close it
+  ------------------------------------  ---------------  -------------------
+  Firefox, Safari/WebKit                BLOCKED          Environment with
+                                        (engines         package install,
+                                        download but     or owner machine
+                                        cannot launch;
+                                        no root, no apt
+                                        sources)
+  Microsoft Edge                        NOT TESTED       Same
+  Physical Android / iPhone             BLOCKED          Owner hardware
+  TalkBack / VoiceOver / NVDA / JAWS    NOT TESTED       Owner hardware plus
+                                                         a scripted manual
+                                                         pass
+  Zoom/reflow at 200% and 400%,         NOT TESTED       Achievable in
+  forced-colours, OS text scaling                        Chromium here -
+                                                         cheapest remaining
+                                                         accessibility
+                                                         evidence
+  Contrast on gradient/image            NOT TESTED       Sampled pixel
+  backgrounds                           (method needs    measurement, or
+                                        a flat           manual review
+                                        background)
+  Focus position after Back/Forward     NOT TESTED       One assertion in
+                                        (logged, not     the Archive UI
+                                        asserted)        suite
+  Full film playthrough in Phase 8      NOT TESTED       A dedicated film
+                                                         verifier (see 4C)
+
+2.3 Structural debt worth naming now
+
+  1. Navigation is duplicated in eleven HTML files. Adding a room means editing
+     every page by hand, and two UI suites encode expected nav behaviour. This is
+     the highest-probability source of a future silent drift bug.
+  2. No single test entry point. Nine suites must be run in three groups; nothing
+     guarantees all of them run before a phase closes.
+  3. No suite for the Lobby, Stories or the film. The rooms with the most history
+     have the least automated coverage.
+  4. The "add a story" and "add a game" recipes are untested as recipes. The
+     engine's per-story parameterisation has been exercised with exactly one
+     story.
+  5. CSS has no shared token layer beyond lobby.css. Seven room stylesheets
+     (452-810 lines each) each restate palette and rhythm; drift is already
+     possible and will compound.
+  6. No 404 page and no metadata beyond <title>/description per page. Deep links
+     are hash-based, so this is polish, not breakage.
+  7. No performance budget. Nothing measures page weight; nothing would notice a
+     doubling.
+
+2.4 Content scale
+
+One story, one game, eight exhibits. Every structural claim in the README about a
+growing library is currently a promise tested once. This is the single biggest
+product risk: the platform looks like a library but has never held a second book.
+
+2.5 Documentation drift
+
+README phase list ends at Phase 7; Lobby copy and footer say "Phase seven"; the
+discovery strip's three sample cards describe things that "will" exist. None of
+this is dishonest - all of it is now stale, and stale copy on the front door is
+exactly what this project has been careful to avoid.
+
+--------------------------------------------------------------------------------
+3. RECOMMENDED NEXT DEVELOPMENT DIRECTION
+--------------------------------------------------------------------------------
+
+Recommendation: Phase 9 = "Depth and Proven Modularity"
+
+Add one new interactive story and one new game, using only the documented recipes
+and without restructuring the engine; close DEF-01 and DEF-03; retire the Lobby's
+placeholder strip and stale milestone copy; and add the two missing pieces of
+verification infrastructure (a nav-parity check and a single verify-all entry
+point).
+
+Why this, and not something else:
+
+  1. It tests the platform's central claim. Every future phase depends on
+     "content is data; adding a room is mechanical". That claim has been
+     exercised once, on the content that defined it. A second story and a second
+     game prove or disprove it cheaply, while the code is small.
+  2. It is the lowest-risk way to grow. No new architecture, no new storage keys
+     beyond the two namespaced ones, no new dependencies, no backend decision
+     required. Every failure mode is local and reversible.
+  3. It fixes the only defects that exist while the code is fresh in context, and
+     it clears the front-door placeholders - the two things a returning visitor
+     would actually notice.
+  4. It buys information for the big decision. The participation question
+     (accounts, submissions, moderation) is not a code phase; it needs an owner
+     decision about hosting and architecture. Phase 9 does not block on it and
+     produces the evidence that decision needs: what a real library costs to
+     maintain.
+
+Alternatives considered
+
+  Option                        Cost / risk                     Verdict
+  ----------------------------  ------------------------------  -------------
+  B. Participation groundwork   Medium; needs a hosting and     Defer to a
+     Design spike for accounts, data decision the owner has    gated
+     submissions, moderation,   not made; a static site cannot  planning
+     no production code         host it                         phase (7)
+
+  C. Accessibility conformance  Small-medium; valuable but does  Absorb the
+     DEF-01/03, zoom/reflow,    not advance the universe, and   cheap parts
+     forced-colours, focus      cross-engine/AT remains         into Phase 9;
+     restoration                blocked here                    keep the rest
+                                                                as a standing
+                                                                track
+
+  D. Platform polish            Small; improves feel, changes   Partly
+     Wayfinding page, 404,      nothing structurally            included (nav
+     metadata, performance                                      parity, copy);
+     budget, CSS tokens                                         rest deferred
+
+On DEF-02 and the film: unchanged and protected. No proposal here touches film/,
+its scenes, dialogue, puzzles, endings, post-credits sequence, hash history or
+the tws key.
+
+--------------------------------------------------------------------------------
+4. PROPOSED SCOPE AND EXCLUSIONS
+--------------------------------------------------------------------------------
+
+4A. Corrections (small, bounded)
+
+  #   Work                                                     Files
+  --  -------------------------------------------------------  --------------
+  A1  Close DEF-01: bring Lobby card meta links to >=24px,     assets/css/
+      ideally the 44px pattern                                 lobby.css only
+  A2  Close DEF-03: identify the 41px control per room and     assets/css/
+      correct padding to >=44px                                {gallery,
+                                                               archive,
+                                                               creator-studio,
+                                                               social-room}.css
+  A3  Retire the three "Sample" discovery cards; replace with  index.html,
+      real, existing content (e.g. Archive/Gallery features)   assets/js/
+      or remove the strip honestly                             lobby.js if the
+                                                               strip is
+                                                               generated
+  A4  Refresh milestone copy: Lobby eyebrow + footer, and the  index.html
+      "Six rooms open" heading vs. seven destinations
+  A5  README: add Phase 9 to the status list, document new     README.md
+      story/game, update the file map
+
+4B. Depth (the substance)
+
+  #   Work                     Requirements
+  --  -----------------------  ---------------------------------------------
+  B1  One new story in The     Original, teen-suitable, non-romantic; >=2
+      Stories                  substantially different routes; >=3 endings;
+                               own saveKey; data file under stories/data/;
+                               record with status 'live'; page at
+                               stories/<slug>/; restart + return to library;
+                               malformed saves rejected without overwriting
+  B2  One new game in the      Original, single-player, finite; >=6
+      Arcade                   handcrafted levels; DOM-free rules module; own
+                               saveKey; keyboard + >=44px touch controls;
+                               restart; genuine completion + replay; no
+                               timer, streaks or monetisation
+
+Both must use the existing recipes. If either requires changing the shared
+engine, that is a stop condition - report and wait, rather than refactoring.
+
+4C. Verification infrastructure (small, high leverage)
+
+  #   Work                                                        Why
+  --  ----------------------------------------------------------  ----------
+  C1  tools/verify-nav.js - asserts every one of the 11 pages    Kills the
+      carries the same 8-destination platform nav, that every     duplication-
+      relative href resolves to a real directory, and that        drift class
+      exactly one link is aria-current                            of bug
+  C2  tools/verify-all.sh - runs all suites in one command,      Makes "all
+      fails on first non-zero                                     checks ran"
+                                                                  auditable
+  C3  tools/verify-story.js (parameterised by story) - walks     Extends to the
+      every scene, proves every 'to' resolves, every ending is    second story,
+      reachable, no orphan scenes                                 retro-covers
+                                                                  the first
+  C4  tools/verify-film.js - read-only: film files unchanged     Gives the
+      vs. baseline, tws contract strings intact, hash history     protected film
+      present                                                     its own
+                                                                  standing guard
+
+Exclusions (explicitly not authorised by this proposal)
+
+Accounts, profiles, authentication, submissions, uploads, comments, reactions,
+voting, messaging, moderation dashboards, member-generated content of any kind;
+any backend, database, API, analytics or tracking; any framework, package
+manifest, dependency or build step; any deployment, hosting, DNS or domain
+change; any change to film/ including DEF-02; any change to existing story, game,
+exhibit, board or catalogue content; any redesign of an existing room; Phase 10
+work; speculative refactors.
+
+Sequencing and a fallback split
+
+Recommended order: C1 -> C3 -> A1/A2 -> A4 -> B1 -> B2 -> A3 -> A5 -> C2/C4.
+If the owner prefers a smaller phase, split at the arrow: Phase 9A = C1, C3, A1,
+A2, A4, C2 (corrections + infrastructure, low risk); Phase 9B = B1, B2, A3, A5,
+C4 (depth). 9A is safe to approve alone; 9B is the one that advances the vision.
+
+--------------------------------------------------------------------------------
+5. RISKS AND PRESERVATION REQUIREMENTS
+--------------------------------------------------------------------------------
+
+  #   Risk                                    L     I      Mitigation
+  --  --------------------------------------  ----  -----  -----------------
+  R1  A second story exposes an assumption    Med   Med    C3 verifier
+      in story-engine.js that only held for                 written before
+      one story                                             the story; engine
+                                                            changes only with
+                                                            documented
+                                                            justification,
+                                                            else stop
+  R2  Nav drift when a destination is added   High  Med    C1 nav-parity
+      or renamed                              over         assertion in the
+                                              time         same phase
+  R3  Save-key collision or cross-room        Low   High   Namespaced keys
+      storage access                                        only; isolation
+                                                            assertions
+                                                            extended; grep
+                                                            static check kept
+  R4  tws disturbed indirectly (film edited   Low   High   Film excluded from
+      "for consistency")                                    scope; C4 + Git
+                                                            assertion; stop on
+                                                            any diff under
+                                                            film/
+  R5  Accessibility corrections alter visual  Med   Low    Padding/hit-area
+      design unintentionally                                only; before/
+                                                            after measurements
+                                                            recorded
+  R6  New content drifts from the honest-     Med   Med    Content review
+      labelling rule (fake counts, implied                  against existing
+      community)                                            labelling
+                                                            vocabulary
+  R7  Phase grows into a redesign             Med   Med    Written exclusions;
+                                                            stop conditions;
+                                                            scope split
+                                                            available
+  R8  Verification claimed beyond what ran    Low   High   Status labels only:
+                                                            PASS / FAIL / NOT
+                                                            TESTED / CODE
+                                                            REVIEW ONLY /
+                                                            BLOCKED / NOT
+                                                            APPLICABLE
+
+Preservation contract (must hold at the end of Phase 9)
+
+  - film/ byte-identical; scenes, dialogue, three puzzles, three endings,
+    post-credits scene, replay, hash history and tws untouched; DEF-02 unresolved
+    by design.
+  - tws, the per-story keys and wrong-script.arcade.signal-path.v1 unchanged in
+    format and semantics; no existing key read, written or cleared by any new
+    code.
+  - Gallery, Social Room, Archive and Creator Studio stay storage-free and
+    network-free.
+  - Every existing route, deep link and hash behaviour still works.
+  - No dependency, manifest, build step, framework, backend or external request.
+  - No deployment, hosting, DNS or environment change.
+  - reports/PHASE-8-VERIFICATION-HANDOVER.txt and all earlier reports remain
+    unchanged.
+
+Stop conditions
+
+Material change to branch baseline or history; any required change under film/;
+any required engine rewrite; any need for a dependency, backend or account
+system; any ambiguity requiring a product decision outside the approved scope.
+
+--------------------------------------------------------------------------------
+6. MEASURABLE ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
+
+Each is a gate with a stated measurement. Anything not measured is reported NOT
+TESTED, never assumed.
+
+  ID     Criterion                        Measurement / threshold
+  -----  -------------------------------  ----------------------------------
+  AC-1   Nav parity across all 11 pages   node tools/verify-nav.js exits 0;
+                                          same 8 destinations, all hrefs
+                                          resolve on disk, exactly one
+                                          aria-current
+  AC-2   All routes load cleanly at both  11 routes x 390x844 and 1280x800:
+         widths                           HTTP 200, 0 console errors, 0 page
+                                          errors, 0 failed local requests,
+                                          0px horizontal overflow
+  AC-3   New story is genuinely complete  Verifier walks the data: every 'to'
+                                          resolves, every ending reachable,
+                                          >=2 distinct routes, no orphan
+                                          scenes, own saveKey, status 'live'
+  AC-4   New game is genuinely complete   Solver proves every level solvable;
+                                          gating, blocking, move counting,
+                                          restart, final completion + replay;
+                                          own saveKey
+  AC-5   DEF-01 closed                    Every standalone interactive target
+                                          on / measures >=24x24 CSS px; card
+                                          CTAs >=44px; before/after numbers
+                                          recorded
+  AC-6   DEF-03 closed                    0 standalone controls below 44px on
+                                          /gallery/, /archive/,
+                                          /creator-studio/, /social-room/, or
+                                          a documented, owner-approved
+                                          exception
+  AC-7   Storage isolation holds          Three existing keys byte-identical
+                                          before/after browsing every room;
+                                          no new key created by any read-only
+                                          room
+  AC-8   Film protected                   git diff --stat <start>..HEAD --
+                                          film/ empty; verify-film.js and the
+                                          existing Archive assertion both pass
+  AC-9   Reduced motion respected         Every room with motion reports
+                                          transition 0ms and animation 0ms
+                                          under emulation
+  AC-10  One command proves the suite     tools/verify-all.sh exits 0 and lists
+                                          every suite it ran
+  AC-11  Dependency posture unchanged     Scan still not_applicable, 0 packages,
+                                          0 findings; no manifest added
+  AC-12  No placeholders on the front     Lobby contains 0 unlabelled
+         door                             placeholder cards; every card links
+                                          to real content or is removed
+  AC-13  Documentation truthful           README phase list includes Phase 9 and
+                                          the new files; Lobby eyebrow/footer
+                                          state the current milestone and
+                                          correct room count
+  AC-14  Keyboard and focus intact        Tab traversal reaches every control on
+                                          new pages; every stop shows a visible
+                                          indicator; no focus traps
+  AC-15  Page weight recorded             Uncompressed bytes per route recorded
+                                          in the report (informational; no gate
+                                          until the owner sets a budget)
+
+--------------------------------------------------------------------------------
+7. TESTING STRATEGY AND FUTURE ROADMAP
+--------------------------------------------------------------------------------
+
+7.1 Test tiers
+
+  Tier  What it is                    Catches              Cannot catch
+  ----  ----------------------------  -------------------  ---------------
+  T0    Static verifier (Node, no     Data errors, dead    Rendering,
+        deps): content shape, counts, links, key leakage   layout
+        link resolution on disk,
+        storage-string isolation,
+        film diff
+  T1    Rules tests (DOM-free):       Logic errors,        Anything visual
+        SIGNAL PATH rules, story      unreachable endings
+        graph traversal
+  T2    Chromium UI verifier          Layout overflow,     Other engines,
+        (390 + 1280): route matrix,   console errors,      real devices, AT
+        interaction, focus, reduced   broken interactions
+        motion, storage snapshots
+  T3    Cross-room regression         Partial-suite        Nothing beyond
+        (verify-all.sh): every suite, regressions          T0-T2
+        one command
+  T4    Manual owner-environment      Real-world           Nothing - it is
+        matrix: Firefox, Safari,      accessibility and    the last mile
+        Edge, real phones, TalkBack/  engine differences
+        VoiceOver/NVDA, 200%/400%
+        zoom, forced-colours
+
+Evidence rules: every row labelled PASS / FAIL / NOT TESTED / CODE REVIEW ONLY /
+BLOCKED / NOT APPLICABLE. Emulation is never reported as device testing;
+automated structural checks are never reported as screen-reader testing; a
+zero-package scan is never reported as a security certification. Historical
+failures are preserved, not rewritten.
+
+What this environment cannot close, and should not pretend to: Firefox, WebKit,
+Edge, physical devices and every assistive technology. The cheapest genuinely new
+accessibility evidence available here is Chromium zoom/reflow at 200% and 400%,
+forced-colours mode and OS text scaling - recommended as a T2 extension whenever
+the owner next authorises corrections.
+
+7.2 Roadmap
+
+  Phase  Content                          Gate
+  -----  -------------------------------  ----------------------------------
+  9      Depth + proven modularity +      Does the library scale without
+         DEF-01/03 + verification         engine changes?
+         infrastructure (section 4)
+  10     Verification closure in the      Can we claim anything beyond
+         owner's environment: Firefox/    Chromium?
+         Safari/Edge, real phones, AT
+         pass, zoom/reflow/forced-
+         colours; plus polish (404,
+         metadata, CSS tokens)
+  11     Participation architecture       Owner decision on backend/hosting;
+         decision - planning only.        no production code until decided
+         Hosting model, data store,
+         identity, moderation policy,
+         review tooling
+  12     Creator Studio Phase 2 -         Phase 11 outcome; moderation
+         submission and review pipeline   policy agreed before any upload
+         behind the published standard    exists
+
+The ordering matters: 9 makes the universe deep enough to be worth joining; 10
+makes quality claims defensible; 11 decides whether joining is even possible on
+this architecture; 12 builds it. Skipping to 12 without 11 would break the
+static, dependency-free, no-accounts property that Phases 1-8 protected
+deliberately.
+
+--------------------------------------------------------------------------------
+8. DECISIONS NEEDED FROM THE OWNER
+--------------------------------------------------------------------------------
+
+  1. Approve Phase 9 as proposed, or choose 9A only (corrections +
+     infrastructure) or 9B only (depth).
+  2. Confirm DEF-01 and DEF-03 may be corrected in Phase 9 (section 4A). They are
+     recommended, not assumed.
+  3. Confirm DEF-02 stays protected - my recommendation is that it remains
+     untouched, permanently unless a separate preservation exception is granted.
+  4. Confirm one new story and one new game, or a single experience if you prefer
+     a narrower phase.
+  5. Note the standing gap: cross-engine, physical-device and
+     assistive-technology verification cannot be produced from this sandbox and
+     needs your environment or explicit acceptance of the limitation.
+
+--------------------------------------------------------------------------------
+9. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - No application file, asset, style, script, data file, route, test or
+    configuration was created, modified or deleted in producing this proposal.
+  - No commit, push, branch change or deployment occurred. HEAD remained
+    3a2db224b79b65538fc4db820f0a7f65bd5e9a2d; the working tree remained clean.
+  - reports/PHASE-8-VERIFICATION-HANDOVER.txt is unchanged, with its historical
+    status and findings intact.
+  - Phase 8 is treated as accepted with documented limitations, as instructed.
+    Nothing here reopens it.
+  - No accessibility correction pass was substituted for this assignment; DEF-01
+    and DEF-03 are recommendations only.
+  - Implementation had not started when this proposal was written.
+
+================================================================================
+PHASE 9 PLANNING PROPOSAL: SUBMITTED FOR OWNER REVIEW
+================================================================================
