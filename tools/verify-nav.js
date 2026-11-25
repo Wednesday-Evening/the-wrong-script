@@ -105,6 +105,10 @@ function resolve(pageFile, href) {
   let target = path.posix.normalize(path.posix.join(dir, clean));
   if (target.startsWith('../')) { return target; }
   if (target.endsWith('/')) { target += 'index.html'; }
+  /* normalize('./') is './', so a self link from a root page resolves to
+     './index.html'; compare it against the room table as 'index.html'. */
+  target = path.posix.normalize(target);
+  if (target === '.' || target === './') { target = 'index.html'; }
   return target;
 }
 
@@ -249,11 +253,27 @@ check('the film carries no platform navigation', function () {
 });
 
 check('the film is not listed as a story or a game', function () {
+  /* Only the identifying fields are inspected. The catalogues are allowed to
+     mention the film in prose - a note saying progress is kept separate from
+     the film is honest and expected - but neither may link to it. */
   const stories = read('assets/js/stories-index.js');
   const games = read('assets/js/arcade-games.js');
-  if (/film\//.test(stories)) { throw new Error('stories catalogue links the film'); }
-  if (/'film'|film\//.test(games)) { throw new Error('arcade catalogue links the film'); }
-  return 'kept separate';
+  const bad = [];
+  const fieldValues = function (source, field) {
+    return [...source.matchAll(new RegExp(field + ":\\s*'([^']+)'", 'g'))]
+      .map(function (m) { return m[1]; });
+  };
+
+  fieldValues(stories, 'slug').concat(fieldValues(games, 'id')).forEach(function (value) {
+    if (/film/i.test(value)) { bad.push('listed as ' + value); }
+  });
+  fieldValues(stories, 'href').concat(fieldValues(games, 'href'), fieldValues(games, 'path'))
+    .forEach(function (value) {
+      if (/film/i.test(value)) { bad.push('links to ' + value); }
+    });
+
+  if (bad.length) { throw new Error(bad.join('; ')); }
+  return 'kept separate from both catalogues';
 });
 
 /* ----------------------------------------------------------- catalogues */

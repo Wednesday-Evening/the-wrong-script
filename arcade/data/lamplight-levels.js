@@ -5,13 +5,16 @@
    it points, and the orientation of every mirror in the solved state.
 
    `solution` is documentation and a test fixture, not a hint the page
-   shows: tools/verify-lamplight.js ignores it, brute-forces each room from
-   the grid alone, and then checks the stored answer agrees. If the two ever
-   disagree the suite fails.
+   shows: tools/verify-lamplight.js ignores it while searching, brute-forces
+   each room from the grid alone, and then checks the stored answer really
+   does light every window. If the two ever disagree the suite fails.
 
    Mirror order is reading order: sorted by row, then by column. Every grid
-   starts unsolved - the beam leaves the room immediately - so no room is
-   handed to the player already finished.
+   starts unsolved - the beam leaves the room without lighting everything -
+   so no room is handed to the player already finished.
+
+   Cell key:  .  empty      #  wall      *  window
+              S  the lamp   /  \  mirror (two states)
    ===================================================================== */
 
 window.LAMPLIGHT_LEVELS = [
@@ -22,12 +25,12 @@ window.LAMPLIGHT_LEVELS = [
     idea: 'One mirror, one window. The beam has to come down.',
     source: { x: 0, y: 1, dir: 'e' },
     grid: [
+      '..*..',
+      'S.\\..',
       '.....',
-      'S../.',
-      '.....',
-      '..*..'
+      '.....'
     ],
-    solution: ['\\']
+    solution: ['/']
   },
   {
     id: 'long-corridor',
@@ -37,9 +40,9 @@ window.LAMPLIGHT_LEVELS = [
     source: { x: 0, y: 1, dir: 'e' },
     grid: [
       '.......',
-      'S.../..',
-      '....*..',
-      '....\\.*',
+      'S..\\...',
+      '...*...',
+      '.../..*',
       '.......'
     ],
     solution: ['\\', '\\']
@@ -51,14 +54,14 @@ window.LAMPLIGHT_LEVELS = [
     idea: 'The beam turns twice and climbs a wall to reach the far window.',
     source: { x: 0, y: 2, dir: 'e' },
     grid: [
-      '../..\\.',
+      '../..//.',
       '..*....',
-      '..\\....',
-      '.......',
+      'S.\\....',
       '.....*.',
+      '.......',
       '.......'
     ],
-    solution: ['/', '/', '\\']
+    solution: ['/', '\\', '/']
   },
   {
     id: 'the-annex',
@@ -67,10 +70,10 @@ window.LAMPLIGHT_LEVELS = [
     idea: 'Four mirrors, three windows, one long way round.',
     source: { x: 0, y: 0, dir: 'e' },
     grid: [
-      '.../...',
-      '...*...',
-      '...\\..\\',
-      '......*',
+      'S*./...',
+      '.......',
+      '...\\.*/',
+      '.......',
       '....*.\\'
     ],
     solution: ['\\', '\\', '\\', '/']
@@ -82,14 +85,14 @@ window.LAMPLIGHT_LEVELS = [
     idea: 'Five mirrors. The beam crosses the same row twice without meeting itself.',
     source: { x: 0, y: 0, dir: 'e' },
     grid: [
-      '../...',
-      '..*...',
-      '../.\\.',
-      '.*..*.',
+      'S*/...',
+      '.....*',
+      '..\\*/..'.slice(0, 6),
       '......',
-      '.\\.*/.'
+      '..../\\',
+      '......'
     ],
-    solution: ['\\', '\\', '\\', '/', '/']
+    solution: ['\\', '\\', '\\', '\\', '/']
   },
   {
     id: 'the-signal-room',
@@ -98,13 +101,13 @@ window.LAMPLIGHT_LEVELS = [
     idea: 'Six mirrors and five windows. The last stretch runs back across the room.',
     source: { x: 0, y: 0, dir: 'e' },
     grid: [
-      '../...',
-      '......',
-      '\\.*\\./.',
-      '*.*.*.',
-      '../*\\\\.',
+      'S*/...',
+      '.\\..*.',
+      '../*/.',
+      '.*..*.',
+      './../.',
       '......'
     ],
-    solution: ['\\', '/', '\\', '\\', '\\', '/']
+    solution: ['\\', '/', '\\', '\\', '\\', '\\']
   }
 ];
