@@ -1,0 +1,338 @@
+================================================================================
+THE WRONG SCRIPT - PHASE 6: THE ARCHIVE
+SCOPE REVIEW OF THE PLANNING BRIEF
+================================================================================
+Review date:   25 November 2026
+Repository:    Wednesday-Evening/the-wrong-script
+Branch:        appjet
+Reviewed HEAD: 1da207d (report-only commit; application code unchanged since
+               implementation commit 65038cb)
+Working tree:  clean
+
+Review type: ANALYSIS ONLY. No implementation. No application code, route,
+asset, stylesheet, script, data file or save key was changed.
+
+--------------------------------------------------------------------------------
+1. VERDICT
+--------------------------------------------------------------------------------
+The scope is buildable as described, in plain HTML, CSS and vanilla JavaScript,
+with no new dependency, no storage, no backend and no framework change. All four
+proposed areas can be populated from content that already exists in the
+repository.
+
+Recommendation: approve Phase 6 for an implementation prompt, subject to the
+four decisions in section 8. One is substantive (D1: whether the Archive shows
+personal completion) and one corrects an existing Lobby promise that the
+proposed scope does not cover (F2).
+
+Two items need a wording adjustment rather than a scope change. The brief's
+phrasing "revisit completed experiences" and "discover what you may have missed"
+implies per-visitor tracking that the brief itself forbids (F1). And the Lobby's
+current Archive card advertises material the project does not hold (F2).
+
+--------------------------------------------------------------------------------
+2. WHAT WAS CHECKED (evidence, not assumption)
+--------------------------------------------------------------------------------
+Route inventory - 8 pages, all present:
+
+  /                            index.html
+  /film/                       film/index.html
+  /stories/                    stories/index.html
+  /stories/the-ninth-bell/     stories/the-ninth-bell/index.html
+  /arcade/                     arcade/index.html
+  /arcade/signal-path/         arcade/signal-path/index.html
+  /gallery/                    gallery/index.html
+  /social-room/                social-room/index.html
+
+Shared navigation: the markup <nav class="site-nav" id="site-nav"
+aria-label="Platform"> appears on 7 pages. film/index.html contains zero
+occurrences - the film is a standalone experience with no platform navigation.
+That is what makes "do not alter the original film" straightforward here: the
+Archive adds no link inside the film.
+
+The Archive already exists as a placeholder in the shared navigation of all
+seven platform pages, as a link carrying a "Soon" badge:
+
+  index.html:34                          href="#archive"
+  stories/index.html:35                  href="../#archive"
+  stories/the-ninth-bell/index.html:35   href="../../#archive"
+  arcade/index.html:35                   href="../#archive"
+  arcade/signal-path/index.html:35       href="../../#archive"
+  gallery/index.html:35                  href="../#archive"
+  social-room/index.html:35              href="../#archive"
+
+The Lobby also carries a destination card at index.html:129-133, headed
+"The Archive", with the stat line "Under construction / Phase 6".
+
+Film content verified in source (film/index.html):
+  - Three endings reachable from the final node: endA (repair the script),
+    endB (throw it away and make a new film), endC (leave the production).
+  - A post-credits node ("post") follows the exit ending.
+  - Scene deep links already work: the scene id is written to location.hash via
+    pushState, fromHash() restores it, and a hash present on load is normalised.
+  - The crew lounge reaches its "you've met everyone" state only when all four
+    crew members have been met.
+  - The art studio contains the Room 13 callback, and the painting chosen there
+    is referenced again at the final cut.
+  - Sound is off by default; a crew member tells the player where to switch it
+    on.
+
+The Ninth Bell verified in source (stories/data/the-ninth-bell.js):
+  - Five endings: The Hour Given (uneasy), The Silence (bittersweet),
+    The Ledger (hopeful), The Habit (uneasy), Relief (quiet).
+  - Flags in play: rope, chapel, rule, close, habit.
+  - The Ledger requires two separate discoveries (rule + close). The data file's
+    own header notes that the best ending needs both. This is the largest
+    spoiler in the project.
+
+Gallery verified in source (assets/js/gallery-exhibits.js):
+  - Six categories: visual-art, photography, poetry, writing, illustration,
+    music.
+  - Eight exhibits: red-room-no-take, set-dressing-study-iii,
+    low-water-halversen-light, ledger-of-small-hours, instructions-for-a-door,
+    the-understudy-note, the-booth, cue-07-the-door-opens-twice.
+  - Deep link contract: each card links to "#" plus the exhibit id, so
+    /gallery/#red-room-no-take is a real address. An unknown hash produces an
+    explanatory note rather than a broken view.
+  - The file header states that it holds no storage and no invented member
+    names, and that the photography exhibit was not shot with a camera and the
+    music exhibit is a written cue rather than a recording.
+
+Social Room verified in source (assets/js/social-room-content.js):
+  - Four areas: noticeboard, open-questions, gathering-board, whats-happening.
+  - Entries carry stable ids that double as deep links (/social-room/#<id>).
+  - Entry links point at real local routes: ../, ../gallery/,
+    ../stories/the-ninth-bell/, ../arcade/signal-path/.
+  - No storage.
+
+Precedent worth copying: gallery.js and social-room.js both keep their state in
+the URL hash only, and both say so in their file headers. Neither touches
+localStorage. The Archive should match that pattern exactly.
+
+--------------------------------------------------------------------------------
+3. FINDINGS
+--------------------------------------------------------------------------------
+
+F1 - "Revisit completed experiences" conflicts with the no-save-reading rule.
+  The purpose statement and area A imply the Archive knows what the visitor has
+  finished. It cannot: that requires reading the three save keys (tws,
+  wrong-script.story.the-ninth-bell.v1,
+  wrong-script.arcade.signal-path.v1), which sections 3 and 6 of the brief
+  forbid.
+
+  Recommendation: the Archive is a catalogue of works that HAVE conclusions, not
+  a record of what the visitor completed. State that in The Record and in a
+  one-line note beside Completed Files. Keep "your progress", "you have
+  completed" and "continue where you left off" out of Archive copy.
+
+  If per-visitor completion is genuinely wanted, it is a separate, explicitly
+  authorised decision requiring read-only save access, and the Archive must
+  still never write. See D1.
+
+F2 - The existing Lobby card promises content the project does not hold.
+  index.html:132 currently describes the Archive as "drafts, deleted scenes, and
+  what this film used to be before it lost the script". No draft artefacts,
+  deleted scenes or earlier film versions exist anywhere in the repository, and
+  the proposed scope does not produce them either.
+
+  Recommendation: Phase 6 must rewrite that card copy to describe what is
+  actually delivered. Left as is, it would be the one misleading promise on the
+  page, and the project's own test conventions already assert that stale
+  "coming soon" copy is removed.
+
+F3 - Completed Files should list three works, not two.
+  The Ninth Bell (five endings) and the original film (three endings plus
+  post-credits) are correct. SIGNAL PATH also has a genuine, finite conclusion:
+  six levels, a final completion state and a replay control. Excluding it would
+  make the Archive silently ignore the Arcade.
+
+  Recommendation: include SIGNAL PATH, labelled as a game with a definite end.
+  Exclude the Gallery (a collection, no conclusion) and the Social Room
+  (read-only boards, no ending). See D2.
+
+F4 - Discoveries are real, but they are corners, not buried secrets.
+  Verifiable candidates, each confirmed in source:
+    1. The film has three distinct endings, not one.
+    2. A post-credits scene follows the "leave the production" ending.
+    3. The film's crew lounge only completes when all four crew have been met.
+    4. The art studio references Room 13, and the painting chosen there
+       reappears at the final cut.
+    5. Any film scene can be linked directly by its hash and restores exactly.
+    6. The Ninth Bell has five endings; the hopeful one needs two separate
+       discoveries.
+    7. The Ninth Bell can be ended early, deliberately, and still reach a
+       complete ending.
+    8. SIGNAL PATH's beacon refuses to open while fragments remain, and says so.
+    9. The Gallery admits that its photography exhibit used no camera, and that
+       its music exhibit is a written cue rather than a recording.
+   10. Social Room entries double as deep links.
+
+  Recommendation: publish about eight, not all ten, and frame the section as
+  optional corners and details rather than promising hidden secrets. Item 6 is a
+  real spoiler and must sit behind disclosure. Item 10 is a navigation quirk
+  rather than a discovery - drop it, or mention it in The Record.
+
+F5 - The navigation edit surface is larger than the brief implies, and precise.
+  Making the Archive live requires touching 7 HTML files (the nav placeholder),
+  the Lobby card, and two paragraphs that currently say the Archive is still
+  being built (gallery/index.html:100, social-room/index.html:70), plus the
+  README line listing the Archive as reserved (README.md:76). The Lobby hero
+  eyebrow currently reads "Phase five - the social room is open" and needs
+  Phase 6 copy.
+
+  The film is excluded from this list by design: it has no platform navigation.
+
+  Recommendation: treat those edits as part of Phase 6 scope, and add a static
+  assertion that no page still labels the Archive "Soon" or "still being built"
+  - the pattern tools/verify-social-room.js already uses at line 351.
+
+F6 - No filters, no search, no new storage.
+  Three completed works, three collections and roughly eight discoveries do not
+  justify filters. In-page section navigation with real anchors is enough, and it
+  keeps every section deep-linkable without storing anything.
+
+  Recommendation: sections and anchors only. No localStorage, no sessionStorage,
+  no new key, no filter state. A static test should prove the Archive scripts
+  contain no storage API reference and none of the three existing keys.
+
+F7 - Deep-link contracts already exist; the Archive must join them.
+  Verified working patterns: /gallery/#<exhibit-id>, /social-room/#<entry-id>,
+  and film scenes by hash. Both Gallery and Social Room handle an unknown hash
+  with an explanatory note rather than a broken view.
+
+  Recommendation: the Archive must do the same for /archive/#<unknown>, and
+  every Archive link must use the real ids listed in section 2 rather than
+  approximations. A static test should resolve every href in the Archive data
+  against actual exhibit, entry, route and scene ids.
+
+--------------------------------------------------------------------------------
+4. CONTENT INVENTORY AVAILABLE TO THE ARCHIVE
+--------------------------------------------------------------------------------
+Completed works (3):
+  - The Ninth Bell - five endings, four watches, save key
+    wrong-script.story.the-ninth-bell.v1.
+  - The Wrong Script: Original Production - three endings plus post-credits,
+    save key tws.
+  - SIGNAL PATH - six levels, finite end, replay, save key
+    wrong-script.arcade.signal-path.v1.
+
+Collections - three supportable themes, each with real targets:
+  A. Choices and consequences
+     - The Ninth Bell: five endings, two of them needing specific discoveries.
+     - The original film: three routes out of the final cut.
+     - SIGNAL PATH: no timer, and an undo you can choose not to use.
+  B. Close observation
+     - Gallery poetry: ledger-of-small-hours, instructions-for-a-door.
+     - Gallery writing: the-understudy-note.
+     - The film's crew lounge, reachable only by meeting all four crew.
+  C. Rooms and doors
+     - Gallery visual art: red-room-no-take, set-dressing-study-iii.
+     - Gallery illustration: the-booth.
+     - The film's hub of doors, and its Room 13 callback.
+
+Discoveries: see F4 - publish about eight, with item 6 behind disclosure.
+
+The Record: an explanation of selection principles. No attendance, no awards, no
+contributor credits beyond "The Wrong Script Studio", which is the only
+attribution the project actually uses.
+
+--------------------------------------------------------------------------------
+5. RISKS
+--------------------------------------------------------------------------------
+R1  Spoiler leakage in preview text or aria labels.
+    Mitigation: generic summary text; the revealing sentence lives only inside
+    the disclosure.
+R2  Wrong or dead anchors.
+    Mitigation: static test resolves every href against real ids and routes.
+R3  Duplicating story or gallery prose.
+    Mitigation: one or two sentences per entry, then a link. No scene text.
+R4  Accidental personalisation language.
+    Mitigation: copy review pass; banned phrases listed in F1.
+R5  Navigation inconsistency across seven pages.
+    Mitigation: one assertion that every page's Archive link resolves relative
+    to its own depth and carries no "Soon" badge.
+R6  Implying member activity in The Record.
+    Mitigation: selection principles only; no attendance, awards or counts.
+R7  Scope creep into The Creator Studio, which also carries a "Soon" badge.
+    Mitigation: leave it untouched; the brief does not authorise it.
+
+--------------------------------------------------------------------------------
+6. RECOMMENDED IMPLEMENTATION SHAPE (for the future Phase 6 prompt)
+--------------------------------------------------------------------------------
+Created:
+  archive/index.html                  the page
+  assets/css/archive.css              page styles, own identity
+  assets/js/archive-content.js        data only: works, collections, discoveries
+  assets/js/archive.js                renderer and hash handling, no storage
+  tools/verify-archive.js             static checks
+  tools/verify-archive-ui.cjs         browser checks on port 4173
+  reports/PHASE-6-HANDOVER.txt        handover
+
+Modified:
+  index.html                          nav link live, card copy, hero eyebrow
+  stories/index.html                  nav link
+  stories/the-ninth-bell/index.html   nav link
+  arcade/index.html                   nav link
+  arcade/signal-path/index.html       nav link
+  gallery/index.html                  nav link plus closing paragraph
+  social-room/index.html              nav link plus closing paragraph
+  README.md                           route table and phase log
+
+Untouched: film/index.html and everything under film/; the story data file, the
+level data file and the exhibit data file; all three save keys.
+
+Acceptance additions worth writing into the prompt:
+  - All nine routes load at 390px and 1280px.
+  - Every Archive href resolves to a real route, exhibit id, entry id or scene.
+  - /archive/#unknown shows a recoverable note.
+  - Spoiler text is closed by default and reachable by keyboard.
+  - No storage API appears in Archive scripts, and the three save keys are
+    byte-identical before and after a browsing session.
+  - No page still labels the Archive "Soon" or "still being built".
+  - No console errors, page errors or failed local asset requests.
+
+--------------------------------------------------------------------------------
+7. WHAT THIS REVIEW DID NOT DO
+--------------------------------------------------------------------------------
+  - No application code, route, asset, stylesheet, script, data file,
+    configuration or save key was changed.
+  - No Phase 6 implementation was started and no /archive/ route was created.
+  - No browser or static test was run against a Phase 6 build, because none
+    exists. The existing suites were run only to confirm that this
+    documentation commit left the current revision intact.
+  - No deployment, hosting, DNS or environment change.
+  - Screen-reader behaviour, real-device behaviour and multi-browser behaviour
+    were not tested and are not certified.
+  - Dependency scanning is not applicable: the project has no package manifest,
+    no lockfile and zero resolved packages. That is not a security
+    certification of the source, the runtime or the hosted application.
+
+--------------------------------------------------------------------------------
+8. DECISIONS NEEDED BEFORE THE PHASE 6 PROMPT
+--------------------------------------------------------------------------------
+D1  Should the Archive show what the visitor personally completed?
+    Recommendation: NO. Keep it a catalogue. Personal completion needs read-only
+    access to the three save keys, which the brief forbids and which would couple
+    a browse-only page to saved progress.
+
+D2  Should SIGNAL PATH appear under Completed Files?
+    Recommendation: YES. It has a genuine finite ending and a replay control.
+
+D3  How should spoilers be revealed?
+    Recommendation: native <details>/<summary>, labelled "Spoiler". Keyboard and
+    screen-reader behaviour come for free, with no JavaScript and no motion.
+
+D4  Should the Archive carry a closing "alongside the other rooms" paragraph, as
+    the Gallery and Social Room do?
+    Recommendation: YES, for consistency - and it is the natural place to state
+    the read-only, no-personal-data boundary.
+
+If the owner is content with the recommended defaults, D1-D4 are sufficient to
+write the implementation prompt without further clarification.
+
+--------------------------------------------------------------------------------
+9. STATUS
+--------------------------------------------------------------------------------
+SCOPE REVIEW STATUS: READY FOR PHASE 6 IMPLEMENTATION PROMPT
+No implementation performed. Four decisions recommended above.
+================================================================================
