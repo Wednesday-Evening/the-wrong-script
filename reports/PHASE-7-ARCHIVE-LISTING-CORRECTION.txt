@@ -1,0 +1,311 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 7 PREPARATION - TASK 1
+SOCIAL ROOM ARCHIVE LISTING CORRECTION
+Maintenance handover report
+================================================================================
+
+Phase:            7 preparation, Task 1 (isolated maintenance correction)
+Status:           COMPLETE - awaiting owner review
+Date:             25 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    203cffcf8e7b46662b86769c5be70b54ff3e2118
+                  "Add Phase 7 planning and scope review: read-only studio
+                  recommendation, open decisions, carry-over limitations"
+Correction commit: bce9e6a3f14d5c0fe0654df45c8775978c64bb68
+Final HEAD:       Created after this report was written, so this file cannot
+                  contain its own hash. The report-only commit is recorded in
+                  the completion message that accompanies this handover.
+Working tree:     Clean at the start of the pass. Clean again after the
+                  correction commit; this report is the only pending change.
+Deployment:       NONE. No hosting, domain, DNS or environment change.
+Phase 7:          NOT STARTED. No Creator Studio page, asset or scope work.
+
+--------------------------------------------------------------------------------
+1. AUTHORISED SCOPE
+--------------------------------------------------------------------------------
+
+One correction only: the Social Room content object with id "happening-archive"
+in assets/js/social-room-content.js.
+
+In scope and done:
+  - Status corrected to the accurate open-status convention.
+  - Description replaced with a truthful description of the real Archive.
+  - A working relative link to ../archive/ added, in the same link-data shape
+    as the existing Gallery listing.
+
+Not done, as instructed: no Phase 7 implementation, no Creator Studio page or
+assets, no Option A work, no accessibility or cross-browser phase, no other
+Social Room object, no rendering or styling change, no other room or page, no
+save key or format change, no navigation or shared stylesheet change, no
+verification-script change, no dependency, backend, database, account, storage,
+network request, hosting change or deployment.
+
+--------------------------------------------------------------------------------
+2. PRE-FLIGHT STATE
+--------------------------------------------------------------------------------
+
+  git rev-parse HEAD          203cffcf8e7b46662b86769c5be70b54ff3e2118
+  git status --porcelain      no entries (clean)
+  git branch --show-current   appjet
+
+The target object was read directly from the file before editing
+(assets/js/social-room-content.js, lines 214-219), together with the Gallery
+listing (lines 205-212) that supplies the convention to follow.
+
+--------------------------------------------------------------------------------
+3. THE CORRECTION
+--------------------------------------------------------------------------------
+
+File:      assets/js/social-room-content.js
+Object id: happening-archive (inside the "whats-happening" area)
+
+BEFORE (lines 214-219):
+
+          {
+            id: 'happening-archive',
+            kind: 'Listing',
+            status: 'In preparation',
+            title: 'The Archive',
+            body: ['The record: drafts, deleted scenes, and what this film used to
+            be. Not built, and no date is being promised.']
+          },
+
+AFTER (lines 214-220):
+
+          {
+            id: 'happening-archive',
+            kind: 'Listing',
+            status: 'Open now',
+            title: 'The Archive',
+            body: ['Three completed works, three curated collections and eight
+            discoveries, kept as a read-only catalogue of verified material.'],
+            link: { label: 'Open the record', href: '../archive/' }
+          },
+
+3.1 FIELD-BY-FIELD
+
+  Field     Before                              After
+  --------  ----------------------------------  ------------------------------
+  status    "In preparation"                    "Open now"
+  body      "The record: drafts, deleted        "Three completed works, three
+            scenes, and what this film used     curated collections and eight
+            to be. Not built, and no date is    discoveries, kept as a read-only
+            being promised."                    catalogue of verified material."
+  link      (absent)                            { label: 'Open the record',
+                                                  href: '../archive/' }
+
+3.2 WHY "Open now"
+
+The convention was taken from the sibling Gallery listing in the same file
+(lines 205-212), which is the established way this room marks a destination that
+genuinely exists:
+
+          status: 'Open now',
+          link: { label: 'Walk the wall', href: '../gallery/' }
+
+The Archive has been open since Phase 6, so it now uses the same status and the
+same link shape. The link label follows the local idiom ("Walk the wall") with
+"Open the record", and points at the real route ../archive/, which resolves from
+social-room/ to archive/index.html.
+
+3.3 WHY THE OLD TEXT WAS WRONG
+
+The entry promised "drafts, deleted scenes, and what this film used to be" and
+said the Archive was "Not built". Three separate inaccuracies:
+
+  - The Archive is built: it opened in Phase 6 at /archive/.
+  - It contains no drafts, deleted scenes or earlier film versions. Phase 6
+    deliberately removed exactly that promise from the Lobby card, because those
+    materials do not exist. This Social Room listing was the last surviving
+    copy of the claim.
+  - "Not built, and no date is being promised" is an accurate sentence about
+    the Creator Studio, not about the Archive.
+
+The replacement describes only what the Archive actually holds, verified against
+the catalogue itself: three completed works (The Ninth Bell, The Original
+Production, SIGNAL PATH), three curated collections, eight discoveries, and the
+read-only catalogue framing. No new feature is claimed, and nothing is said
+about drafts, previous versions, personal completion records or member activity.
+
+--------------------------------------------------------------------------------
+4. VERIFICATION
+--------------------------------------------------------------------------------
+
+4.1 COMMANDS AND EXIT CODES
+
+  Command, from the repository root:
+
+      node tools/verify-social-room.js && node tools/verify-social-room-ui.cjs
+
+  Result:   exit code 0, all checks passed.
+  Static:   26 checks passed (tools/verify-social-room.js).
+  Browser:  35 checks passed (tools/verify-social-room-ui.cjs), driving real
+            Chromium at 1280px desktop and 390px phone, eight routes each.
+
+  No verification script was modified. Both suites are the ones already in the
+  repository and were run unchanged.
+
+4.2 EVIDENCE THAT THE THREE CORRECTIONS TOOK EFFECT
+
+  PASS  entry link resolves to the real page
+        [../ ../gallery/ ../stories/the-ninth-bell/ ../arcade/signal-path/
+         ../film/ ../stories/ ../arcade/ ../archive/]
+        The list is now eight entries; before this correction it was seven and
+        ../archive/ was absent.
+
+  PASS  every entry link reaches a real page at 1280px desktop
+        [8 destinations, all 200]
+  PASS  every entry link reaches a real page at 390px phone
+        [8 destinations, all 200]
+        The Archive link is fetched and returns 200 from both viewports.
+
+  PASS  What's Happening uses editorial labels at 1280px desktop
+        [Open now, Open now, Open now, Open now, Open now, In preparation]
+  PASS  What's Happening uses editorial labels at 390px phone
+        [Open now, Open now, Open now, Open now, Open now, In preparation]
+        Five open listings and one "In preparation" - the Creator Studio, which
+        is still unbuilt and correctly still says so.
+
+  PASS  status labels are never presented as live event data
+        [no attendance vocabulary; footnote is explicit]
+        The switch from "In preparation" to "Open now" does not introduce any
+        event or attendance claim.
+
+4.3 REGRESSION WITHIN THE SAME RUN
+
+  PASS  the content file publishes four areas                        [4 areas]
+  PASS  every area carries entries      [noticeboard=4 open-questions=4
+                                         gathering-board=4 whats-happening=6]
+  PASS  every entry is complete                                     [18 entries]
+  PASS  ids are unique across the room                             [22 ids]
+  PASS  the room reads and writes no storage      [no storage API in any file]
+  PASS  the room never mentions another room's save key
+        [tws, story key and arcade key all absent]
+  PASS  the room makes no network request of its own
+  PASS  the room leaves every save key untouched at 1280px desktop
+        [3 keys, byte-identical, no fourth key]
+  PASS  the room leaves every save key untouched at 390px phone
+        [3 keys, byte-identical, no fourth key]
+  PASS  keyboard focus is visible in the room at 1280px desktop
+        [12 stops, each with a ring]
+  PASS  reduced motion removes the transitions at 1280px desktop
+        [all transition durations 0s]
+  PASS  controls are at least 44px tall at 390px
+        [jump 48, entryLink 44, toggle 44, footerLink 44]
+  PASS  no console errors, page errors or failed requests at 1280px desktop
+        [clean over 8 routes and every interaction]
+  PASS  no console errors, page errors or failed requests at 390px phone
+        [clean over 8 routes and every interaction]
+  PASS  the film is unchanged against the last commit      [no diff under film/]
+  PASS  the film carries none of this room's code
+
+4.4 TEST STATUS SUMMARY
+
+  PASS            26 static checks, Social Room
+  PASS            35 browser checks, Social Room, 1280px and 390px
+  PASS            All eight entry links resolve and return 200
+  PASS            Save-key isolation (three keys byte-identical, no new key)
+  CODE REVIEW ONLY  The changed lines themselves - read in the diff, then
+                  proven by the suite output above
+  NOT TESTED      A physical phone or tablet; mobile coverage is Chromium
+                  emulation at 390px
+  NOT TESTED      Screen-reader or other assistive-technology testing
+  NOT TESTED      Firefox, Safari or Edge (Chromium only)
+
+--------------------------------------------------------------------------------
+5. PRESERVATION EVIDENCE
+--------------------------------------------------------------------------------
+
+  git show --name-only bce9e6a
+      assets/js/social-room-content.js
+      (one file in the correction commit)
+
+  git status --porcelain
+      no entries after the correction commit (clean)
+
+Only the three fields of the "happening-archive" object changed. No other Social
+Room content object was touched: "happening-creator-studio" still reads
+status 'In preparation' with its original body, and the area counts are
+unchanged (noticeboard 4, open-questions 4, gathering-board 4, whats-happening 6,
+18 entries, 22 unique ids). No rendering, styling, navigation, save key, save
+format, route or shared stylesheet changed. No file under film/ changed.
+
+--------------------------------------------------------------------------------
+6. COMMIT RECORD
+--------------------------------------------------------------------------------
+
+  Correction commit:  bce9e6a3f14d5c0fe0654df45c8775978c64bb68
+  Message:            "Edit assets/js/social-room-content.js"
+  Contents:           assets/js/social-room-content.js only
+
+  Report commit:      created after this file was written; recorded in the
+                      completion message.
+
+6.1 OBSERVATION ON THE COMMIT MESSAGE
+
+The brief asked for one clearly named maintenance commit. The workspace saved the
+file edit and published it as bce9e6a with an auto-generated message before a
+message could be authored, and origin/appjet already points at that commit. It
+was therefore left exactly as published: no amend, no rebase, no force-push.
+
+The commit is still a single-file, single-purpose maintenance change containing
+nothing but the authorised correction, and it is identified precisely here. If
+the owner requires a differently worded commit in the history, that means
+rewriting a published commit and needs explicit instruction; it was not done
+unilaterally.
+
+--------------------------------------------------------------------------------
+7. LIMITATIONS AND UNRESOLVED FINDINGS
+--------------------------------------------------------------------------------
+
+1.  Commit message as described in 6.1 - a naming limitation, not a content one.
+2.  Chromium only; Firefox, Safari and Edge were not exercised.
+3.  No physical device. The 390px runs use viewport emulation, and no real touch
+    gestures were performed.
+4.  No screen-reader or assistive-technology audit. Nothing here is an
+    accessibility certification.
+5.  No new test was added. The brief limited this pass to running the existing
+    suites and did not authorise changes to verification scripts, so the
+    coverage is exactly the coverage those suites already had.
+6.  The dependency scan remains not_applicable: the project has no package
+    manifest, lockfile or resolved packages. That is an empty scan, not a
+    security certification of the source, runtime or application.
+7.  The Phase 6 verification report still records its F1 marker defect as open.
+    That remains the historical record of that pass; the correction lives in
+    reports/PHASE-6A-HANDOVER.txt. Unrelated to this pass and untouched.
+8.  No unresolved finding arose from this correction. No test failed.
+
+--------------------------------------------------------------------------------
+8. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - assets/js/social-room-content.js is the only application file changed, and
+    only the "happening-archive" object within it.
+  - No other Social Room entry changed; the Creator Studio correctly remains
+    "In preparation".
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - No save key or save format was read, written or altered.
+  - Phase 7 implementation was not started: no Creator Studio page, no assets,
+    no Option A work, no accessibility or cross-browser phase.
+  - The working tree was clean before the pass and is clean after the
+    correction commit.
+
+--------------------------------------------------------------------------------
+9. RECOMMENDED NEXT STEP (not started)
+--------------------------------------------------------------------------------
+
+Review this correction against the finding recorded in
+reports/PHASE-7-PLANNING-REVIEW.txt (the stale Social Room Archive listing). If
+it is accepted, that finding can be treated as closed, and the Social Room no
+longer contains any statement that the Archive is unbuilt or that it holds
+drafts and deleted scenes.
+
+The remaining Phase 7 items stay exactly as they were: decisions D1 to D4 in the
+planning review, and the Option A scope, are still awaiting the owner's
+instruction. Nothing further is implemented.
+
+================================================================================
+PHASE 7 PREPARATION STATUS: READY FOR OWNER REVIEW
+================================================================================
