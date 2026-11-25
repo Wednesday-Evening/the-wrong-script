@@ -1,0 +1,416 @@
+THE WRONG SCRIPT — PHASE 5: THE SOCIAL ROOM
+HANDOVER REPORT
+================================================================================
+
+1. PHASE AND STATUS
+--------------------------------------------------------------------------------
+Phase:            5 — The Social Room
+Status:           Implemented, checked, committed on branch `appjet`
+Date:             2026-11-25
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    ef1bb8218d7b5d159321e5346f1ef79ea7d73a3c (ef1bb82)
+HEAD at writing:  65038cb34067da6294c02653ebf249cc39288dae (65038cb)
+Working tree:     clean at the time of writing
+Report commit:    this file is committed immediately after the implementation
+                  HEAD above, as a separate report-only commit. Its hash is
+                  stated in the completion message, because a file cannot
+                  contain the hash of the commit that adds it.
+Deployment:       NONE. No hosting, DNS, domain or environment change.
+Phase 6:          NOT STARTED.
+
+2. PRE-FLIGHT FINDINGS
+--------------------------------------------------------------------------------
+- Repository and branch confirmed: Wednesday-Evening/the-wrong-script @ appjet.
+- Both accepted Phase 4 commits are present in branch history:
+  954d1d5ffe7e386917dded859f3c0d8186d19ca5 (application) and
+  ef1bb8218d7b5d159321e5346f1ef79ea7d73a3c (report-only reconciliation).
+- Working tree was clean before any edit; no uncommitted work was overwritten
+  or discarded.
+- Architecture confirmed unchanged: static HTML, CSS and vanilla JavaScript.
+  There is no package.json, no lockfile, no bundler, no framework, no backend
+  and no build step. Pages are directories with an index.html, assets live in
+  assets/css, assets/js and assets/img, and shared chrome comes from
+  assets/css/lobby.css plus a per-page copy of the platform nav.
+- Existing routes confirmed present and untouched: /, /film/, /stories/,
+  /stories/the-ninth-bell/, /arcade/, /arcade/signal-path/, /gallery/.
+- Navigation convention confirmed: a `.site-nav` list with the current page
+  marked `aria-current="page"` and a `#nav-toggle` button for narrow widths.
+- Save keys confirmed in place and not touched by this phase: `tws`,
+  `wrong-script.story.the-ninth-bell.v1`,
+  `wrong-script.arcade.signal-path.v1`.
+
+3. DELIVERED SCOPE — WHAT THE SOCIAL ROOM IS
+--------------------------------------------------------------------------------
+A read-only, curated room at /social-room/ with four boards:
+
+  The Noticeboard       4 entries: studio notes, universe updates, featured
+                        discoveries and editorial notices.
+  The Open Questions    4 entries: prompts to think about, each linked to the
+                        work it came from. No reply box, no thread.
+  The Gathering Board   4 entries: invitations, ideas and worked examples,
+                        labelled as such. Nobody is claimed to have joined.
+  What's Happening      6 entries: the four live destinations marked
+                        "Open now", The Archive and The Creator Studio marked
+                        "In preparation".
+
+Each entry carries an explicit kind label (Studio note, Update, Featured
+discovery, Editorial, Open question, Invitation, Idea, Example, Listing) so the
+reader always knows what they are reading. The four What's Happening statuses
+are editorial labels, not live event data, and the board says so in a footnote.
+
+The room states its own limits in plain words inside The Noticeboard:
+"The room has no likes, no visitor count and no ranking. It is a wall you walk
+along, not a feed you keep up with."
+
+Nothing in the room is interactive except navigation. The only <button> on the
+page is the shared `#nav-toggle`; there is no form, input, textarea or select.
+
+4. FILES CREATED, MODIFIED, MOVED, DELETED
+--------------------------------------------------------------------------------
+Created (7, including this report):
+  social-room/index.html              the page: shell, h1, jump list, boards
+                                      container, note slot, footer
+  assets/css/social-room.css          the room's own identity: boards, entries,
+                                      jump list, note, reduced motion
+  assets/js/social-room.js            renderer: builds boards and entries,
+                                      jump list + aria-current, deep links,
+                                      unknown-hash recovery, nav toggle
+  assets/js/social-room-content.js    the curated content as data
+                                      (window.SOCIAL_ROOM)
+  tools/verify-social-room.js         static checks (26 assertions)
+  tools/verify-social-room-ui.cjs     browser checks (35 assertions)
+  reports/PHASE-5-HANDOVER.txt        this report
+
+Modified (7):
+  index.html                          Lobby: The Social Room card is now open
+                                      and links to social-room/
+  stories/index.html                  platform nav: Social Room link added
+  stories/the-ninth-bell/index.html   platform nav: Social Room link added
+  arcade/index.html                   platform nav: Social Room link added
+  arcade/signal-path/index.html       platform nav: Social Room link added
+  gallery/index.html                  platform nav: Social Room link added
+  README.md                           new destination, file table, how to run
+
+Moved: 0
+Deleted: 0
+
+Not touched, by design:
+  film/index.html and everything under film/ (verified: no diff against HEAD,
+  and no Social Room asset is referenced from the film)
+  assets/css/lobby.css, assets/js/lobby.js
+  assets/js/story-engine.js, stories/data/the-ninth-bell.js
+  arcade game logic and level data, gallery exhibits and gallery scripts
+  All three existing save keys.
+
+5. ROUTE MAP AND NAVIGATION
+--------------------------------------------------------------------------------
+  /                             Lobby                  unchanged behaviour,
+                                                       Social Room card opened
+  /film/                        Original Production    unchanged
+  /stories/                     Stories                + Social Room nav link
+  /stories/the-ninth-bell/      The Ninth Bell         + Social Room nav link
+  /arcade/                      Arcade                 + Social Room nav link
+  /arcade/signal-path/          SIGNAL PATH            + Social Room nav link
+  /gallery/                     Gallery                + Social Room nav link
+  /social-room/                 The Social Room        NEW
+
+Ways in: the Lobby card at `#social-room`, and the platform nav on the five
+destination pages above.
+Ways out: the page's "Return to the Lobby" action, the platform nav (Lobby and
+the five destinations), the footer links, and the per-entry links.
+The film is a full-screen experience with no platform nav, so no Social Room
+link was inserted there. That is a deliberate omission rather than an
+oversight: adding chrome to the film would have changed its presentation.
+The Lobby, Stories, Arcade, Gallery and film were not redesigned.
+
+6. CONTENT MODEL
+--------------------------------------------------------------------------------
+`assets/js/social-room-content.js` publishes one object:
+
+  window.SOCIAL_ROOM = {
+    version: 1,
+    title, lede, footnote,
+    areas: [ { id, label, eyebrow, lede, footnote, entries: [ ... ] } ]
+  }
+
+Entry shape:
+  { id, kind, title, body, link: { label, href } }   (What's Happening adds
+                                                      `status`)
+
+The renderer reads this data and builds DOM with createElement and
+textContent only. There is no innerHTML anywhere in the room's scripts, so no
+content string can become markup or script. Every internal link was checked
+against the file system by the static suite; there are no external URLs,
+protocols or data: references in the content.
+
+7. READ-ONLY BEHAVIOUR AND WHAT IS NOT IMPLEMENTED
+--------------------------------------------------------------------------------
+Implemented: curated reading, four boards, jump list, deep links to boards and
+entries, honest recovery for unknown ids, responsive layout, keyboard and touch
+operation, reduced-motion support.
+
+Not implemented, and not pretended: accounts, profiles, sign-up, login, posting,
+comments, reactions, voting, messaging, uploads, member submissions, event
+attendance, notifications, analytics, backend, database, moderation. There is
+no form and no storage call, so there is nothing that could look like a
+submission path. The page states that this first version is curated.
+
+8. TECHNICAL NOTES
+--------------------------------------------------------------------------------
+- The jump list is four real anchors. The marked item is recomputed from scroll
+  position: the current board is the last one whose heading has crossed 45% of
+  the viewport height. This is rAF-throttled and runs on scroll, resize and
+  hashchange, so the marker agrees with the board at the top of the screen after
+  a click, a deep link or a manual scroll, at any width.
+  (An earlier IntersectionObserver implementation could mark a board the page
+  was only passing; see section 10.)
+- A deep link such as /social-room/#whats-happening moves focus to that board's
+  heading so keyboard and screen-reader users land where they asked.
+- An id that does not exist shows a visible note naming the missing id and
+  offering "Start at The Noticeboard", instead of failing silently.
+- The room makes no network request of its own: no fetch, XHR, beacon or
+  websocket. All CSS, JS and imagery are local files.
+- No shared code was modified. The five destination pages each received one
+  list item in their existing nav markup; the Lobby received one card state and
+  one link.
+
+9. SAVE KEYS AND STORAGE ISOLATION
+--------------------------------------------------------------------------------
+Social Room scripts contain no storage API at all — not localStorage,
+sessionStorage, indexedDB or document.cookie. It therefore cannot read, write or
+clear `tws`, `wrong-script.story.the-ninth-bell.v1` or
+`wrong-script.arcade.signal-path.v1`, and it creates no fourth key.
+
+Evidence:
+- Static check: the three scripts and the page were scanned with comments
+  stripped for the four storage APIs. None present. A separate check confirms
+  the strings `tws`, `wrong-script.story.the-ninth-bell.v1` and
+  `wrong-script.arcade.signal-path.v1` never appear in the room's files.
+- Browser check: at both widths, all three keys were seeded with known values,
+  the room was loaded and the jump list used, and the keys were then compared
+  byte for byte. All three were identical, the key count was still exactly
+  three, and no fourth key existed.
+
+10. TEST MATRIX — WHAT WAS ACTUALLY RUN
+--------------------------------------------------------------------------------
+Environment: local static server, `python3 -m http.server 4173 --bind
+127.0.0.1`, served from the repository root. Browser: Chromium via Playwright
+(/opt/appjet/browser/node_modules/playwright), headless, viewports 1280x900 and
+390x844. No real device, no Safari or Firefox, no screen reader.
+
+Statuses used exactly as instructed: PASS, FAIL, NOT TESTED, CODE REVIEW ONLY,
+NOT APPLICABLE.
+
+A. STATIC SUITE — `node tools/verify-social-room.js`
+   Final result: 26 of 26 PASS (revision 19; unchanged since revision 16).
+
+   1  the content file publishes four areas ............................... PASS
+   2  areas in reading order with their labels ............................ PASS
+   3  each area introduces itself (eyebrow, lede, footnote) ............... PASS
+   4  every area carries entries (4 / 4 / 4 / 6) .......................... PASS
+   5  every entry is complete (18 entries) ............................... PASS
+   6  ids unique across the room (22 ids) ................................ PASS
+   7  What's Happening uses only editorial status labels .................. PASS
+   8  statuses never presented as live event data ........................ PASS
+   9  every entry link resolves to a file on disk (7 destinations) ....... PASS
+   10 room links to the five real destinations ............................ PASS
+   11 nothing in the content is external or executable .................... PASS
+   12 page is a real document with one h1, lang, viewport ................. PASS
+   13 page has a skip link and landmarks ................................. PASS
+   14 platform nav marks this room as current ............................ PASS
+   15 styles and scripts load in the right order, after main .............. PASS
+   16 no controls implying unavailable features (no form, only toggle) .... PASS
+   17 renderer builds text, not markup (no innerHTML) ..................... PASS
+   18 the room reads and writes no storage ................................ PASS
+   19 the room never mentions another room's save key ..................... PASS
+   20 the room makes no network request of its own ........................ PASS
+   21 the stylesheet respects reduced motion .............................. PASS
+   22 every existing page links to the Social Room (6 pages) .............. PASS
+   23 the Lobby card is open and points somewhere real .................... PASS
+   24 no page still advertises the Social Room as upcoming ................ PASS
+   25 the film carries none of this room's code ........................... PASS
+   26 the film is unchanged against the last commit ....................... PASS
+
+B. BROWSER SUITE — `node tools/verify-social-room-ui.cjs`
+   Final result: 35 of 35 PASS (revision 19).
+   17 checks at 1280x900, 17 at 390x844, plus 1 mobile-only target check.
+
+   B1  all eight routes load, HTTP 200, non-empty body, no horizontal
+       overflow (/, /film/, /stories/, /stories/the-ninth-bell/, /arcade/,
+       /arcade/signal-path/, /gallery/, /social-room/) .............. PASS both
+   B2  the four boards render, one h1, labels in order ............. PASS both
+   B3  entry counts per board: 4 / 4 / 4 / 6 ...................... PASS both
+   B4  all 18 entries carry a kind label and a title .............. PASS both
+   B5  What's Happening statuses are only editorial labels,
+       footnote calls them editorial .............................. PASS both
+   B6  no social proof: no "N likes/followers/comments", no "members
+       online", no form controls, only the nav toggle button ...... PASS both
+   B7  jump list moves between boards: hash becomes #gathering-board
+       and exactly one link carries aria-current .................. PASS both
+   B8  deep link /#whats-happening focuses #whats-happening-title,
+       no error note shown ....................................... PASS both
+   B9  deep link /#no-such-board shows a note explaining it, and its
+       recovery link lands on #noticeboard ....................... PASS both
+   B10 Lobby card click reaches /social-room/ ("A room with the
+       lights on") ............................................... PASS both
+   B11 "Return to the Lobby" reaches / .......................... PASS both
+   B12 Gallery nav link (nav toggle opened at 390px) reaches the
+       room ...................................................... PASS both
+   B13 all 7 distinct entry destinations return 200 ............. PASS both
+   B14 controls at least 44px tall at 390px: jump link 48px,
+       entry link 44px, nav toggle 44px, footer link 44px ........ PASS (390)
+   B15 keyboard: 12 Tab stops, every one with a visible focus ring
+       (outline or box-shadow) ................................... PASS both
+   B16 reduced motion emulated: transition durations 0s on jump
+       links, entries and entry links ............................ PASS both
+   B17 the three save keys seeded, room loaded and used, then
+       compared: byte-identical, 3 keys, no fourth key ............ PASS both
+   B18 no console errors, no page errors, no failed requests and no
+       external request across all routes and interactions ....... PASS both
+
+C. ITEMS NOT COVERED BY EXECUTION
+   C1  Screen-reader / assistive-technology behaviour .......... NOT TESTED
+       (no AT available here; semantic landmarks and labels were checked
+       statically and by DOM inspection only)
+   C2  Real-device touch behaviour ............................. NOT TESTED
+       (sizes measured in Chromium at 390x844)
+   C3  Firefox and Safari rendering ............................ NOT TESTED
+   C4  OS-level "reduce motion" setting (as opposed to browser
+       emulation) .............................................. NOT TESTED
+   C5  Browser Back/Forward between boards ..................... NOT TESTED
+       as a traversal test; hash navigation, hashchange handling and deep
+       links were executed, but back/forward button traversal was not
+   C6  Reduced-motion behaviour of the JS scroll path ........... CODE REVIEW ONLY
+       (the renderer reads prefers-reduced-motion and passes
+       behavior: 'auto' instead of 'smooth'; the CSS side was emulated)
+   C7  Visual design approval ................................... CODE REVIEW ONLY
+       (layout, overflow and target sizes were measured; aesthetic
+       judgement is the owner's)
+
+D. DEPENDENCY / SECURITY SCAN
+   NOT APPLICABLE. The repository has no package manifest and no lockfile, so
+   the advisory scanner has zero packages to resolve. This is not a
+   certification of the source, the runtime or overall security; the isolation
+   claims in section 9 rest on the source scan and the browser run above, not on
+   a dependency scan.
+
+E. CHRONOLOGY OF FAILED CHECKS AND THEIR RESOLUTION
+   Earlier failures are retained here rather than replaced, so the record is
+   complete. All three were resolved and rerun.
+
+   E1  Revision 13 — static suite FAIL (2 of 24).
+       "every existing page links to the Social Room: film/index.html has no
+       link to ../social-room/" and "the film file is untouched by this phase:
+       the film nav does not mention the room".
+       Cause: wrong assumptions in the check, not a defect. The film has no
+       platform nav (it is a full-screen experience), and the room marks itself
+       current with href="./" following the Lobby's convention rather than an
+       absolute path. The two assertions were replaced with accurate ones: the
+       film carries none of the room's code, and film/ has no diff against HEAD.
+       Resolution: rerun at revision 16 — 26 of 26 PASS.
+
+   E2  Revision 16 — browser suite FAIL (8 of 35).
+       Causes, all in the check: (a) the selector `#jump .jump-list a` matched
+       nothing because `#jump` is itself the <ul>, so its links are direct
+       children; (b) the h1 assertion expected "Social Room" but the room's h1
+       is the tagline "A room with the lights on"; (c) a banned-word scan
+       matched the word "likes" inside the honest disclaimer "The room has no
+       likes, no visitor count and no ranking"; (d) the storage check timed out
+       on the same broken jump selector.
+       Resolution: selector corrected to `#jump a[data-area]`, the h1 assertion
+       corrected to the real heading plus a document-title check, and the
+       banned-word scan replaced with real social-proof patterns
+       (N likes / N followers / N comments / members online / joined by /
+       trending now / N attending) plus positive assertions that the disclaimer
+       is present. Rerun at revision 17.
+
+   E3  Revision 17 — browser suite FAIL (1 of 35).
+       "the jump list moves between boards at 390px phone: aria-current sits on
+       ["open-questions"]".
+       Two genuine causes:
+       (a) The application used an IntersectionObserver whose record order is
+           not deterministic, so the marked link could disagree with the board
+           at the top of the screen. This was an application defect, not a test
+           artefact. It was fixed by replacing the observer with the
+           deterministic scroll-position rule described in section 8.
+       (b) The check sampled the page mid-way through the smooth hash scroll,
+           so it read a board the page was only passing through. The check now
+           waits for the scroll position to hold still before asserting.
+       Resolution: rerun at revision 19 — 35 of 35 PASS at both widths.
+
+11. RESPONSIVE, ACCESSIBILITY AND MOTION FINDINGS
+--------------------------------------------------------------------------------
+- No horizontal overflow at 390x844 or 1280x900 on any of the eight routes
+  (measured as scrollWidth - clientWidth on the document element).
+- Measured control heights at 390px: jump link 48px, entry link 44px, nav
+  toggle 44px, footer link 44px. The skip link is visually hidden until focused,
+  so its height was not used as a touch-target measurement.
+- Twelve keyboard stops were traversed at each width; each showed a visible
+  focus ring.
+- Semantic structure: one h1, a board heading and an entry heading per area,
+  skip link, main, nav and footer landmarks, and an accessible name on the jump
+  navigation.
+- Reduced motion: the stylesheet's `prefers-reduced-motion: reduce` block
+  removes transitions; emulation reported 0s durations on jump links, entries
+  and entry links. The renderer also switches its scrolling to `auto` under the
+  same query (code review only).
+- No autoplay, no audio, no flashing, no countdown, no streaks, no scarcity or
+  engagement mechanics.
+
+12. KNOWN GAPS AND LIMITATIONS
+--------------------------------------------------------------------------------
+- The room is curated and read-only. There is no community interaction, and the
+  page says so. Nothing suggests members, conversations or activity exist.
+- Screen-reader certification, real-device testing, non-Chromium browsers,
+  OS-level reduced-motion and Back/Forward traversal were not executed
+  (C1–C5 above).
+- Jump-list agreement with the visible board was verified at two widths only;
+  other widths are covered by the same scroll rule but were not measured.
+- Content is a fixed, hand-written set. Adding entries means editing
+  `assets/js/social-room-content.js`; there is no authoring interface, by
+  design.
+- No dates, deadlines, attendance or outcomes are asserted anywhere, so the
+  room cannot go stale in a misleading way.
+
+13. SHARED-FILE CHANGES AND RATIONALE
+--------------------------------------------------------------------------------
+- `index.html`: the Social Room card changed from an "under construction" state
+  to an open card with a working link. This is the requested Lobby entry point
+  and matches how the Gallery card was opened in Phase 4.
+- `stories/index.html`, `stories/the-ninth-bell/index.html`, `arcade/index.html`,
+  `arcade/signal-path/index.html`, `gallery/index.html`: one Social Room list
+  item added to each existing `.site-nav`, matching the established pattern
+  exactly. No layout, style or script change on those pages.
+- `README.md`: destination table, route list, phase log and the Social Room
+  section, plus the local run instruction.
+No other shared file was touched.
+
+14. DEPLOYMENT
+--------------------------------------------------------------------------------
+No deployment occurred. No hosting configuration, DNS, domain or environment
+variable was created or changed. The work exists as commits on `appjet`.
+
+15. RECOMMENDED NEXT STEP (NOT STARTED)
+--------------------------------------------------------------------------------
+Await the owner's review of this phase. If further work is authorised, the
+narrowest useful next steps are:
+  (a) a short verification-only pass for the items in C1–C5 if browser tooling
+      can support them; and
+  (b) the next destination the owner chooses — The Archive is the natural
+      follow-on, since The Creator Studio depends on submission and review
+      rules that do not exist yet.
+Neither has been started.
+
+16. OWNER DECISIONS NEEDED
+--------------------------------------------------------------------------------
+None block this phase. Two points for a later phase, not for this one:
+- The film deliberately has no platform nav, so it has no Social Room link.
+  Confirm whether the film should ever gain a link back into the platform.
+- Any future member participation needs an approved submission-and-review model
+  before any route, upload or publishing control is built. This phase created
+  none.
+
+================================================================================
+PHASE HANDOVER STATUS: READY FOR REVIEW
+================================================================================
