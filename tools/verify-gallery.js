@@ -161,22 +161,36 @@ const gallerySources = [
   'assets/css/gallery.css'
 ];
 
-const joined = gallerySources.map(read).join('\n');
+// Prose in this project is allowed to discuss storage, sound and autoplay
+// (the Gallery explains, in words, that it does none of those things). So
+// scan comments and markup stripped of their prose, and look for the shapes
+// a real call or attribute would take.
+function stripComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/(^|[^:\\])\/\/[^\n]*/g, '$1');
+}
+
+const joined = gallerySources.map(function (file) {
+  return stripComments(read(file));
+}).join('\n');
 
 check('no Gallery file uses browser storage',
-  !/localStorage|sessionStorage|indexedDB/i.test(joined));
+  !/\b(?:local|session)Storage\s*[.[]|\bindexedDB\s*\.|\bdocument\.cookie\s*=/.test(joined));
 
 check('no Gallery file names the film, story or arcade save keys',
   !/\btws\b|wrong-script\.story\.|wrong-script\.arcade\./.test(joined));
 
 check('no Gallery file fetches or opens a network request',
-  !/\bfetch\s*\(|XMLHttpRequest|WebSocket|navigator\.sendBeacon/.test(joined));
+  !/\bfetch\s*\(|XMLHttpRequest|WebSocket|navigator\.sendBeacon|EventSource/.test(joined));
 
 check('no Gallery file references an external host',
-  !/(?:src|href)\s*=\s*"https?:\/\//i.test(joined));
+  !/(?:src|href)\s*=\s*"(?:https?:)?\/\//i.test(joined));
 
-check('the Gallery ships no audio element and nothing autoplays',
-  !/<audio|autoplay/i.test(joined));
+check('the Gallery ships no audio element, player or autoplay',
+  !/<audio\b/i.test(joined) && !/\bautoplay\s*=/i.test(joined) &&
+  !/\bnew\s+Audio\s*\(/.test(joined) && !/\.play\s*\(\s*\)/.test(joined));
 
 check('the Gallery has no upload, account or publish control',
   !/<input[^>]+type="file"|type="password"|contenteditable/i.test(joined));
