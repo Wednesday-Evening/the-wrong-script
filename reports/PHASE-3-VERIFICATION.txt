@@ -1,0 +1,268 @@
+THE WRONG SCRIPT — PHASE 3 VERIFICATION PASS
+============================================
+Task type:       VERIFICATION ONLY (no implementation changes)
+Scope:           Close the six browser-level gaps recorded in the Phase 3 handover review
+Branch:          appjet
+Starting commit: 82e6418685f8c0ccbdc12055e1357403eaaec97b
+Report commit:   see the completion message in chat (this file was committed after the run)
+Baseline accepted by the review: Phase 3 implementation, commit 82e6418
+Deployment:      NONE
+
+1. WHAT THIS PASS IS
+--------------------
+The Phase 3 handover review accepted the implementation and recorded six checks
+that were not proven in a real browser (review section 6, items A–F). This pass
+executes those six checks against the live pages in real Chromium and reports
+exactly what happened.
+
+No application file was modified. The only file added is this report. The game
+rules, level data, styles, pages, save handling and navigation are unchanged
+from the accepted Phase 3 commit.
+
+2. RESULT SUMMARY
+-----------------
+All six review items now have executed browser evidence:
+
+  A. Levels 3–6 played through the real UI .................. PASS
+  B. Sealed-beacon message and move counter on screen ....... PASS
+  C. Final level completion and replay control .............. PASS
+  D. Malformed save in a real browser profile ............... PASS
+  E. Keyboard-only traversal with visible focus ............. PASS
+  F. prefers-reduced-motion emulation ....................... PASS
+
+Plus three supporting checks that the same run covers:
+
+  Progress restored after reload ............................ PASS
+  Storage isolation (only the Arcade key exists) ............ PASS
+  No console / page / network errors on any tested page ..... PASS
+
+Total: 26 checks, 26 PASS, 0 FAIL.
+Check ID: call-6424229c-8fe4-4961-bd17-27a08f47dee5
+
+3. TEST METHOD (WHAT ACTUALLY RAN)
+----------------------------------
+Runtime: real Chromium through the managed Playwright install
+         (/opt/appjet/browser/node_modules/playwright), headless.
+Server:  python3 -m http.server on 127.0.0.1:4173 serving the repository root.
+         Port 4173 as required. The server was started and stopped by the harness.
+Driver:  a single verification script, /tmp/verify-ui.cjs, kept outside the
+         repository so it cannot affect the shipped site or the file inventory.
+Viewport: 1280 x 900 for the gameplay, save and keyboard runs.
+
+The script does not re-implement the game. It loads the shipped files exactly as
+the page loads them:
+
+  assets/js/signal-path-core.js      (the real rules)
+  arcade/data/signal-path-levels.js  (the real level data)
+
+through a Node `vm` context, parses the levels with the shipped parser, and solves
+each level with a breadth-first search over the shipped movement and gating rules.
+The resulting move sequences are then replayed on the real page using real
+keyboard presses (ArrowUp / ArrowDown / ArrowLeft / ArrowRight), and the state is
+read back from the page's own DOM (its data- attributes) rather than from the
+script's expectations.
+
+This means the routes are solver-verified and the execution is genuinely
+through the browser interface — not a rules-only simulation.
+
+4. ITEM A — LEVELS 3–6 PLAYED THROUGH THE UI
+--------------------------------------------
+Each level was entered through the shipped "Next level" control, played with
+keyboard presses along the solver route, and checked for the on-screen completion
+state and the level rail entry.
+
+  Level 1  Relay Room      3 moves, 1 fragment    PASS  rail "Done"
+  Level 2  Twin Contacts   6 moves, 2 fragments   PASS  rail "Done"
+  Level 3  Switchback     10 moves, 1 fragment    PASS  rail "Done"
+  Level 4  Dead Signal    16 moves, 3 fragments   PASS  rail "Done"
+  Level 5  Cold Relay     14 moves, 3 fragments   PASS  rail "Done"
+  Level 6  The Beacon     20 moves, 4 fragments   PASS  rail "Done"
+
+For every level the run confirmed: the correct level index and name, the move
+counter equal to the route length, fragments collected equal to the required
+count, the result panel visible, the result text reporting the cleared move count,
+and the "Beacon open" status.
+
+Transitions between levels were checked separately: each "Next level" click moved
+to the correct following level with the move counter reset to 0 and the result
+panel hidden.
+
+5. ITEM B — SEALED BEACON IN THE BROWSER
+----------------------------------------
+Method: on a fresh profile at level 1, the unit was walked to the beacon along a
+route that deliberately avoids the single fragment, then the beacon was entered.
+
+Result: PASS
+  - The on-screen status said the beacon stays sealed.
+  - The status reported the outstanding count ("1 fragment still out there").
+  - The status said the move was counted.
+  - The move counter showed 5, matching the route length: entering a sealed
+    beacon is a valid movement and is counted, as specified.
+  - Fragments still read 0 / 1.
+  - The completion panel stayed hidden; the level did not complete.
+
+Restart was then pressed: counter 0, fragments 0 / 1, "restarted" status. PASS.
+
+6. ITEM C — FINAL LEVEL COMPLETION AND REPLAY
+---------------------------------------------
+Result: PASS, in three steps.
+
+  Final completion state — kicker "Final relay", title "The whole path is live",
+  body reporting that all six relays are answering, and the primary control
+  reading "Play again from level 1".
+
+  Replay control — "Replay this level" reset level 6 in place: index 6 of 6,
+  counter 0, fragments 0 / 4, result panel hidden.
+
+  Play again — after clearing level 6 a second time, the primary control returned
+  the player to level 1 "Relay Room" with a counter of 0.
+
+7. ITEM D — MALFORMED SAVE IN A REAL BROWSER PROFILE
+----------------------------------------------------
+Method: a fresh browser context was given the Arcade key
+wrong-script.arcade.signal-path.v1 containing the deliberately broken value
+"not json at all" before the page loaded (a real localStorage write in a real
+profile), then the page was opened.
+
+Result: PASS, across four checks.
+
+  1. Load — the save note reported that progress could not be read, stated that
+     nothing has been deleted, and pointed the player at the reset control. The
+     game started safely at level 1. The stored raw value was still exactly
+     "not json at all".
+
+  2. Play — level 1 was completed while the stored value was broken. The level
+     completed normally, and the stored raw value was STILL "not json at all":
+     the broken value was not overwritten by play.
+
+  3. Reload — the warning was still shown and the game still started at level 1.
+     The failure was not silently swallowed into a fresh start.
+
+  4. Explicit reset — the reset control opened a confirmation panel first; only
+     after confirming was the key removed. The default note ("Progress is saved
+     in this browser only") returned, the game sat at level 1, and a "Progress
+     reset" status appeared.
+
+This closes the Phase 3 limitation that malformed-save recovery had only been
+proven at rules level.
+
+8. ITEM E — KEYBOARD-ONLY TRAVERSAL AND VISIBLE FOCUS
+----------------------------------------------------
+Method: a fresh page was traversed with 22 successive Tab presses, recording the
+focused element and its computed focus styling at every stop.
+
+Result: PASS
+  - 22 focus stops, all inside the page's own controls.
+  - The first stop is the "Skip to content" link.
+  - All four on-screen direction buttons ("Move up", "Move down", "Move left",
+    "Move right") are reachable by keyboard.
+  - Every one of the 22 stops had a visible focus indicator (computed outline or
+    box-shadow present) — no stop lacked a ring.
+
+Keyboard activation was checked as well: Enter on "Move up" at the level-1 start
+position was a blocked move and left the counter at 0; Enter on "Move down" was a
+valid move and the counter became 1. PASS.
+
+Source cross-check (CODE REVIEW ONLY, consistent with the run): focus rings are
+declared through :focus-visible with a 2px outline in both stylesheets —
+assets/css/lobby.css lines 180, 251, 560 and assets/css/arcade.css lines 54, 66,
+634, 766-769.
+
+9. ITEM F — REDUCED MOTION
+--------------------------
+Method: a browser context with prefers-reduced-motion: reduce emulation, then
+every element on the page was inspected through getComputedStyle.
+
+Result: PASS
+  - The emulation was reported as active by the page.
+  - scroll-behavior computed to "auto" under reduce.
+  - No element on the page had an animation or transition longer than 20ms.
+  - No smooth-scrolling or animated transition survived the preference.
+
+Source cross-check (CODE REVIEW ONLY): reduced-motion blocks exist at
+assets/css/lobby.css line 579 and assets/css/arcade.css line 801.
+
+10. SUPPORTING CHECKS
+---------------------
+Progress restoration — PASS
+  After clearing all six levels the page was reloaded. The game restored level 6
+  of 6 and the level rail showed six "Done" entries.
+
+Storage isolation — PASS
+  In the same profile the storage inventory contained exactly one key,
+  wrong-script.arcade.signal-path.v1. The film key "tws" was null (never created
+  by the Arcade) and the Stories key
+  wrong-script.story.the-ninth-bell.v1 was null (never created by the Arcade).
+  The saved payload validated as { v: 1, unlocked: 6, completed: 6 entries,
+  best: 6 entries } — no personal information.
+
+Console and network — PASS
+  Across the four pages exercised (gameplay, malformed-save, reduced-motion,
+  keyboard), there were zero console errors, zero uncaught page errors and zero
+  failed requests.
+
+11. THE FAILED FIRST ATTEMPT (KEPT IN THE RECORD)
+-------------------------------------------------
+The first run of the harness (call-51289c6a) reported 10 passed and 16 failed.
+The cause was in the harness, not the application: the page renders level names
+in uppercase through CSS text-transform, so comparing the displayed text to
+"Relay Room" failed on "RELAY ROOM". Because that assertion came before the key
+presses, the level was never completed, so the following "Next level" clicks
+waited on a button inside a still-hidden result panel and timed out.
+
+One further attempt to re-run it as a formal retry was rejected by the tooling
+because the failed check was not yet registered in the checkpoint; it executed
+nothing.
+
+The correction was confined to the harness: case-insensitive comparison of
+displayed text (an eq() helper and /i flags). Routes, selectors, viewports and
+expected values were unchanged. The application code was not touched, and no
+assertion was weakened — the corrected run asserts the same state it always
+intended to assert.
+
+The already-passing checks in that first run (sealed beacon, restart, all four
+malformed-save checks, reduced motion, keyboard traversal, keyboard activation,
+no console errors) were reproduced identically in the final run.
+
+12. HONEST LIMITS OF THIS PASS
+------------------------------
+  - Viewport: this pass played the game at 1280 x 900. The 390px phone checks
+    remain the Phase 3 evidence (six routes at 390px and 1280px, plus a mobile
+    browser run through undo, restart, reset and game-to-Arcade navigation).
+    Levels 3–6 were not additionally replayed at 390px in this pass.
+  - No screen-reader or other assistive-technology session was run. The keyboard
+    and focus results above are keyboard traversal and computed-style evidence,
+    not AT certification.
+  - No visual design judgement is claimed. "Visible focus" means a computed
+    outline or shadow was present at every stop, not that a human reviewed the
+    look.
+  - Reduced motion was browser-emulated, not a real operating-system setting.
+  - The malformed value was seeded into a real browser profile through a real
+    localStorage write; that is a genuine browser test, but it is a single
+    deliberately broken value type rather than an exhaustive matrix. The eight
+    malformed shapes remain covered by the shipped rules check
+    (tools/verify-signal-path.js).
+  - Save behaviour across devices, accounts or browsers is not claimed and is not
+    implemented.
+
+13. PRESERVATION AND SCOPE CONFIRMATION
+---------------------------------------
+  - No application file was created, modified, moved or deleted in this pass.
+  - reports/PHASE-3-VERIFICATION.txt is the only added file.
+  - The original production under film/ was not touched; the film save key "tws"
+    was never written and did not exist in any test profile.
+  - The Stories key was never written.
+  - No dependency, framework, build step, backend or configuration change.
+  - No deployment, and no hosting configuration change.
+
+14. RECOMMENDED NEXT STEP
+-------------------------
+With review items A–F now closed by executed browser evidence, Phase 3 has no
+outstanding verification items. The recommended next step is Phase 4 planning
+(The Gallery) under a separate instruction.
+
+Optional, if you want the remaining Phase 3 caveats fully covered before Phase 4:
+replay levels 3–6 once at 390px, and run a real assistive-technology pass. Neither
+is required by the accepted acceptance criteria.
+
+END OF REPORT
