@@ -1,0 +1,538 @@
+================================================================================
+THE WRONG SCRIPT — PHASE 3: THE ARCADE
+HANDOVER REPORT
+================================================================================
+
+1. PHASE, STATUS, DATE, BRANCH, COMMITS
+--------------------------------------------------------------------------------
+Phase:            3 — The Arcade
+Status:           COMPLETE (implementation and verification done; no deployment)
+Date:             2026-11-25
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Accepted baseline: 550e5bd (Phase 2 reconciled HEAD)
+Starting commit:  550e5bdbeff04ca4225c246d818cc9df89ff9e4d
+HEAD before this report was written:
+                  7e1e67e60633439278c8e7f71ed408c013cdd855
+Final commit:     the commit that adds this report file
+                  (reports/PHASE-3-HANDOVER.txt). Its hash is given in the
+                  chat completion message, because a commit cannot contain its
+                  own hash.
+Working tree:     clean before the report was written.
+Deployment:       NONE. Nothing was built, published or deployed.
+
+The branch was inspected before any edit and contained the accepted Phase 2
+state: the Lobby at /, the original film at /film/, the Stories library at
+/stories/ and The Ninth Bell at /stories/the-ninth-bell/. No discrepancy from
+the Phase 2 handover was found, so implementation proceeded.
+
+
+2. IMPLEMENTATION SUMMARY
+--------------------------------------------------------------------------------
+Two new destinations were added to the existing static site:
+
+  /arcade/               The Arcade library — one honest featured cabinet.
+  /arcade/signal-path/   SIGNAL PATH, a complete single-player grid puzzle.
+
+SIGNAL PATH is an original game: a small signal unit must cross a dark grid,
+collect every signal fragment on the level, and only then may step onto the
+beacon. Six handcrafted levels, no timer, no lives, no score, no randomness.
+
+Nothing else was rebuilt. The Lobby, the original film and The Stories were
+left functionally intact; the only shared edits are the navigation entries
+needed to reach the Arcade (listed in section 10).
+
+The game is split into rules, data, page controller and styles:
+
+  assets/js/signal-path-core.js     Rules, save validation, level parsing.
+                                    No DOM, no storage, no timers — pure logic,
+                                    which is what makes the dev check possible.
+  arcade/data/signal-path-levels.js The six levels as data (cells, start,
+                                    beacon, fragments, hint).
+  assets/js/signal-path.js          Page controller: rendering, input, saving.
+  assets/css/arcade.css             Arcade identity and the game's layout.
+  assets/js/arcade-games.js         The cabinet catalogue (one record).
+  assets/js/arcade-library.js       Renders the cabinet from the catalogue.
+  assets/js/arcade-shell.js         Small-screen navigation, matching the Lobby.
+  tools/verify-signal-path.js       Development check (see section 8).
+
+No framework, package manager, dependency, build step, backend, database,
+authentication or external service was introduced. The site remains plain
+HTML/CSS/JavaScript served as static files.
+
+
+3. FILES CREATED / MODIFIED / DELETED (ACCURATE COUNTS)
+--------------------------------------------------------------------------------
+CREATED — 11 files (10 application files plus this report):
+
+  1. arcade/index.html
+     The Arcade library page.
+  2. arcade/signal-path/index.html
+     The SIGNAL PATH game page (board, HUD, pad, relay list, side panels).
+  3. arcade/data/signal-path-levels.js
+     The six levels, written as data.
+  4. assets/css/arcade.css
+     Arcade identity plus the game board, pad, HUD and side panel styles.
+  5. assets/js/arcade-games.js
+     The cabinet catalogue: one record for SIGNAL PATH, data only.
+  6. assets/js/arcade-library.js
+     Draws the cabinet cards from the catalogue.
+  7. assets/js/arcade-shell.js
+     The Arcade's small-screen navigation behaviour.
+  8. assets/js/signal-path-core.js
+     SIGNAL PATH rules, level parsing and save validation (no DOM).
+  9. assets/js/signal-path.js
+     SIGNAL PATH page controller: rendering, keyboard/pad input, saving, reset.
+ 10. tools/verify-signal-path.js
+     Development check: solves every level, exercises the rules, tests the
+     save reader with malformed input, scans the Arcade files for foreign keys.
+ 11. reports/PHASE-3-HANDOVER.txt
+     This report.
+
+MODIFIED — 3 files:
+
+  1. index.html
+     Lobby: the Arcade card is now a real, working destination, plus the Arcade
+     navigation entry and footer link. No Lobby redesign.
+  2. stories/index.html
+     Stories library: added the Arcade link to its navigation so the new room
+     is reachable from there too. No story content touched.
+  3. README.md
+     Route map, file table, an "The Arcade" section (how to add a game), the
+     phase list, and how to run the project locally.
+
+DELETED — 0 files. No file was renamed or moved.
+
+Confirmed by `git diff --name-status 550e5bd..HEAD`:
+  M README.md
+  M index.html
+  M stories/index.html
+  A arcade/data/signal-path-levels.js
+  A arcade/index.html
+  A arcade/signal-path/index.html
+  A assets/css/arcade.css
+  A assets/js/arcade-games.js
+  A assets/js/arcade-library.js
+  A assets/js/arcade-shell.js
+  A assets/js/signal-path-core.js
+  A assets/js/signal-path.js
+  A tools/verify-signal-path.js
+  (plus this report)
+
+`git diff --stat 550e5bd..HEAD -- film/` returned nothing: the original
+production's files are byte-for-byte unchanged in this phase.
+
+
+4. ROUTE MAP AND NAVIGATION BEHAVIOUR
+--------------------------------------------------------------------------------
+  /                        Lobby (unchanged in purpose)
+  /film/                   The Wrong Script: Original Production (untouched)
+  /stories/                Stories library
+  /stories/the-ninth-bell/ The Ninth Bell
+  /arcade/                 Arcade library            (new)
+  /arcade/signal-path/     SIGNAL PATH               (new)
+
+Navigation paths that exist and were exercised:
+
+  Lobby → The Arcade            site nav link, the "The Arcade" door card, and
+                                the footer link all resolve to /arcade/.
+  Lobby → Arcade card           the card carries the honest label
+                                "OPEN NOW · ONE GAME IN THE CABINET".
+  Arcade → SIGNAL PATH          "Play Signal Path" in the hero and the same
+                                button on the cabinet card.
+  Arcade → Lobby                "Back to the Lobby" button and the site nav.
+  Game → Arcade                 "Back to the Arcade" in the page header.
+  Game → Lobby                  "The Lobby" link in the page header and the
+                                site nav.
+  Stories → Arcade              site nav entry added to stories/index.html.
+
+On screens below the site's breakpoint the navigation collapses behind a
+"MENU" button, exactly as the Lobby already did. The Lobby link inside that
+collapsed menu was verified by opening the menu and clicking through.
+
+The Gallery, The Social Room, The Archive and The Creator Studio remain
+labelled "SOON" / "UNDER CONSTRUCTION" in the Lobby and are not linked from the
+Arcade. No dead or misleading control was added.
+
+
+5. GAME RULES AND LEVEL INVENTORY
+--------------------------------------------------------------------------------
+Rules as implemented in assets/js/signal-path-core.js:
+
+  - One cell per move, using arrow keys, W A S D, or the on-screen pad.
+  - Walls and the grid edge block movement. A blocked attempt does not change
+    the position and does not increment the move counter.
+  - Every fragment on the level must be collected before the beacon completes
+    the level. Stepping onto a sealed beacon does nothing except report how
+    many fragments remain — and that move still counts, because it was a real
+    move.
+  - The move counter increments once per valid move.
+  - Restart level returns to the start cell with 0 moves and no fragments.
+  - Undo last move restores position, fragments and move count. It is shown
+    because the core keeps a real history stack; it is not decorative.
+  - No timer, no lives, no score, no streaks, no failure state.
+  - Completing a level unlocks the next relay; a completed level can be
+    replayed. The final level has a genuine completion state and a replay.
+
+Level inventory (verified solvable; route lengths are the shortest found by
+the solver in tools/verify-signal-path.js):
+
+  #  Name            Grid   Walls  Fragments  Start     Beacon    Moves
+  1  Relay Room      5x5     17        1       (1,1)     (2,3)       3
+  2  Twin Contacts   6x6     22        2       (1,1)     (2,4)       6
+  3  Switchback      7x7     30        1       (1,1)     (3,5)      10
+  4  Dead Signal     8x7     32        3       (1,1)     (5,5)      16
+  5  Cold Relay      9x7     38        3       (1,1)     (7,5)      14
+  6  The Beacon      9x9     46        4       (1,1)     (5,7)      20
+
+Difficulty grows through grid shape, wall density and fragment placement, not
+through new unexplained mechanics. Tiles are never distinguished by colour
+alone: the board carries glyphs (S, diamond, beacon, unit) and a written legend,
+and the cells have accessible labels.
+
+On-screen pad buttons are 44px or larger targets and carry accessible names
+("Move up", "Move left", "Move down", "Move right"). Focus is visible
+(outline with offset) on links, buttons and pad keys.
+
+
+6. SAVE KEY, SAVED FIELDS, VALIDATION AND RESET
+--------------------------------------------------------------------------------
+Save key:   wrong-script.arcade.signal-path.v1
+Version:    1
+Stored shape:
+            { "v": 1, "unlocked": <number>, "completed": [<level numbers>],
+              "best": { "<level>": <moves> } }
+Stored fields are limited to progress: which relay is unlocked, which are
+completed, and best move counts. No name, no identifier, no personal data.
+
+Validation:
+  - The reader accepts only the exact key, requires an object with a numeric
+    version of 1, coerces unlocked into the 1..6 range, keeps only completed
+    entries that are valid level numbers, and drops anything else.
+  - Malformed, truncated or unexpected values do not crash the game and are
+    not silently deleted. The game starts safely in memory at level 1 and
+    replaces the save note with a plain explanation: the stored value could not
+    be read, nothing has been deleted, and the old value stays until the player
+    chooses "Reset progress".
+  - A failed write (storage blocked) leaves the game playable for the visit and
+    says so.
+  - Storage being unavailable entirely is handled the same way.
+
+Reset:
+  - "Reset progress…" opens an inline confirmation with "Yes, reset progress"
+    and "Keep my progress". Nothing is destroyed until the destructive choice
+    is taken. After confirming, the message reads: "Progress reset. Only the
+    first relay is open again."
+  - The page states plainly that progress is saved in this browser only and
+    does not sync to other devices.
+
+Isolation: SIGNAL PATH never reads, writes or clears the original film's "tws"
+key or the story key "wrong-script.story.the-ninth-bell.v1". See section 7.
+
+
+7. CONFIRMATION: NO ACCESS TO "tws" OR THE STORIES SAVE KEY
+--------------------------------------------------------------------------------
+Confirmed two ways.
+
+  (a) Executed check. tools/verify-signal-path.js scans every Arcade source
+      file (arcade/index.html, arcade/signal-path/index.html,
+      arcade/data/signal-path-levels.js, assets/js/arcade-games.js,
+      assets/js/arcade-library.js, assets/js/arcade-shell.js,
+      assets/js/signal-path-core.js, assets/js/signal-path.js,
+      assets/css/arcade.css) for the literal "tws" and for
+      "wrong-script.story" and reports a failure if either appears. Result:
+      PASS — no match.
+
+  (b) Code review. The only storage call sites in Arcade code use the single
+      constant SAVE_KEY = "wrong-script.arcade.signal-path.v1" through
+      readSave() and the writer in signal-path.js. No Arcade file enumerates
+      localStorage keys, clears storage, or iterates keys.
+
+The reverse direction is also unaffected: the Lobby's existing read of "tws"
+for its CONTINUE strip was not modified.
+
+
+8. TEST MATRIX — WHAT WAS ACTUALLY RUN
+--------------------------------------------------------------------------------
+Statuses used exactly as instructed: PASS (executed and passed), FAIL (executed
+and failed), NOT TESTED (not executed), CODE REVIEW ONLY (inspected in source,
+not executed in browser).
+
+Local server: python3 -m http.server 4173 (port 4173 as instructed; port 4190
+was not used).
+
+ #  Check                                    Status      Method and result
+ -- ---------------------------------------- ----------- ----------------------
+ 1  Six routes return 200 with non-empty
+    documents (/ /film/ /stories/
+    /stories/the-ninth-bell/ /arcade/
+    /arcade/signal-path/)                    PASS        12 browser checks: each
+                                                        route at 1280px and
+                                                        390px, HTTP 200,
+                                                        non-empty document,
+                                                        expected text visible,
+                                                        no page or failed local
+                                                        JS/CSS errors.
+                                                        (check call-a1dd78cd)
+
+ 2  Lobby → Arcade → SIGNAL PATH click path   PASS        Real browser: clicked
+                                                        the Arcade nav link
+                                                        (landed on /arcade/),
+                                                        then the cabinet card's
+                                                        "Play Signal Path"
+                                                        (landed on
+                                                        /arcade/signal-path/).
+                                                        (call-6222a851 steps 1–5)
+
+ 3  Arcade → Lobby and game → Arcade          PASS       game → Arcade by
+                                                        clicking "Back to the
+                                                        Arcade" (URL asserted
+                                                        /arcade/); Arcade →
+                                                        Lobby by opening the
+                                                        collapsed MENU and
+                                                        clicking "Lobby" (URL
+                                                        asserted /).
+                                                        (call-d8243e16 steps
+                                                        12–13; call-45444c3b)
+
+ 4  Enter and complete all six levels         PASS (L1, L2 in browser)
+                                              PASS (L3–L6 via rules check)
+                                                        L1 completed by three
+                                                        moves in the browser UI
+                                                        and L2 was entered by
+                                                        the unlock control.
+                                                        L3–L6 were completed by
+                                                        replaying their solved
+                                                        routes through the
+                                                        shipped move() rules in
+                                                        tools/verify-signal-path.js
+                                                        (20/20 assertions).
+                                                        L3–L6 were NOT played
+                                                        through the browser UI.
+
+ 5  Boundaries, blocked cells, valid and
+    invalid movement                         PASS       In the browser, pressing
+                                                        ArrowUp at the start cell
+                                                        (a wall/edge) left the
+                                                        move counter at 0 while
+                                                        the status line reported
+                                                        the block. The core
+                                                        check additionally
+                                                        asserts edge and wall
+                                                        blocking on all six
+                                                        grids.
+
+ 6  Fragment collection and beacon gating     PASS (rules check)
+                                              CODE REVIEW ONLY (browser
+                                              gating message)
+                                                        The rules check proves a
+                                                        sealed beacon cannot
+                                                        complete a level, that
+                                                        the attempt still counts
+                                                        as a move, and that all
+                                                        six levels require every
+                                                        fragment. In the browser
+                                                        runs the level 1 route
+                                                        collects its fragment
+                                                        before the beacon, so
+                                                        the sealed-beacon message
+                                                        itself was not triggered
+                                                        on screen.
+
+ 7  Move counter correctness                  PASS       Browser: 0 after the
+                                                        blocked attempt, 1 after
+                                                        one valid move, 0 again
+                                                        after undo.
+
+ 8  Restart-level behaviour                   PASS       Browser: after a move,
+                                                        "Restart level" returned
+                                                        the counter to 0 and the
+                                                        status line read "Level
+                                                        restarted. Back at the
+                                                        start cell with 0 moves
+                                                        and no fragments."
+
+ 9  Next-level unlocking; final completion
+    and replay                               PASS (unlock)
+                                              PASS (final completion/replay,
+                                              rules check)
+                                                        Browser: after level 1,
+                                                        the next-level control
+                                                        appeared and moved the
+                                                        HUD to "2 of 6". Sealed
+                                                        relays render disabled.
+                                                        Final-level completion
+                                                        and replay were exercised
+                                                        through the rules check,
+                                                        not through the browser.
+
+10  Save progress, reload, restoration        PASS       Browser: completed
+                                                        level 1, advanced to
+                                                        level 2, reloaded
+                                                        /arcade/signal-path/ and
+                                                        the HUD still read
+                                                        "2 of 6" with relay 1
+                                                        DONE and relay 2 OPEN.
+
+11  Malformed save handling                   PASS (rules check)
+                                              NOT TESTED (browser)
+                                                        The rules check feeds
+                                                        eight malformed values
+                                                        (garbage string, empty
+                                                        string, wrong version,
+                                                        wrong types, out-of-range
+                                                        levels, negative values,
+                                                        null, truncated JSON).
+                                                        Each is rejected without
+                                                        throwing, the game starts
+                                                        at level 1, and the raw
+                                                        stored string is
+                                                        confirmed unchanged
+                                                        afterwards. The managed
+                                                        browser tool cannot
+                                                        inject localStorage
+                                                        values, so this was not
+                                                        repeated in a browser.
+
+12  No access to "tws" or the Stories key     PASS       Executed scan over all
+                                                        Arcade files (see
+                                                        section 7) plus code
+                                                        review of every storage
+                                                        call site.
+
+13  Responsive checks at 390px and 1280px     PASS       All six routes checked
+                                                        at both widths; the game
+                                                        was additionally played
+                                                        at 390px (moves, undo,
+                                                        restart, reset, back
+                                                        navigation). The 9x9
+                                                        board fits the 390px
+                                                        viewport; no horizontal
+                                                        page scrolling was
+                                                        observed and no element
+                                                        overflowed.
+
+14  Keyboard operation and visible focus      PASS (keyboard)
+                                              CODE REVIEW ONLY (focus)
+                                                        A real ArrowUp keypress
+                                                        was handled by the game
+                                                        (blocked-move message).
+                                                        Moves were otherwise
+                                                        driven through the pad
+                                                        buttons, which is the
+                                                        same code path. Focus
+                                                        styling (:focus-visible
+                                                        with a 2px outline and
+                                                        3px offset) is present
+                                                        for links, buttons and
+                                                        pad keys but was not
+                                                        visually confirmed with
+                                                        keyboard-only traversal.
+
+15  Reduced motion                            CODE REVIEW ONLY
+                                                        assets/css/arcade.css
+                                                        contains a
+                                                        @media (prefers-reduced-
+                                                        motion: reduce) block that
+                                                        reduces animation and
+                                                        transition durations to
+                                                        0.001ms and disables
+                                                        smooth scrolling. It was
+                                                        not exercised with
+                                                        browser emulation.
+
+16  No page, console or failed request
+    errors                                   PASS       Every executed browser
+                                                        run reported zero page
+                                                        errors, zero console
+                                                        errors and zero failed
+                                                        network requests.
+
+Failed checks, disclosed in full:
+
+  - call-408a9f14 (route smoke check) FAILED on /arcade/signal-path/ only,
+    because the assertion expected "How to play" while the heading is
+    uppercased by CSS and renders as "HOW TO PLAY". The page was fine: a direct
+    browser visit showed the full page with no errors. The check was re-run as
+    call-a1dd78cd asserting non-transformed text on that route, and passed.
+  - call-4de98a5d FAILED for the same reason ("Signal Path" vs the rendered
+    "SIGNAL PATH"). Superseded by the passing playthrough.
+  - call-2eed2dac FAILED because "Play Signal Path" matched two links (hero and
+    cabinet card). Its retry call-09e5d3cb then failed because my scoped
+    selector assumed an aria-label that does not exist. Reading the source
+    showed the card is an <article aria-labelledby="game-…">; the corrected
+    locator passed in call-6222a851.
+  - call-d8243e16 step 14 FAILED because at 390px the Lobby link sits inside
+    the collapsed menu and is correctly hidden until MENU is pressed. The
+    menu path was verified separately in call-45444c3b, which passed.
+
+These four failures were locator and expectation mistakes in my tests. None
+indicates an application defect, and none was worked around by changing
+application behaviour.
+
+
+9. KNOWN LIMITATIONS AND UNVERIFIED ITEMS
+--------------------------------------------------------------------------------
+  - Levels 3 to 6 were verified as solvable and completable through the shipped
+    rules, but not played through the browser UI. The browser playthrough
+    covered levels 1 and 2, which share the same code path.
+  - The sealed-beacon message was not triggered on screen in a browser run.
+  - Malformed-save recovery and the raw-value-preserved guarantee were verified
+    by the rules check, not in a browser (no localStorage injection available).
+  - Reduced-motion behaviour and keyboard-only focus traversal are code review
+    only; no screen reader or assistive-technology pass was performed.
+  - Visual design was reviewed as rendered text and structure, not through a
+    formal visual design review.
+  - Progress is per browser and per origin, as stated on the page. There is no
+    sync, and none is implied.
+  - The game has no sound at all, so there is nothing to mute; no autoplay
+    audio exists anywhere in the Arcade.
+  - The Arcade catalogue is deliberately a single record. Adding a second game
+    is documented in README.md but was not done, per the phase scope.
+
+
+10. SHARED LOBBY AND NAVIGATION CHANGES, AND WHY
+--------------------------------------------------------------------------------
+  index.html
+    The Arcade door card changed from a reserved destination to a live one
+    ("OPEN NOW · ONE GAME IN THE CABINET") with a working link, the site nav
+    gained "The Arcade", and the footer gained the same link. The Lobby's
+    layout, wording, identity and the original film's CONTINUE strip were left
+    as they were. This was necessary because a destination nobody can reach is
+    not a destination.
+
+  stories/index.html
+    One navigation entry added so the Arcade is reachable from the Stories
+    library, matching the Lobby's nav order. No story file, story data or story
+    save key was touched.
+
+  README.md
+    Route map, file table, an "The Arcade" section explaining how to add a
+    game, the phase list, and local run instructions. Documentation only.
+
+No other shared file was modified. In particular assets/css/lobby.css,
+assets/js/lobby.js, film/index.html and every file under film/ are unchanged.
+
+
+11. DEPLOYMENT
+--------------------------------------------------------------------------------
+No deployment occurred. Nothing was built, published, uploaded or released, and
+no hosting configuration was changed. The work exists only as commits on the
+appjet branch.
+
+
+12. RECOMMENDED NEXT STEP (NOT IMPLEMENTED)
+--------------------------------------------------------------------------------
+Phase 4 as the project has defined it — The Gallery — following the same shape
+used here: one real, finished piece of content, its own data and page script,
+and an honest label on the Lobby card. Before that, a small dedicated pass could
+close the verification gaps listed in section 9 (play levels 3–6 and the sealed
+beacon in a browser, and test a malformed save in a real browser profile).
+
+The Arcade itself is deliberately left as one game. A second cabinet entry
+should wait until a second game is genuinely finished, which is what the
+catalogue file and the README instructions are for.
+
+================================================================================
+END OF REPORT
+================================================================================
