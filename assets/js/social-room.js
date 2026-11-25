@@ -302,18 +302,37 @@
 
     setCurrent(areas[0].id);
 
-    if ('IntersectionObserver' in window) {
-      var observer = new IntersectionObserver(function (records) {
-        records.forEach(function (record) {
-          if (record.isIntersecting) { setCurrent(record.target.id); }
-        });
-      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    /* The current board is the last one whose heading has crossed the
+       reading line. Reading it from scroll position is deterministic at
+       every width, so the marked link always agrees with the board at the
+       top of the screen after a jump, a deep link or a manual scroll. */
+    var syncQueued = false;
+
+    function syncCurrent() {
+      syncQueued = false;
+      var line = window.innerHeight * 0.45;
+      var best = areas[0].id;
 
       areas.forEach(function (area) {
         var section = document.getElementById(area.id);
-        if (section) { observer.observe(section); }
+        if (section && section.getBoundingClientRect().top - line <= 0) {
+          best = area.id;
+        }
       });
+
+      setCurrent(best);
     }
+
+    function queueSync() {
+      if (syncQueued) { return; }
+      syncQueued = true;
+      window.requestAnimationFrame(syncCurrent);
+    }
+
+    window.addEventListener('scroll', queueSync, { passive: true });
+    window.addEventListener('resize', queueSync);
+    window.addEventListener('hashchange', queueSync);
+    syncCurrent();
   }
 
   /* -------------------------------------------------------------------
