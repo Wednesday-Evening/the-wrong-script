@@ -24,5 +24,20 @@ window.ARCADE_GAMES = [
       { label: 'Failure', value: 'None: no timer, no lives, no score' }
     ],
     note: 'Progress is saved in this browser under its own key, separate from the film and the stories.'
+  },
+  {
+    id: 'lamplight',
+    title: 'Lamplight',
+    path: 'lamplight/',
+    kicker: 'Mirror puzzle',
+    blurb: 'A lamp that will not move, a beam that will not bend on its own, and a room full of mirrors that will. Turn them until the light has crossed every window in the building.',
+    facts: [
+      { label: 'Form', value: 'Single-player mirror puzzle' },
+      { label: 'Rooms', value: 'Six, hand-drawn' },
+      { label: 'A sitting', value: '10 to 15 minutes' },
+      { label: 'Controls', value: 'Click, tap, or Tab and Enter' },
+      { label: 'Failure', value: 'None: no timer, no lives, no score' }
+    ],
+    note: 'Progress is saved in this browser under its own key, separate from the film, the stories and Signal Path.'
   }
 ];

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lamplight - The Arcade - The Wrong Script</title>
+<meta name="description" content="Lamplight: a six-room mirror puzzle in The Wrong Script Arcade. Turn mirrors until the beam has crossed every window in the room.">
+<meta name="theme-color" content="#05080a">
+<link rel="stylesheet" href="../../assets/css/lobby.css">
+<link rel="stylesheet" href="../../assets/css/arcade.css">
+</head>
+<body class="arcade">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header" id="top">
+  <div class="bar">
+    <a class="brand" href="../../">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="wordmark">The Wrong Script</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Platform">
+      <a href="../../">Lobby</a>
+      <a href="../../film/" class="is-live">The Original Production</a>
+      <a href="../../stories/" class="is-live">The Stories</a>
+      <a href="../" class="is-live" aria-current="page">The Arcade</a>
+      <a href="../../gallery/" class="is-live">The Gallery</a>
+      <a href="../../social-room/" class="is-live">The Social Room</a>
+      <a href="../../archive/" class="is-live">The Archive</a>
+      <a href="../../creator-studio/" class="is-live">The Creator Studio</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="arc-open">
+    <div>
+      <p class="eyebrow">The Arcade &middot; Lamplight</p>
+      <h1>Lamplight</h1>
+      <p class="identity">Six dark rooms, a lamp that will not move, and mirrors that will.</p>
+      <p class="lede">The lamp stands where it stands and sends its beam in one fixed direction. Turn the mirrors until the beam has crossed every window in the room. Nothing is timed, nothing is chasing you, and a room can be turned back to how it started whenever you like.</p>
+      <div class="open-actions">
+        <a class="btn btn-ghost" href="../">Back to the Arcade</a>
+        <a class="btn btn-ghost" href="../../">The Lobby</a>
+      </div>
+    </div>
+    <div class="open-meta">
+      <span>Six handcrafted rooms</span>
+      <span>Keyboard or touch</span>
+      <span>Saved in this browser</span>
+    </div>
+  </section>
+
+  <section class="play" aria-labelledby="play-heading">
+    <h2 id="play-heading" class="visually-hidden">The room</h2>
+
+    <div class="play-grid">
+      <div class="play-main">
+
+        <div class="hud" role="group" aria-label="Room status">
+          <div class="hud-cell">
+            <span class="hud-lab">Room</span>
+            <span class="hud-val" data-level-index>1 of 6</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-lab">Windows lit</span>
+            <span class="hud-val" data-lit>0 / 1</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-lab">Mirror turns</span>
+            <span class="hud-val" data-turns>0</span>
+          </div>
+        </div>
+
+        <p class="level-name" data-level-name>The Reading Room</p>
+        <p class="lp-idea" data-level-idea>One mirror, one window.</p>
+
+        <div class="lp-wrap">
+          <div class="lp-board" data-board role="group" aria-label="Room grid"></div>
+        </div>
+
+        <p class="status" data-status aria-live="polite">Turn a mirror to send the beam towards a window.</p>
+
+        <div class="result" data-result hidden>
+          <p class="result-kicker" data-result-kicker>Room lit</p>
+          <h3 data-result-title>Every window lit</h3>
+          <p data-result-body></p>
+          <div class="result-actions">
+            <button class="btn btn-primary" type="button" data-next>Next room</button>
+            <button class="btn btn-ghost" type="button" data-replay>Turn this room back</button>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="play-side" aria-label="Rooms and instructions">
+
+        <div class="side-block">
+          <h3>Rooms</h3>
+          <div class="rail" data-rail></div>
+        </div>
+
+        <div class="side-block">
+          <h3>This room</h3>
+          <div class="side-actions">
+            <button class="btn btn-ghost btn-small" type="button" data-restart>Reset the mirrors</button>
+          </div>
+        </div>
+
+        <div class="side-block">
+          <h3>How to play</h3>
+          <ul class="rules">
+            <li>The lamp stays put. It sends one beam in the direction it is pointing.</li>
+            <li>Each mirror has two positions. Turning one changes which way the beam leaves it.</li>
+            <li>Click or tap a mirror, or tab to it and press Enter or Space, to turn it.</li>
+            <li>The beam crosses windows and lights them. It stops on a wall or at the edge of the room.</li>
+            <li>A room is finished when every window in it has been lit at least once.</li>
+            <li>No timer, no moves limit, no score. Reset the mirrors whenever you like.</li>
+          </ul>
+        </div>
+
+        <div class="side-block">
+          <h3>Legend</h3>
+          <ul class="legend lp-legend">
+            <li><span class="lp-key lp-key-lamp" aria-hidden="true"></span> The lamp</li>
+            <li><span class="lp-key lp-key-mirror" aria-hidden="true">/</span> Mirror, turnable</li>
+            <li><span class="lp-key lp-key-window" aria-hidden="true"></span> Window, unlit</li>
+            <li><span class="lp-key lp-key-window is-lit" aria-hidden="true"></span> Window, lit</li>
+            <li><span class="lp-key lp-key-beam" aria-hidden="true"></span> The beam</li>
+            <li><span class="lp-key lp-key-wall" aria-hidden="true"></span> Wall</li>
+          </ul>
+        </div>
+
+        <div class="side-block">
+          <h3>Saved progress</h3>
+          <p class="save-note" data-save-note>Progress is saved in this browser only, under its own key.</p>
+          <button class="btn btn-ghost btn-small btn-danger" type="button" data-reset>Reset progress&hellip;</button>
+          <div class="confirm" data-reset-panel hidden>
+            <p>Reset every unlocked room back to the first? This cannot be undone.</p>
+            <div class="confirm-actions">
+              <button class="btn btn-danger btn-small" type="button" data-reset-confirm>Yes, reset progress</button>
+              <button class="btn btn-ghost btn-small" type="button" data-reset-cancel>Keep my progress</button>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="wordmark">The Wrong Script</span>
+    <p>An evolving digital universe of stories, games, creative experiences and community.</p>
+    <p>Phase nine: the Lobby, the original film, The Stories, The Arcade, The Gallery, The Social Room, The Archive and The Creator Studio. No accounts, no tracking, no analytics. Progress in the film, each story and each game is stored in this browser only.</p>
+    <div class="footer-links">
+      <a href="../../film/">The Original Production</a>
+      <a href="../../stories/">The Stories</a>
+      <a href="../">The Arcade</a>
+      <a href="../../#top">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/js/arcade-shell.js" defer></script>
+<script src="../../assets/js/lamplight-core.js" defer></script>
+<script src="../data/lamplight-levels.js" defer></script>
+<script src="../../assets/js/lamplight.js" defer></script>
+</body>
+</html>
