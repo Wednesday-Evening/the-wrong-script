@@ -1,0 +1,646 @@
+THE WRONG SCRIPT
+PHASE 6 — THE ARCHIVE
+HANDOVER REPORT
+
+Date: 25 November 2026
+Repository: Wednesday-Evening/the-wrong-script
+Branch: appjet
+Authorisation: Phase 6 only. No deployment. No Phase 7.
+
+===============================================================================
+1. PHASE TITLE AND SCOPE
+===============================================================================
+
+Phase 6 adds The Archive: a curated, read-only catalogue at /archive/ that
+brings together the universe's completed experiences, three editorial
+collections, eight verified discoveries and a short record of what the Archive
+keeps.
+
+Delivered exactly as authorised:
+
+  - /archive/ with four areas: Completed Files, Collections, Discoveries,
+    The Record, plus a closing note.
+  - Three completed files, three collections, eight discoveries.
+  - Spoilers inside closed native <details>/<summary> disclosures only.
+  - Archive navigation on the seven authorised platform pages.
+  - Lobby Archive card corrected; hero eyebrow updated to Phase 6.
+  - Stale "Archive is being built" copy replaced in the Gallery and the
+    Social Room.
+  - README updated.
+  - Two development check scripts and this report.
+
+Not done, as instructed: no deployment, no hosting change, no accounts, no
+submissions, no posting, no Creator Studio, no backend, no new storage, no
+Phase 7.
+
+===============================================================================
+2. REPOSITORY, BRANCH, STARTING STATE
+===============================================================================
+
+Repository:        Wednesday-Evening/the-wrong-script
+Branch:            appjet
+Starting HEAD:     c6f1b6e466033f1a284d44a72aba8efcda6a6ff0 (c6f1b6e)
+Starting tree:     clean (git status --porcelain returned nothing)
+Baseline marker:   1da207d2f7908dbdfa23df7790d454ad435c0cdf, confirmed present
+                   in branch history, as the prompt stated.
+
+Pre-flight findings, all consistent with the accepted state:
+
+  - All six existing routes were present and loadable:
+    /, /film/, /stories/, /stories/the-ninth-bell/, /arcade/,
+    /arcade/signal-path/, /gallery/, /social-room/.
+  - The architecture is unchanged: plain HTML, CSS and vanilla JavaScript,
+    static routes, local assets, no manifest, no lockfile, no build step.
+  - Shared platform navigation is a <nav class="site-nav" id="site-nav">
+    block repeated per page, with relative hrefs ("archive/" from the root,
+    "../archive/" one level down, "../../archive/" two levels down) and a
+    #nav-toggle for small screens.
+  - The Archive was present only as a reserved card on the Lobby marked
+    "under construction", with a description promising drafts, deleted scenes
+    and earlier versions of the film. No such material exists in the project,
+    so that description was false and has been replaced.
+  - The Gallery and the Social Room both carried text saying the Archive was
+    still being built. Both were stale and have been updated.
+
+No discrepancy required a stop.
+
+===============================================================================
+3. COMMITS
+===============================================================================
+
+The workspace commits each file write automatically, so Phase 6 is a short
+series of commits rather than one. All are on appjet, in order:
+
+  520332b  assets/css/archive.css, assets/js/archive-content.js
+  15ac0c2  assets/js/archive.js  (renderer)
+  4a95cd6  archive/index.html
+  c2c8010  the seven platform pages (nav entry, Lobby card, Lobby eyebrow,
+           Gallery and Social Room stale copy)
+  25df877  tools/verify-archive.js, tools/verify-archive-ui.cjs
+  01895d9  tools/verify-archive.js (assertion tightening, see section 16)
+  1add4c5  tools/verify-archive.js (assertion tightening, see section 16)
+  b510ca2  tools/verify-archive-ui.cjs (selector corrections, section 16)
+  363b98a  README.md
+  +1       reports/PHASE-6-HANDOVER.txt (this file)
+
+This report is included in its own commit, so it cannot contain that commit's
+hash. The report commit hash and the resulting final HEAD are stated in the
+completion message.
+
+===============================================================================
+4. FILES CREATED (7)
+===============================================================================
+
+  archive/index.html                     The Archive page: header, nav, hero,
+                                         jump list, four sections, closing,
+                                         noscript summary, footer.
+  assets/css/archive.css                 The Archive's identity: file cards,
+                                         collection shelves, discovery list,
+                                         record, hash note. Loaded after
+                                         lobby.css so it inherits the palette.
+  assets/js/archive-content.js           The catalogue as data. No DOM, no
+                                         storage, no network.
+  assets/js/archive.js                   The renderer: builds every node with
+                                         createElement/textContent, wires the
+                                         jump list, the disclosures and the
+                                         deep links.
+  tools/verify-archive.js                Static check (34 assertions).
+  tools/verify-archive-ui.cjs            Browser check (Chromium, port 4173).
+  reports/PHASE-6-HANDOVER.txt           This report.
+
+===============================================================================
+5. FILES MODIFIED (8)
+===============================================================================
+
+  index.html                             Archive card marked open with a
+                                         truthful description; Archive nav
+                                         entry made live; hero eyebrow changed
+                                         from "Phase five - the social room is
+                                         open" to "Phase six - the archive is
+                                         open".
+  stories/index.html                     Archive nav entry made live.
+  stories/the-ninth-bell/index.html      Archive nav entry made live.
+  arcade/index.html                      Archive nav entry made live.
+  arcade/signal-path/index.html          Archive nav entry made live.
+  gallery/index.html                     Archive nav entry made live; stale
+                                         "Archive being built" sentence
+                                         replaced with a link to the room.
+  social-room/index.html                 Archive nav entry made live; stale
+                                         "Archive being built" sentence
+                                         replaced with a link to the room.
+  README.md                              Archive route, files, Phase 6 status,
+                                         the Archive section, how to add an
+                                         entry.
+
+No file was deleted, renamed or moved.
+
+===============================================================================
+6. FILES INTENTIONALLY UNTOUCHED
+===============================================================================
+
+  film/index.html and everything under film/   verified with git diff: empty.
+  assets/css/lobby.css, assets/js/lobby.js      not modified.
+  assets/js/stories-index.js, stories-library.js, story-engine.js
+  stories/data/the-ninth-bell.js
+  assets/js/arcade-*.js, signal-path*.js, arcade/data/signal-path-levels.js
+  assets/js/gallery-exhibits.js, assets/js/gallery.js, assets/img/gallery/*
+  assets/js/social-room-content.js, assets/js/social-room.js
+  tools/verify-*.js for earlier phases
+
+The Archive reads the earlier rooms' data only by linking to their published
+routes and anchors; it does not import or alter their modules.
+
+===============================================================================
+7. ROUTE MAP AND NAVIGATION
+===============================================================================
+
+  /                          Lobby
+  /film/                     The Wrong Script: Original Production (standalone)
+  /stories/                  The Stories library
+  /stories/the-ninth-bell/   The Ninth Bell
+  /arcade/                   The Arcade library
+  /arcade/signal-path/       SIGNAL PATH
+  /gallery/                  The Gallery
+  /social-room/              The Social Room
+  /archive/                  The Archive (new)
+
+The Creator Studio remains reserved: it appears in the navigation as a "soon"
+item with no route, exactly as before.
+
+Navigation changes:
+
+  - The Archive nav entry became a live link on the seven authorised pages
+    (/, /stories/, /stories/the-ninth-bell/, /arcade/, /arcade/signal-path/,
+    /gallery/, /social-room/) and is marked aria-current="page" on
+    /archive/ itself.
+  - The Archive page links back to the Lobby and to every other room in both
+    its navigation and its footer.
+  - /film/ deliberately has no platform navigation added: the film stays
+    full-screen and standalone, as required.
+  - On the Lobby the Archive card moved from "under construction" to open,
+    with a description of what the Archive actually contains.
+
+===============================================================================
+8. THE FOUR AREAS AND THEIR CONTENT
+===============================================================================
+
+A. COMPLETED FILES (3)
+
+  1. The Ninth Bell — /stories/the-ninth-bell/
+     A branching story at a lighthouse, told across four watches. Five
+     endings. The card states the shape, not the conditions.
+
+  2. The Wrong Script: Original Production — /film/
+     The original cinematic production: three distinct endings and a
+     post-credits scene. Filed as its own room, never as a Stories entry.
+
+  3. SIGNAL PATH — /arcade/signal-path/
+     Six handcrafted grid levels with a real completion point and replay.
+     The card does not imply an endless game.
+
+  Each card carries: room, form, shape (e.g. "five endings, four watches"),
+  a short summary, a few plain facts, and one link into the experience.
+
+B. COLLECTIONS (3)
+
+  1. Choices and Consequences
+     The Ninth Bell (choices with lasting flags and five endings), the
+     Original Production (three routes out), SIGNAL PATH (movement, undo and
+     the deliberate absence of a timer).
+
+  2. Close Observation
+     Gallery exhibits ledger-of-small-hours, instructions-for-a-door and
+     the-understudy-note, plus the film's crew lounge, which only completes
+     once all four crew members have been met.
+
+  3. Rooms and Doors
+     Gallery exhibits red-room-no-take, set-dressing-study-iii and the-booth,
+     plus the film's hub of investigation rooms and the Room 13 reference
+     with its painting callback.
+
+  Every collection entry names the room, links to the real destination, and
+  says why it belongs.
+
+C. DISCOVERIES (8)
+
+  1. Three Ways Out                The film has three distinct endings.
+  2. One More Scene                A post-credits scene follows leaving.
+  3. The Crew Lounge               Completes only after all four crew members.
+  4. Room 13                       The reference and its painting callback.
+  5. Five Hours, Five Endings      SPOILER — inside a closed disclosure.
+  6. An Early Ending Is Still an Ending
+                                   The story can end early and still conclude.
+  7. The Closed Beacon             SIGNAL PATH refuses the beacon while
+                                   fragments remain, and says why.
+  8. Not Everything Is What It Appears
+                                   A photograph never shot with a camera and
+                                   a music exhibit that is a written cue.
+
+  Discovery 5 is the only one with a spoiler. Its summary reads
+  "Spoiler — The Ninth Bell"; the body names the hopeful ending and the two
+  discoveries it requires. The title, the note and the room label contain no
+  part of the answer, and the disclosure is closed on load.
+
+D. THE RECORD AND THE CLOSING NOTE
+
+  The Record is four short paragraphs: what is filed and why (a real
+  conclusion, or a permanent place in the universe), what the collections do,
+  what the discoveries are for, and what the Archive deliberately does not
+  record. The closing note explains that the Archive sits alongside the other
+  rooms, keeps no personal progress and collects no visitor activity.
+
+  Attribution throughout is The Wrong Script Studio only. No individual
+  authors, editors or members are invented.
+
+===============================================================================
+9. READ-ONLY BEHAVIOUR AND WHAT IS NOT IMPLEMENTED
+===============================================================================
+
+  - No forms, no inputs, no posting, no commenting, no reactions, no voting,
+    no ratings, no uploads, no submissions, no profiles, no accounts.
+  - No storage of any kind. The Archive has no save key.
+  - No backend, API, analytics or third-party request.
+  - No fabricated dates, awards, achievements, attendance, member identities
+    or popularity figures.
+  - No search and no filters. The room is small enough to read, and a filter
+    would have implied a bigger catalogue than exists.
+  - No dead controls: the only interactive elements are links, the small-screen
+    navigation toggle, the jump list and the native disclosure.
+
+===============================================================================
+10. TEST MATRIX
+===============================================================================
+
+Statuses used exactly: PASS / FAIL / NOT TESTED / CODE REVIEW ONLY.
+"Executed" means the command or browser run actually happened in this
+environment and the output was read.
+
+Method key:
+  STATIC  = node tools/verify-archive.js (reads source and data, no browser)
+  BROWSER = node tools/verify-archive-ui.cjs (Chromium via Playwright,
+            throwaway python3 http.server on port 4173)
+
+--- Routes and layout -------------------------------------------------------
+
+1.  All nine routes return a document and render text            PASS (BROWSER)
+    /, /film/, /stories/, /stories/the-ninth-bell/, /arcade/,
+    /arcade/signal-path/, /gallery/, /social-room/, /archive/
+    at 390px and 1280px: 18 route checks, each asserted
+    document.readyState "complete" and non-empty body text.
+    /film/ reports 93 characters of text at both widths, which is its
+    title-card state; the film is unchanged.
+
+2.  No horizontal overflow, both widths                          PASS (BROWSER)
+    scrollWidth - clientWidth measured as 0px on all nine routes at 390px
+    and 1280px.
+
+3.  Archive renders its four areas                               PASS (BROWSER)
+    3 .file cards, 3 .collection blocks, 8 .discovery items, 4 record
+    paragraphs, closing note present and longer than 120 characters.
+
+4.  Lobby Archive card no longer promises drafts                 PASS (BROWSER)
+    Card text contains neither "drafts" nor "deleted scenes"; card href is
+    "archive/".
+
+5.  Lobby eyebrow reflects Phase 6                               PASS (BROWSER)
+    Rendered text: "PHASE SIX · THE ARCHIVE IS OPEN".
+
+--- Links and deep links ----------------------------------------------------
+
+6.  Every catalogue link resolves                                PASS (STATIC)
+    23 links; each is local and its target file exists on disk.
+
+7.  Every catalogue link returns HTTP 200 in the browser         PASS (BROWSER)
+    23 requests issued from the rendered page; none non-200.
+
+8.  Six Gallery deep links name real exhibits                    PASS (STATIC)
+    ledger-of-small-hours, instructions-for-a-door, the-understudy-note,
+    red-room-no-take, set-dressing-study-iii, the-booth — all six checked
+    against the ids in assets/js/gallery-exhibits.js.
+
+9.  Six Gallery deep links open the exhibit                      PASS (BROWSER)
+    Each navigated in Chromium: #exhibit-panel visible with a non-empty
+    exhibit title in every case.
+
+10. Known entry hash resolves                                    PASS (BROWSER)
+    /archive/#discovery-the-closed-beacon finds its entry.
+
+11. Known section hash resolves                                  PASS (BROWSER)
+    /archive/#collections is visible.
+
+12. Unknown hash fails gracefully                                PASS (BROWSER)
+    /archive/#not-a-real-entry shows the recovery note, whose text begins
+    "No entry is filed under ...", and its link returns to a real section.
+
+--- Spoilers ---------------------------------------------------------------
+
+13. Exactly one disclosure, closed on load                       PASS (BROWSER)
+    One <details>, .open false before any interaction.
+
+14. Summary is labelled Spoiler                                  PASS (BROWSER)
+    "SPOILER — THE NINTH BELL" (rendered uppercase by CSS).
+
+15. Spoiler text present inside the disclosure                   PASS (BROWSER)
+    The body names the ending; read from the disclosure's own text.
+
+16. Spoiler absent from visible title, note and room label       PASS (BROWSER)
+    Scoped to the one discovery, checked for "ledger" and
+    "two discoveries": neither appears.
+
+17. No title attribute on the summary                            PASS (BROWSER)
+    summary.getAttribute('title') is null, so no tooltip leak.
+
+18. Mouse open and close                                         PASS (BROWSER)
+    Click opens; second click closes.
+
+19. Keyboard open and close                                      PASS (BROWSER)
+    Enter opens, Space closes, with the summary focused.
+
+20. Renderer never opens a disclosure                            PASS (STATIC)
+    No setAttribute('open'), no .open = true, no open attribute in the page.
+
+--- Navigation -------------------------------------------------------------
+
+21. Lobby nav opens the Archive                                  PASS (BROWSER)
+    Clicked the live nav entry; pathname became /archive/.
+
+22. Archive returns to the Lobby                                 PASS (BROWSER)
+    Footer Lobby link; pathname "/".
+
+23. Archive nav link resolves on six other pages                 PASS (BROWSER)
+    /stories/, /arcade/, /gallery/, /social-room/ use ../archive/;
+    /stories/the-ninth-bell/ and /arcade/signal-path/ use ../../archive/;
+    each requested and returned 200.
+
+24. Archive page links to all six rooms                          PASS (STATIC)
+    ../, ../film/, ../stories/, ../arcade/, ../gallery/, ../social-room/.
+
+25. Original Production remains standalone                       PASS (STATIC)
+    film/ has no platform nav; the Archive lists it as its own room and no
+    Stories entry claims it.
+
+--- Accessibility and motion ----------------------------------------------
+
+26. Visible keyboard focus                                       PASS (BROWSER)
+    Jump link focused: computed outline "solid 2px", not none.
+
+27. Touch targets                                                PASS (BROWSER)
+    Smallest measured height across jump links, file links and discovery
+    links: 44px.
+
+28. Reduced motion                                               PASS (BROWSER)
+    Chromium reducedMotion:'reduce' emulation: transition 0ms,
+    animation 0ms on the interactive cards.
+
+29. Reduced-motion CSS present                                   PASS (STATIC)
+    A prefers-reduced-motion block exists in archive.css.
+
+30. Semantic structure                                           CODE REVIEW ONLY
+    Page uses header/nav/main/section/footer, one h1 (#archive-title), h2 per
+    area, h3 per entry, a skip link and aria-labelledby on sections. Read in
+    source; not audited with assistive technology.
+
+31. Heading order and link names in the rendered page            PASS (BROWSER)
+    Implicitly exercised by role/name-based navigation of the jump list,
+    cards and disclosure; no generic "click here" text in content.
+
+--- Privacy and storage ---------------------------------------------------
+
+32. No storage, cookie or network API in Archive code            PASS (STATIC)
+    Checked for localStorage, sessionStorage, indexedDB, document.cookie,
+    fetch(, XMLHttpRequest, sendBeacon, WebSocket across archive.js and
+    archive-content.js.
+
+33. No save key strings in Archive code or page                   PASS (STATIC)
+    None of "tws", wrong-script.story.the-ninth-bell.v1 or
+    wrong-script.arcade.signal-path.v1 appears.
+
+34. Stored values byte-identical after browsing                   PASS (BROWSER)
+    Three keys seeded in an isolated profile, then the Archive visited,
+    the spoiler toggled and an unknown hash triggered. Before/after
+    serialisation of every key/value pair was identical.
+
+35. No fourth storage key                                        PASS (BROWSER)
+    After the walk: exactly tws, wrong-script.arcade.signal-path.v1,
+    wrong-script.story.the-ninth-bell.v1.
+
+36. No external resource in the page                             PASS (STATIC)
+    No http(s) reference in any src or href; no inline script or style.
+
+--- Regression ------------------------------------------------------------
+
+37. Console, page errors and failed requests, all routes         PASS (BROWSER)
+    Zero console errors, zero page errors, zero non-200 or failed requests
+    at 390px and 1280px across the nine routes, and zero during the Archive
+    walk.
+
+38. Film untouched                                               PASS (STATIC)
+    git diff --name-only HEAD -- film/ returned nothing.
+
+39. Earlier rooms' logic untouched                               PASS (STATIC)
+    No diff in gallery.js, social-room.js, story-engine.js or
+    arcade game scripts.
+
+40. Existing rooms still render with their content               PASS (BROWSER)
+    /stories/ 2417 chars, /stories/the-ninth-bell/ 1389,
+    /arcade/ 2323, /arcade/signal-path/ 1884, /gallery/ 3455-3567,
+    /social-room/ 7056-7168 at the two widths.
+
+41. Gallery exhibit content unchanged                            PASS (BROWSER)
+    All six deep-linked exhibits open with their expected titles.
+
+42. Original Production entry behaviour unchanged                PASS (BROWSER)
+    /film/ loads with its title card at both widths; no script error. Its
+    scenes, puzzles, endings and save behaviour were not re-played in this
+    phase (see limitations).
+
+--- Dependencies ----------------------------------------------------------
+
+43. Dependency scan                                              NOT APPLICABLE
+    OSV-Scanner 2.7.0, repository scope: status not_applicable, 0 packages
+    resolved, 0 findings. The project has no package.json, no lockfile and no
+    dependencies, so there was nothing to resolve. This is not a security
+    certification of the source, the runtime or the hosting.
+
+--- Explicitly not tested -------------------------------------------------
+
+44. Screen-reader or other assistive-technology audit            NOT TESTED
+45. Real phone or tablet hardware                                NOT TESTED
+46. Firefox or Safari                                            NOT TESTED
+47. Archive small-screen navigation toggle opened and used       NOT TESTED
+48. Browser Back/Forward between Archive sections                NOT TESTED
+49. Reduced motion on a real OS setting                          NOT TESTED
+    (only Chromium emulation, item 28)
+
+===============================================================================
+11. VIEWPORTS, BROWSER AND ENVIRONMENT
+===============================================================================
+
+  Browser:   Chromium, via the Playwright build in the workspace
+             (/opt/appjet/browser/node_modules/playwright).
+  Viewports: 390 x 900 (phone) and 1280 x 900 (desktop).
+  Server:    python3 -m http.server 4173 --bind 127.0.0.1, throwaway, started
+             and stopped by the check script. Port 4173 as instructed.
+  Reduced motion: Chromium emulation (reducedMotion: 'reduce').
+
+These are emulated viewports in a headless-capable desktop browser, not real
+devices.
+
+===============================================================================
+12. CONSOLE, FAILED REQUESTS AND OVERFLOW
+===============================================================================
+
+  Console errors:        0
+  Uncaught page errors:  0
+  Failed requests:       0
+  Non-200 responses:     0
+  Horizontal overflow:   0px at 390px and 1280px on all nine routes
+
+===============================================================================
+13. SAVE-KEY ISOLATION EVIDENCE
+===============================================================================
+
+Static: archive.js and archive-content.js contain no storage API call, no
+cookie access, no network call, and none of the three save-key strings.
+
+Browser: a fresh profile was seeded with the three existing keys, the Archive
+was browsed (including the spoiler toggle and an invalid hash), and every
+key/value pair was identical afterwards. No fourth key appeared.
+
+The Archive therefore does not read, write, clear or migrate tws,
+wrong-script.story.the-ninth-bell.v1 or wrong-script.arcade.signal-path.v1, and
+it does not calculate what a visitor has finished.
+
+===============================================================================
+14. ACCESSIBILITY AND REDUCED-MOTION SUMMARY
+===============================================================================
+
+Verified by execution: focus outline on jump links (solid 2px), minimum touch
+target 44px, reduced-motion transition/animation 0ms under emulation, keyboard
+Enter/Space on the disclosure, native disclosure semantics, skip link present.
+
+Verified by reading only: landmark structure, heading hierarchy, aria-current
+on the current nav item, aria-labelledby on sections, descriptive link text.
+
+Not verified: assistive-technology behaviour, real-device touch, colour
+contrast measured with a tool (the palette is inherited from lobby.css and
+unchanged from earlier accepted phases).
+
+===============================================================================
+15. DEPENDENCY SCAN
+===============================================================================
+
+  Tool:      OSV-Scanner 2.7.0 (AppJet shared scanner)
+  Scope:     repository dependencies
+  Manifest:  none — the project intentionally has no package.json, no lockfile
+             and no dependencies
+  Packages:  0 resolved
+  Findings:  0
+  Status:    not_applicable
+
+An empty scan is not a certification of the source, runtime, hosting or the
+absence of unknown issues. The isolation claims in this report rest on the
+source scan and the browser run, not on this scan.
+
+===============================================================================
+16. HISTORICAL FAILURES AND RESOLUTIONS
+===============================================================================
+
+All failures below are recorded as they happened. None was hidden, and none is
+an open defect.
+
+A. Static run 1 — 4 of 34 checks failed.
+   Cause: four assertions were written too broadly, not four defects.
+     1. "no other discovery... leaks the spoiler" flagged the word "Ledger".
+        The Gallery's public exhibit "Ledger of Small Hours" legitimately
+        carries that name; the story ending of the same name is a different
+        thing. The check now excludes that one exhibit entry and still fails
+        if the ending is named anywhere outside the disclosure.
+     2. "never uses innerHTML" flagged the phrase inside a source comment.
+        The check now strips comments and looks for real injection
+        (innerHTML assignment, insertAdjacentHTML, outerHTML).
+     3. "no fabricated counts" flagged the word "visitor" in honest prose
+        ("not a record of visitors"). It now looks for an actual number
+        attached to a metric.
+     4. "mobile-first styles" flagged min-width media queries because the
+        pattern matched the "width:" inside "min-width:". It now matches only
+        a bare width declaration and allows up to 480px.
+   Resolution: assertions corrected; no application file changed.
+
+B. Static run 2 — 1 of 34 failed.
+   Cause: the word "award" in the Record's honest sentence "no awards, no
+   achievements, no attendance figures". Resolution: the check now looks for
+   claims ("award-winning", "won an award", "prize", "winner", "attended",
+   "trending") rather than the word itself. No application change.
+
+C. Final static run — 34 of 34 passed.
+
+D. Browser suite: two selectors were corrected before the first run, so no
+   browser run was wasted on a known-wrong locator: the Gallery panel is
+   #exhibit-panel (not a class), and the spoiler assertions had to be scoped
+   to the one discovery rather than the first .discovery-note on the page.
+   No failed browser run is claimed or omitted — the first executed run
+   passed in full.
+
+===============================================================================
+17. KNOWN LIMITATIONS AND UNVERIFIED ITEMS
+===============================================================================
+
+  1. No assistive-technology audit was performed. Screen-reader behaviour is
+     inferred from semantics, not heard.
+  2. Only Chromium was used. Firefox and Safari are untested.
+  3. Viewports were emulated, not real devices.
+  4. The Archive's own small-screen navigation toggle was not opened and used
+     in the browser run; the nine routes were checked at 390px for rendering
+     and overflow only.
+  5. Browser Back/Forward between Archive sections and entries was not
+     exercised. Deep links and the recovery note were.
+  6. Reduced motion was verified by emulation, not by changing an OS setting.
+  7. Colour contrast was not measured with a tool; the palette is inherited
+     from the accepted Lobby stylesheet.
+  8. The film's scenes, puzzles, endings and save behaviour were not re-played
+     in this phase. The film is byte-unchanged and still loads; earlier phases
+     verified its routes and save handling.
+  9. The Archive is intentionally small: three files, three collections, eight
+     discoveries. It will grow only when new verified work exists.
+ 10. Nothing in this phase is a security certification.
+
+===============================================================================
+18. DEPLOYMENT AND SCOPE CONFIRMATION
+===============================================================================
+
+  - No deployment occurred.
+  - No hosting, domain, DNS or environment configuration was changed.
+  - No Phase 7 work was started.
+  - No Creator Studio, account, profile, submission, comment, reaction,
+    message, upload or moderation feature was implemented or activated.
+  - No application code, asset, route, style, script, data file or save key
+    from Phases 1-5 was altered beyond the authorised navigation entry and the
+    stale-copy corrections listed in section 5.
+
+===============================================================================
+19. RECOMMENDED NEXT STEP
+===============================================================================
+
+Recommended: a short verification-only pass before Phase 7, covering items 4
+and 5 of section 17 — the Archive's small-screen navigation toggle and
+Back/Forward between sections — since both are cheap to check and neither
+needs an implementation change. After that, Phase 7 (The Creator Studio) can
+be planned as a submission-and-review design only: the Archive already
+documents the rule that member-created work must be reviewed before it is
+published, and no route in this phase bypasses it.
+
+Not started. Awaiting the owner's review and explicit authorisation.
+
+===============================================================================
+20. DECISIONS NEEDED
+===============================================================================
+
+None blocking. Two optional editorial choices for later:
+
+  - Whether the Archive should eventually accept member-created entries
+    (a Creator Studio question, not a defect here).
+  - Whether the Lobby hero eyebrow should keep the phase wording once the
+    universe has more than one recent milestone.
+
+PHASE HANDOVER STATUS: READY FOR REVIEW
