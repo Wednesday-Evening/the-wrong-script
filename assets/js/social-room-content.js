@@ -213,9 +213,10 @@ window.SOCIAL_ROOM = {
         {
           id: 'happening-archive',
           kind: 'Listing',
-          status: 'In preparation',
+          status: 'Open now',
           title: 'The Archive',
-          body: ['The record: drafts, deleted scenes, and what this film used to be. Not built, and no date is being promised.']
+          body: ['Three completed works, three curated collections and eight discoveries, kept as a read-only catalogue of verified material.'],
+          link: { label: 'Open the record', href: '../archive/' }
         },
         {
           id: 'happening-creator-studio',
