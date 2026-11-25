@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Archive - The Wrong Script</title>
+<meta name="description" content="The Archive: three completed experiences, three curated collections and eight verified discoveries from across The Wrong Script universe. A read-only catalogue that keeps no record of who visits it.">
+<meta name="theme-color" content="#080807">
+<link rel="stylesheet" href="../assets/css/lobby.css">
+<link rel="stylesheet" href="../assets/css/archive.css">
+</head>
+<body class="archive">
+
+<a class="skip" href="#main">Skip to the Archive</a>
+
+<header class="site-header" id="top">
+  <div class="bar">
+    <a class="brand" href="../">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="wordmark">The Wrong Script</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Platform">
+      <a href="../">Lobby</a>
+      <a href="../film/" class="is-live">The Original Production</a>
+      <a href="../stories/" class="is-live">The Stories</a>
+      <a href="../arcade/" class="is-live">The Arcade</a>
+      <a href="../gallery/" class="is-live">The Gallery</a>
+      <a href="../social-room/" class="is-live">The Social Room</a>
+      <a href="./" class="is-live" aria-current="page">The Archive</a>
+      <a href="../#creator-studio">The Creator Studio <span class="soon">Soon</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="arc-hero" aria-labelledby="archive-title">
+    <p class="eyebrow">The Archive</p>
+    <h1 class="arc-title" id="archive-title">A room for what is finished</h1>
+    <p class="arc-lede">
+      The Archive is the universe keeping its own records: the experiences that have a real ending,
+      the threads that run between different rooms, and the details that are easy to walk past.
+      Nothing here is a progress bar, and nothing here is counting you.
+    </p>
+    <p class="arc-open">Open now &middot; three completed files &middot; three collections &middot; eight discoveries &middot; no account, no tracking</p>
+  </section>
+
+  <nav class="arc-jump" aria-labelledby="jump-title">
+    <h2 class="arc-jump-title" id="jump-title">Four parts of the record</h2>
+    <ul class="jump-list">
+      <li><a href="#completed-files">Completed Files</a></li>
+      <li><a href="#collections">Collections</a></li>
+      <li><a href="#discoveries">Discoveries</a></li>
+      <li><a href="#record">The Record</a></li>
+    </ul>
+    <p class="hash-note" id="hash-note" hidden></p>
+  </nav>
+
+  <section class="arc-section" id="completed-files" aria-labelledby="files-title">
+    <div class="arc-section-head">
+      <h2 id="files-title">Completed Files</h2>
+      <span class="arc-count">Three experiences with a real ending</span>
+    </div>
+    <p class="arc-intro">
+      These are filed here because they finish. Each one has a conclusion the work actually reaches,
+      rather than a score that keeps climbing. Open any of them and you start at the beginning,
+      because the Archive does not know what you have already seen.
+    </p>
+    <div class="files" id="files"></div>
+  </section>
+
+  <section class="arc-section" id="collections" aria-labelledby="collections-title">
+    <div class="arc-section-head">
+      <h2 id="collections-title">Collections</h2>
+      <span class="arc-count">Three ways through the work</span>
+    </div>
+    <p class="arc-intro">
+      A collection is an argument, not a shelf. Each one gathers work from different rooms around a
+      single idea, and every entry opens the thing itself so the argument can be tested.
+    </p>
+    <div class="collections" id="collections-list"></div>
+  </section>
+
+  <section class="arc-section" id="discoveries" aria-labelledby="discoveries-title">
+    <div class="arc-section-head">
+      <h2 id="discoveries-title">Discoveries</h2>
+      <span class="arc-count">Eight details already in the work</span>
+    </div>
+    <p class="arc-intro">
+      Details that reward attention: a state that only appears under a condition, a callback that
+      repeats, a caption that admits what an exhibit really is. Nothing listed here adds a puzzle to
+      an experience or changes how it plays &mdash; it is all already in there.
+    </p>
+    <ul class="discoveries" id="discoveries-list"></ul>
+  </section>
+
+  <section class="arc-section" id="record" aria-labelledby="record-title">
+    <div class="arc-section-head">
+      <h2 id="record-title">The Record</h2>
+      <span class="arc-count">How the Archive is chosen</span>
+    </div>
+    <div class="record" id="record-body"></div>
+  </section>
+
+  <section class="arc-closing" id="closing" aria-labelledby="closing-title">
+    <h2 id="closing-title">Alongside the other rooms</h2>
+    <p id="closing-text"></p>
+  </section>
+
+  <section class="arc-out" aria-labelledby="out-title">
+    <h2 id="out-title">Elsewhere in the building</h2>
+    <p>
+      The Archive points outward. Everything it files is still playable, readable or viewable in the
+      room it came from.
+    </p>
+    <div class="arc-actions">
+      <a class="btn btn-primary" href="../">Back to the Lobby</a>
+      <a class="btn btn-ghost" href="../film/">The Original Production</a>
+      <a class="btn btn-ghost" href="../stories/">The Stories</a>
+      <a class="btn btn-ghost" href="../arcade/">The Arcade</a>
+      <a class="btn btn-ghost" href="../gallery/">The Gallery</a>
+      <a class="btn btn-ghost" href="../social-room/">The Social Room</a>
+    </div>
+  </section>
+
+  <noscript>
+    <p class="arc-noscript">
+      The Archive builds its four sections with a small local script, which is switched off in this browser.
+      The completed experiences themselves do not need it:
+      <a href="../film/">The Original Production</a>,
+      <a href="../stories/the-ninth-bell/">The Ninth Bell</a>,
+      <a href="../arcade/signal-path/">SIGNAL PATH</a>.
+    </p>
+  </noscript>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>THE WRONG SCRIPT &middot; an evolving digital universe of stories, games, creative experiences and community.</p>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="../">Lobby</a>
+      <a href="../film/">The Original Production</a>
+      <a href="../stories/">The Stories</a>
+      <a href="../arcade/">The Arcade</a>
+      <a href="../gallery/">The Gallery</a>
+      <a href="../social-room/">The Social Room</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/archive-content.js"></script>
+<script src="../assets/js/archive.js"></script>
+</body>
+</html>
