@@ -325,7 +325,10 @@ const ROUTES = [
     check(cardText.toLowerCase().indexOf('drafts') === -1, 'Lobby card no longer promises drafts');
 
     const eyebrow = await page.locator('.eyebrow').first().innerText();
-    check(/phase seven/i.test(eyebrow), 'Lobby eyebrow reflects Phase 7', eyebrow);
+    /* Phase 9 changed the milestone line to name the two stories and two games.
+       The assertion follows the current milestone rather than pinning a number. */
+    check(/phase nine/i.test(eyebrow) && /two stories/i.test(eyebrow),
+      'Lobby eyebrow reflects the current Phase 9 milestone', eyebrow);
 
     for (const route of ['/stories/', '/arcade/', '/gallery/', '/social-room/', '/stories/the-ninth-bell/', '/arcade/signal-path/']) {
       await page.goto(BASE + route, { waitUntil: 'load' });
