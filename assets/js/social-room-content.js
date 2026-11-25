@@ -176,7 +176,7 @@ window.SOCIAL_ROOM = {
       label: "What's Happening",
       eyebrow: "What's Happening",
       lede: 'A short editorial listing of the building. These are labels, not live event data.',
-      footnote: 'No dates, deadlines, attendance figures or outcomes are recorded here, and nothing on this board is a live feed.',
+      footnote: 'These labels are editorial states, not live event data: no dates, deadlines, attendance figures or outcomes are recorded here, and nothing on this board is a live feed.',
       entries: [
         {
           id: 'happening-film',
