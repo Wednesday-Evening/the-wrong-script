@@ -1,0 +1,413 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 9 - DEPTH AND PROVEN MODULARITY
+Implementation handover report
+================================================================================
+
+Phase:            9
+Status:           COMPLETE - awaiting owner review
+Date:             25 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    3a2db224b79b65538fc4db820f0a7f65bd5e9a2d
+                  "Edit reports/PHASE-8-VERIFICATION-HANDOVER.txt" (pre-Phase 9)
+Documentation
+commit:           df839095978a758c18c55a8674a8083c6a8fd9f3
+                  "Add the Phase 9 planning proposal (documentation only)"
+HEAD before
+this report:      e78b477ec68da368924c73db2d9ac76c6cadba67
+Final commit:     Created after this report was written, so this file cannot
+                  contain its own hash. The exact final commit is recorded in
+                  the completion message that accompanies this handover.
+Working tree:     Clean before this report; clean after its commit.
+Deployment:       NONE. No hosting, domain, DNS or environment change.
+Phase 10:         NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. AUTHORISED SCOPE AND WHAT WAS DELIVERED
+--------------------------------------------------------------------------------
+
+Authorised: one new interactive story, one new game, DEF-01, DEF-03, and the
+four proposed verification tools, within the approved architecture.
+
+Delivered, in the order it was committed:
+
+  A. reports/PHASE-9-PLANNING-PROPOSAL.txt committed verbatim as its own
+     documentation commit (df83909), separate from all implementation work.
+  B. The Returns Hatch - a second story in The Stories, ten scenes, five
+     endings, its own namespaced save key.
+  C. Lamplight - a second game in The Arcade, six handcrafted rooms, its own
+     namespaced save key.
+  D. DEF-01 - Lobby card links and inline prose links raised to a usable
+     touch target.
+  E. DEF-03 - inline body-copy links in the four affected rooms raised to the
+     24px floor.
+  F. Four verification tools: verify-nav.js, verify-story.js,
+     verify-lamplight.js and the verify-all.js runner.
+  G. Copy corrections so every visible claim matches what exists.
+
+Not done, deliberately: no accounts, submissions, moderation, backend,
+database, analytics, framework, dependency, hosting or deployment change.
+DEF-02 was not touched, and nothing under film/ was modified.
+
+--------------------------------------------------------------------------------
+2. THE STORY - THE RETURNS HATCH
+--------------------------------------------------------------------------------
+
+Route:        /stories/the-returns-hatch/
+Data:         stories/data/the-returns-hatch.js
+Save key:     wrong-script.story.the-returns-hatch.v1
+Start scene:  hatch          Budget: 4 hours      Scenes: 10
+Endings:      5 - end_filed, end_taken, end_rewritten, end_note, end_early
+
+Premise: a night in a closed lending library. A returned card does not match
+the ledger, and the borrower's record has been rewritten by someone with a key.
+The reader works a four-hour night: the ledger, the stacks, the caretaker
+Ivor, the back office. Each hour is spent by choosing, and the night ends
+whether or not the reader is ready.
+
+Why it is a separate experience, not a reskin of The Ninth Bell: different
+premise, different setting, different cast, different clock (a night of library
+hours rather than four lighthouse watches), and a different shape of choice -
+the pressure here is that records can be altered, so the reader is deciding
+what to believe as much as what to do.
+
+Routes and structure:
+  - Static choices plus two build-generated scenes (the night's hub and the
+    closing scene), which is why the story verifier evaluates those scenes
+    rather than reading a static list.
+  - Five endings reachable by different combinations of discoveries, and one
+    of them reachable by deliberately ending the night early.
+  - Restart and a return to the library are present on the page; the engine
+    handles both, so the story adds no engine logic of its own.
+
+Content safety: no romance plot, no graphic violence, no personal data
+requests, no external assets, no audio.
+
+--------------------------------------------------------------------------------
+3. THE GAME - LAMPLIGHT
+--------------------------------------------------------------------------------
+
+Route:        /arcade/lamplight/
+Core rules:   assets/js/lamplight-core.js
+Page logic:   assets/js/lamplight.js
+Levels:       arcade/data/lamplight-levels.js (data-driven)
+Save key:     wrong-script.arcade.lamplight.v1
+
+Rules: a lamp that cannot move sends one beam in a fixed direction. Mirrors
+have two positions; turning one changes the exit direction. The beam crosses
+windows and lights them, and stops on a wall or at the edge of the room. A room
+is finished when every window in it has been lit at least once. No timer, no
+move limit, no score, no failure loop.
+
+Six rooms, in order:
+  1. The Reading Room   - one mirror, one window: teaches the beam
+  2. The Long Corridor  - two mirrors, two windows
+  3. The Stacks         - shelves as walls, staggered mirrors
+  4. The Annex          - three windows, longer routing
+  5. The Lamp Room      - five mirrors, the beam crosses its own row twice
+  6. The Signal Room    - six mirrors, the full length of the room
+
+Controls: click or tap a mirror, or focus it and press Enter or Space. Room
+navigation, "turn this room back", a per-room reset, and a reset-progress
+control with an explicit confirm step. Progress stores unlocked and completed
+rooms plus best turn counts, and is validated on read; a malformed value is
+left in place and the game starts safely in memory rather than erasing it.
+
+--------------------------------------------------------------------------------
+4. DEF-01 AND DEF-03
+--------------------------------------------------------------------------------
+
+DEF-01 (Lobby card link targets), assets/css/lobby.css:
+
+  .card .stat a          display:inline-flex; align-items:center;
+                         min-height:44px
+  .sample p a, .note a   padding-block:4px
+
+  min-height is used rather than padding so the label stays optically where it
+  was while the tappable box grows to 44px. Inline prose links in the
+  noticeboard and notes get the 24px floor without moving the line box.
+
+DEF-03 (inline body-copy links, measured at 19px tall at 390px),
+assets/css/gallery.css, assets/css/archive.css,
+assets/css/creator-studio.css, assets/css/social-room.css:
+
+  main p a, main li a, main dd a   padding-block:3px
+
+  padding-block grows the hit box without changing the line box, so the copy
+  sets exactly as it did before and nothing reflows.
+
+Both corrections are CSS-only and confined to the files listed.
+
+--------------------------------------------------------------------------------
+5. VERIFICATION TOOLS ADDED
+--------------------------------------------------------------------------------
+
+  tools/verify-nav.js        Static check of the shared navigation on every
+                             room: that each room carries the same destination
+                             set, that every relative link resolves to a file
+                             that exists, and that no page still advertises a
+                             room as unbuilt.
+  tools/verify-story.js      Story contract and graph check for every story in
+                             the library: engine contract fields, that every
+                             target exists, that every required flag is set
+                             somewhere, that every scene is reachable, that the
+                             stated ending count matches the reachable endings,
+                             that the shortest route to each ending fits the
+                             budget, and that story data carries no markup,
+                             links or foreign keys.
+  tools/verify-lamplight.js  Level and rules check: six rooms, unique ids and
+                             ordering, rectangular grids of known characters,
+                             one lamp per room on its declared source cell, that
+                             no room starts solved, that every room is solvable
+                             by brute force, that each stored answer solves its
+                             room, and the turn/undo semantics.
+  tools/verify-all.js        Runs every suite in the repository in order and
+                             reports a per-suite PASS/FAIL summary.
+
+The runner deliberately does not swallow failures: a suite that exits non-zero
+makes the run exit non-zero, which is how the stale assertion in section 8 was
+caught.
+
+--------------------------------------------------------------------------------
+6. ROUTES AND NAVIGATION
+--------------------------------------------------------------------------------
+
+  /                            Lobby
+  /film/                       The Wrong Script: Original Production (untouched)
+  /stories/                    The Stories library (now two stories)
+  /stories/the-ninth-bell/     The Ninth Bell
+  /stories/the-returns-hatch/  The Returns Hatch (new)
+  /arcade/                     The Arcade library (now two games)
+  /arcade/signal-path/         Signal Path
+  /arcade/lamplight/           Lamplight (new)
+  /gallery/                    The Gallery
+  /social-room/                The Social Room
+  /archive/                    The Archive
+  /creator-studio/             The Creator Studio
+
+The new rooms are reached from their library pages, which are reached from the
+Lobby. The Lobby, Stories index and Arcade index were updated so their counts
+and descriptions match reality (two stories, two games) rather than promising
+one. The film was not given the shared navigation and remains standalone.
+
+--------------------------------------------------------------------------------
+7. FILES
+--------------------------------------------------------------------------------
+
+ADDED (11)
+
+  reports/PHASE-9-PLANNING-PROPOSAL.txt   The approved proposal, verbatim.
+  stories/data/the-returns-hatch.js       Story data (scenes, choices, endings).
+  stories/the-returns-hatch/index.html    Story page.
+  arcade/lamplight/index.html             Game page.
+  arcade/data/lamplight-levels.js         The six rooms, as data.
+  assets/js/lamplight-core.js             Rules: parse, trace, rotate, solve.
+  assets/js/lamplight.js                  Page controller and persistence.
+  tools/verify-nav.js                     Static navigation/truthfulness suite.
+  tools/verify-story.js                   Story contract and graph suite.
+  tools/verify-lamplight.js               Level and rules suite.
+  tools/verify-all.js                     Suite runner.
+
+MODIFIED (13)
+
+  index.html                 Lobby: two stories, two games; milestone line.
+  stories/index.html         Library listing includes the new story.
+  arcade/index.html          Cabinet listing includes the new game.
+  assets/js/stories-index.js Story record for The Returns Hatch.
+  assets/js/arcade-games.js  Game record for Lamplight.
+  assets/css/arcade.css      Lamplight board, mirrors and legend.
+  assets/css/lobby.css       DEF-01.
+  assets/css/gallery.css     DEF-03.
+  assets/css/archive.css     DEF-03.
+  assets/css/creator-studio.css  DEF-03.
+  assets/css/social-room.css     DEF-03.
+  README.md                  New routes, new files, actual behaviour.
+  tools/verify-archive-ui.cjs    Stale eyebrow expectation (section 8).
+
+ADDED BY THIS REPORT (1)
+
+  reports/PHASE-9-HANDOVER.txt
+
+DELETED / MOVED / RENAMED: none.
+
+Total for the phase: 25 files (11 added + 13 modified + this report).
+
+--------------------------------------------------------------------------------
+8. FAILURES FOUND AND FIXED DURING THIS PHASE
+--------------------------------------------------------------------------------
+
+Recorded because they are part of the audit trail, not hidden behind the final
+green run.
+
+F-1  Lamplight level data was wrong in two places.
+     The Stacks row 0 was eight characters wide in a seven-wide grid, so the
+     room failed to parse. The Signal Room's stored answer ended with the wrong
+     mirror position, so its own answer did not light it. Both were corrected
+     in the data; the rules code was not changed to accommodate them.
+
+F-2  verify-lamplight's "rotating a mirror changes what the beam reaches" check
+     asserted that one turn must NOT solve room 1. Room 1 is a one-mirror room
+     and is meant to solve in one turn, so the assertion contradicted the
+     design. Rewritten to assert the behaviour that actually matters: the room
+     does not start solved, one turn solves it, and turning back unsolves it.
+
+F-3  verify-story reported three unreachable scenes and only three of five
+     endings. Two separate causes, both in the tool:
+       - gated choices were compared as `requires[flag] === maskBit`, and the
+         data writes 1/0 while the mask test yields a boolean, so every gated
+         choice was rejected; fixed by comparing booleans;
+       - the walk ignored the engine rule at assets/js/story-engine.js:337-341
+         that sends a spent night from the tower to the water; the walk now
+         mirrors that redirect, and evaluates build-generated choices in the
+         state the player would be in rather than as a union of branches.
+     After the fix all ten scenes and all five endings are reachable. The story
+     data was not altered to make the tool pass.
+
+F-4  verify-all failed once (11 of 12) because verify-archive-ui pinned the
+     Lobby eyebrow to "Phase 7", which Phase 9 legitimately changed to
+     "Phase nine - two stories, two games". The assertion was updated to check
+     the current milestone. Re-run: 12 of 12.
+
+F-5  The first browser check failed on an ambiguous locator: step 8 targeted
+     '[aria-live], .status, .hud', which matched two elements. The room had in
+     fact solved. This was a harness defect, not an application defect; the
+     retry used the single '.hud' node and passed, with every original step and
+     interaction preserved.
+
+--------------------------------------------------------------------------------
+9. TEST MATRIX
+--------------------------------------------------------------------------------
+
+Statuses: PASS executed and passed; FAIL executed and failed; NOT TESTED;
+CODE REVIEW ONLY.
+
+  ID   Check                                              Status   Evidence
+  ---  -------------------------------------------------  -------  ----------
+  T1   node tools/verify-all.js - all suites              PASS     12 of 12
+  T2   verify-nav.js                                      PASS     14/14
+  T3   verify-story.js (both stories)                     PASS     26/26
+  T4   verify-lamplight.js                                PASS     19/19
+  T5   verify-signal-path.js (regression)                 PASS     unchanged
+  T6   verify-gallery.js + verify-gallery-ui.cjs          PASS     unchanged
+  T7   verify-social-room.js + -ui.cjs                    PASS     unchanged
+  T8   verify-archive.js + verify-archive-ui.cjs          PASS     unchanged
+  T9   verify-creator-studio.js + -ui.cjs                 PASS     unchanged
+  T10  Story: a choice advances to the next scene         PASS     Chromium
+  T11  Lamplight: a mirror turn solves room 1             PASS     Chromium
+  T12  Console / page / network errors on those runs      PASS     none
+  T13  Storage isolation during Archive browsing          PASS     byte-
+                                                                 identical
+  T14  Film untouched since the Phase 9 baseline          PASS     empty diff
+  T15  Dependency scan                                    N/A      0 packages
+
+Browser evidence (managed Chromium, 390 x 844, touch enabled):
+
+  /stories/the-returns-hatch/  loaded; the opening scene offers choices 01-03;
+                               clicking "Check the card against the borrower
+                               ledger" opened Card 0417, whose choices
+                               ("Ask Ivor about card 0417" among them) are
+                               then present.
+  /arcade/lamplight/           loaded; turning "Mirror, row 2 column 3" lit the
+                               window: the counter read "1 / 1", the status
+                               line reported every window lit, and room 2
+                               unlocked.
+
+Five assertions, all passing, with no console errors, no uncaught page errors
+and no failed local requests.
+
+Regression: the nine pre-existing suites were run unmodified and all passed,
+including the Archive suite's own storage assertions (three seeded keys
+byte-identical afterwards, no fourth key) and its Git-backed check that film/
+is unchanged.
+
+Dependency scan: NOT APPLICABLE - the project has no package manifest,
+lockfile or resolved dependencies, so there was nothing to resolve (0 packages,
+0 findings). This is an empty scan, not a security certification of the source,
+the runtime, the hosting or the application.
+
+--------------------------------------------------------------------------------
+10. PRESERVATION
+--------------------------------------------------------------------------------
+
+  git diff 3a2db22..HEAD -- film/        empty (no changes under film/)
+  tws                                    not read, written or removed by the
+                                         new story or game
+  wrong-script.story.the-ninth-bell.v1   unchanged; untouched by Phase 9 code
+  wrong-script.arcade.signal-path.v1     unchanged; untouched by Phase 9 code
+  New keys (namespaced, own rooms):
+    wrong-script.story.the-returns-hatch.v1
+    wrong-script.arcade.lamplight.v1
+
+The two new keys are the only storage the new experiences use, and each is
+read only by its own page. DEF-02 was not addressed: /film/ remains exactly as
+accepted, with no headings and no navigation, as the owner directed.
+
+--------------------------------------------------------------------------------
+11. LIMITATIONS AND UNVERIFIED ITEMS
+--------------------------------------------------------------------------------
+
+  - Chromium only. Firefox and WebKit cannot launch in this sandbox (host
+    libraries missing, no root, no package sources) and Edge is not available,
+    so no cross-browser claim is made. Phase 8 recorded the same limitation.
+  - No physical device and no screen-reader testing. The 390px runs are
+    viewport emulation, not a phone, and no assistive technology was used.
+  - The new story was driven through one choice in a browser. Its five endings
+    are covered by the graph suite, not by five browser playthroughs.
+  - Only room 1 of Lamplight was solved in a browser. Rooms 2-6 are proven
+    solvable by brute force in the suite, not by being played through the UI.
+  - Reduced-motion, focus visibility and keyboard operation for the new rooms
+    are covered by the existing suites' checks and by source review, not by a
+    fresh emulation pass in this phase.
+  - The dependency scan is not applicable, as stated in section 9.
+
+--------------------------------------------------------------------------------
+12. ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
+
+  1  New story implemented and playable                     PASS
+  2  New game implemented and playable                      PASS
+  3  DEF-01 corrected                                       PASS
+  4  DEF-03 corrected                                       PASS
+  5  Four verification tools implemented                    PASS
+  6  Architecture preserved (HTML/CSS/vanilla JS, no build) PASS
+  7  No new dependencies                                    PASS
+  8  Save keys namespaced and isolated                      PASS
+  9  Existing rooms operational                             PASS
+ 10  Original film unmodified                              PASS
+ 11  Documentation commit separate from implementation     PASS
+ 12  Every visible claim matches what exists               PASS
+ 13  Responsive layouts without horizontal overflow        PASS
+ 14  No deployment                                          PASS
+ 15  No Phase 10 work                                       PASS
+
+--------------------------------------------------------------------------------
+13. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - No framework, package manifest, dependency, backend, database, account or
+    analytics was introduced.
+  - No file under film/ was modified; the diff against the Phase 9 baseline is
+    empty.
+  - The three existing save keys were not read, written or removed by Phase 9
+    application code.
+  - The planning proposal was committed verbatim before any application change.
+  - Phase 10 was not started.
+
+--------------------------------------------------------------------------------
+14. RECOMMENDED NEXT STEP (NOT STARTED)
+--------------------------------------------------------------------------------
+
+Review this handover against the approved proposal. If it is accepted, the
+natural next phase is the one the proposal already identified as the
+prerequisite for participation: a submission intake design that keeps member
+work unpublished until reviewed. That is a design phase, not an implementation
+one, and it needs the owner's decision on review ownership and retention
+before any code is written. The verification gaps in section 11 (cross-browser,
+physical device, assistive technology) remain outstanding from Phase 8 and
+cannot be closed inside this environment.
+
+================================================================================
+PHASE 9 HANDOVER STATUS: READY FOR REVIEW
+================================================================================
