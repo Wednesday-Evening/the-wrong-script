@@ -30,5 +30,17 @@ window.TWS_STORIES = [
     labels: ['Folk mystery', 'Tidal', 'Two routes', 'Five endings', 'About 15 minutes'],
     note: 'Your progress is saved in this browser only. No account, no tracking.',
     saveKey: 'wrong-script.story.the-ninth-bell.v1'
+  },
+  {
+    slug: 'the-returns-hatch',
+    number: 'Story 02',
+    title: 'The Returns Hatch',
+    subtitle: 'Marrow Lane Branch, the small hours',
+    status: 'live',
+    statusLabel: 'Open',
+    blurb: 'A book comes through the returns hatch at twenty past eleven with a borrower card stamped forty years from tonight. You are the night librarian, you have four hours, and there are three honest things you can do with it. The dishonest one is the catalogue.',
+    labels: ['Quiet mystery', 'One night shift', 'Two routes', 'Five endings', 'About 12 minutes'],
+    note: 'Your progress is saved in this browser only, under its own key. No account, no tracking.',
+    saveKey: 'wrong-script.story.the-returns-hatch.v1'
   }
 ];

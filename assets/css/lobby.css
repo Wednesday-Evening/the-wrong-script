@@ -456,6 +456,22 @@ p{margin:0}
   border-bottom:1px solid rgba(185,154,98,.45);
   padding-bottom:2px;
 }
+/* Phase 9 (DEF-01): these card links measured 13px and 23px tall, which is a
+   poor target for a thumb on a phone. They already span the width of the card,
+   so only the vertical hit area needed fixing. min-height rather than padding,
+   so the label stays optically where it was while the tappable box grows to
+   44px. The row grows with it; nothing else moves. */
+.card .stat a{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+}
+/* Phase 9 (DEF-01): inline prose links in the noticeboard and the notes get the
+   24px touch floor without moving the line box. */
+.sample p a,
+.note a{
+  padding-block:4px;
+}
 .card.is-open .stat a:hover{border-bottom-color:var(--gold)}
 
 .card .stat{
