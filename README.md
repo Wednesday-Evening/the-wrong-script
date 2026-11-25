@@ -29,7 +29,13 @@ external assets. The whole thing is a static site.
 | `assets/js/signal-path.js` | SIGNAL PATH's page: board, controls, saves, reset. |
 | `arcade/data/signal-path-levels.js` | The six SIGNAL PATH levels, written as data. |
 | `arcade/signal-path/index.html` | The SIGNAL PATH page. |
+| `gallery/index.html` | The Gallery: the exhibition page. |
+| `assets/css/gallery.css` | The Gallery's own identity: the wall, the frames, the filters, the exhibit panel. Loaded after `lobby.css`. |
+| `assets/js/gallery-exhibits.js` | The collection: six categories and eight exhibits. Data only. |
+| `assets/js/gallery.js` | Draws the wall and the filters, and opens an exhibit from its link or the address bar. |
+| `assets/img/gallery/*.svg` | The Gallery's artwork, drawn for this project. Local SVG, no external assets. |
 | `tools/verify-signal-path.js` | Development check: solves every level, exercises the rules and the save reader. |
+| `tools/verify-gallery.js` | Development check: validates the collection, the artwork on disk and the Gallery's isolation from other rooms' saves. |
 
 ## Running it
 
@@ -39,7 +45,8 @@ python3 -m http.server 8000
 
 Then open <http://localhost:8000>. The Lobby is at `/`, the film at `/film/`, the
 library at `/stories/`, the first story at `/stories/the-ninth-bell/`, the Arcade
-at `/arcade/` and SIGNAL PATH at `/arcade/signal-path/`.
+at `/arcade/`, SIGNAL PATH at `/arcade/signal-path/` and the Gallery at
+`/gallery/`.
 Opening `film/index.html` directly from disk also works, because the film carries
 its own styles and scripts inline. The Stories pages need to be served over HTTP
 (they load shared CSS and JavaScript by relative path, which is also how they
@@ -53,7 +60,11 @@ deploy).
   Back/Forward support plus defensive save reading.
 - **Phase 3 (done):** The Arcade. A library at `/arcade/` and one complete game,
   SIGNAL PATH, with six handcrafted levels and its own save key.
-- **Reserved:** The Gallery, The Social Room, The Archive and The Creator Studio.
+- **Phase 4 (done):** The Gallery. An exhibition at `/gallery/` with six
+  categories and eight demonstration exhibits, all made for this project and
+  credited to The Wrong Script Studio. Browsing only: no accounts, no uploads,
+  no submissions.
+- **Reserved:** The Social Room, The Archive and The Creator Studio.
   Each has a card that states its state. None of them is a button that pretends
   to work.
 
