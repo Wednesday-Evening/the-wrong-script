@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 780" width="780" height="780" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Set Dressing (Study III)</title>
+  <desc id="dsc">Nine small objects drawn in pale outline on dark squares, arranged three by three.</desc>
+  <rect width="780" height="780" fill="#0a0908"/>
+  <g fill="#12100e" stroke="#b99a62" stroke-opacity=".28" stroke-width="1">
+    <rect x="10" y="10" width="240" height="240"/>
+    <rect x="260" y="10" width="240" height="240"/>
+    <rect x="510" y="10" width="240" height="240"/>
+    <rect x="10" y="260" width="240" height="240"/>
+    <rect x="260" y="260" width="240" height="240"/>
+    <rect x="510" y="260" width="240" height="240"/>
+    <rect x="10" y="510" width="240" height="240"/>
+    <rect x="260" y="510" width="240" height="240"/>
+    <rect x="510" y="510" width="240" height="240"/>
+  </g>
+  <g fill="none" stroke="#e8ddcb" stroke-opacity=".78" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+
+    <g transform="translate(130 140)">
+      <path d="M-30 18 A30 30 0 0 1 30 18 Z"/>
+      <path d="M0 18 L0 30"/>
+      <path d="M-8 30 A8 8 0 0 0 8 30"/>
+      <path d="M0 -12 L0 -22"/>
+    </g>
+
+    <g transform="translate(380 140)">
+      <circle cx="-26" cy="0" r="14"/>
+      <circle cx="-26" cy="0" r="4"/>
+      <path d="M-12 0 L34 0"/>
+      <path d="M26 0 L26 14 M34 0 L34 14 M34 14 L26 14"/>
+    </g>
+
+    <g transform="translate(630 140)">
+      <path d="M-24 -32 L24 -32 L24 32 L-24 32 Z"/>
+      <path d="M-14 -18 L14 -18 M-14 -6 L14 -6 M-14 6 L14 6 M-14 18 L4 18"/>
+    </g>
+
+    <g transform="translate(130 380)">
+      <circle cx="0" cy="0" r="30"/>
+      <circle cx="0" cy="0" r="13"/>
+      <path d="M14 -24 L24 -34"/>
+    </g>
+
+    <g transform="translate(380 380)">
+      <path d="M-26 20 L26 20 L26 -14 L-26 -14 Z"/>
+      <path d="M-26 -14 L-26 -34 M26 -14 L26 -34"/>
+      <path d="M-20 20 L-20 36 M20 20 L20 36"/>
+    </g>
+
+    <g transform="translate(630 380)">
+      <path d="M-22 4 L22 4 L14 22 L-14 22 Z"/>
+      <path d="M-22 4 L-22 -18"/>
+      <path d="M-22 -18 A22 22 0 0 1 22 -18"/>
+      <path d="M0 22 L0 34"/>
+    </g>
+
+    <g transform="translate(130 630)">
+      <path d="M-20 -18 L20 -18 L14 22 L-14 22 Z"/>
+      <path d="M20 -8 A14 14 0 0 1 20 12"/>
+      <path d="M-12 22 L-12 30 M12 22 L12 30"/>
+    </g>
+
+    <g transform="translate(380 630)">
+      <circle cx="0" cy="0" r="10"/>
+      <path d="M10 0 L38 0"/>
+      <path d="M38 0 L38 10"/>
+    </g>
+
+    <g transform="translate(630 630)">
+      <path d="M-26 10 A26 26 0 1 1 26 10"/>
+      <path d="M-18 12 A18 18 0 1 1 18 12"/>
+      <path d="M26 10 Q46 22 40 38"/>
+    </g>
+
+  </g>
+</svg>

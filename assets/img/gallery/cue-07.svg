@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Cue 07: The Door Opens Twice</title>
+  <desc id="dsc">A hand-drawn score sketch: a five-line staff carrying a repeated four-note figure, marked pp with a tempo of 52, and a bell cue at the right.</desc>
+  <rect width="800" height="420" fill="#0a0908"/>
+  <g stroke="#e8ddcb" stroke-opacity=".45" stroke-width="1.5">
+    <path d="M60 170 L740 170"/>
+    <path d="M60 190 L740 190"/>
+    <path d="M60 210 L740 210"/>
+    <path d="M60 230 L740 230"/>
+    <path d="M60 250 L740 250"/>
+    <path d="M60 120 L60 300"/>
+    <path d="M740 120 L740 300"/>
+  </g>
+  <g fill="#e8ddcb" opacity=".85">
+    <text x="90" y="118" font-family="Georgia,serif" font-size="26" font-style="italic">pp</text>
+    <text x="150" y="118" font-family="Georgia,serif" font-size="15" letter-spacing="2">TEMPO 52</text>
+    <text x="90" y="330" font-family="Georgia,serif" font-size="14" letter-spacing="2">CELLO HELD THROUGH</text>
+    <text x="430" y="330" font-family="Georgia,serif" font-size="14" letter-spacing="2">PIANO FIGURE x14</text>
+    <text x="660" y="330" font-family="Georgia,serif" font-size="14" letter-spacing="2">BELL</text>
+  </g>
+  <g fill="#e8ddcb">
+    <ellipse cx="180" cy="230" rx="10" ry="7" transform="rotate(-18 180 230)"/>
+    <path d="M189 227 L189 188" stroke="#e8ddcb" stroke-width="2"/>
+    <ellipse cx="240" cy="215" rx="10" ry="7" transform="rotate(-18 240 215)"/>
+    <path d="M249 212 L249 173" stroke="#e8ddcb" stroke-width="2"/>
+    <ellipse cx="300" cy="205" rx="10" ry="7" transform="rotate(-18 300 205)"/>
+    <path d="M309 202 L309 163" stroke="#e8ddcb" stroke-width="2"/>
+    <ellipse cx="360" cy="215" rx="10" ry="7" transform="rotate(-18 360 215)"/>
+    <path d="M369 212 L369 173" stroke="#e8ddcb" stroke-width="2"/>
+    <path d="M360 215 L360 173" stroke="#e8ddcb" stroke-width="2" opacity="0"/>
+  </g>
+  <g stroke="#b99a62" stroke-width="2" fill="none">
+    <path d="M420 190 Q450 168 480 190"/>
+    <path d="M480 190 L480 250"/>
+    <path d="M470 250 L490 250"/>
+    <circle cx="480" cy="258" r="7"/>
+  </g>
+  <g fill="#b99a62">
+    <text x="640" y="200" font-family="Georgia,serif" font-size="20">&#9834;</text>
+    <text x="690" y="200" font-family="Georgia,serif" font-size="20">&#9834;</text>
+  </g>
+  <g stroke="#b99a62" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="6 6">
+    <path d="M660 250 L660 300"/>
+    <path d="M700 250 L700 300"/>
+  </g>
+</svg>

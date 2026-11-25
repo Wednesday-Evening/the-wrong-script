@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" width="800" height="560" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">The Booth</title>
+  <desc id="dsc">A single-line drawing of a projection booth: a projector with two reels on a bench, a bright square window, a stool and a coil of cable.</desc>
+  <rect width="800" height="560" fill="#0a0908"/>
+  <rect x="560" y="150" width="96" height="76" fill="#e8ddcb" opacity=".82"/>
+  <path d="M560 150 L656 150 L656 226 L560 226 Z" fill="none" stroke="#e8ddcb" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M104 404 L104 470 L200 470 L200 404
+           L300 404 L300 348
+           L420 348 L420 404
+           L470 404 L470 300
+           L520 300 L520 250
+           L600 250 L600 300
+           L470 300
+           L470 404 L520 404
+           L520 470 L640 470
+           L640 430 L700 430
+           L700 470 L720 470
+           L720 500 L120 500
+           L120 470
+           L104 470
+           L104 404
+           L180 404
+           L180 372
+           L240 372
+           L240 404
+           L300 404"
+        fill="none" stroke="#e8ddcb" stroke-opacity=".82" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke="#e8ddcb" stroke-opacity=".82" stroke-width="3">
+    <circle cx="232" cy="262" r="42"/>
+    <circle cx="232" cy="262" r="10"/>
+    <circle cx="336" cy="278" r="34"/>
+    <circle cx="336" cy="278" r="8"/>
+    <path d="M270 290 L300 290"/>
+  </g>
+  <g fill="none" stroke="#b99a62" stroke-opacity=".7" stroke-width="3" stroke-linecap="round">
+    <path d="M640 470 Q680 470 690 500 Q700 530 660 530 Q620 530 630 500 Q638 478 664 486"/>
+  </g>
+</svg>
