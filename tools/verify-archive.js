@@ -326,7 +326,9 @@ check('no fabricated counts, ratings, awards or dates in the catalogue', () => {
      exist is an actual number attached to a popularity or attendance metric. */
   const counts = blob.match(/\d+\s*(views?|visitors?|likes?|followers?|players?|reads?|plays?|ratings?|stars?)/g);
   ok(!counts, 'numeric metric found: ' + (counts || []).join(', '));
-  ['award', 'winner', 'attended', 'trending', 'most popular', '2026-', 'january', 'february', '★', '★★★★★'].forEach((word) => {
+  /* The Record may honestly state that no awards or attendance exist; what must
+     not appear is a claim that something was won, ranked or attended. */
+  ['award-winning', 'won an award', 'prize', 'winner', 'attended', 'trending', 'most popular', '2026-', 'january', 'february', '★', '★★★★★'].forEach((word) => {
     ok(blob.indexOf(word) === -1, 'found "' + word + '"');
   });
   return 'no invented metrics';
