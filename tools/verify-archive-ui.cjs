@@ -249,6 +249,64 @@ const ROUTES = [
     check((await page.evaluate(function () { return location.hash; })) === '#completed-files',
       'recovery note links to a real section');
 
+    /* ---------- 5b. exclusive highlighting (F1 regression) ---------- */
+
+    async function markedIds() {
+      return page.evaluate(function () {
+        return Array.prototype.slice.call(document.querySelectorAll('.is-target'))
+          .map(function (node) { return node.id; });
+      });
+    }
+
+    /* Waits for the settled state rather than the first frame, so a stale marker
+       cannot be mistaken for the correct one. */
+    async function waitForMarker(wanted) {
+      try {
+        await page.waitForFunction(function (id) {
+          var nodes = document.querySelectorAll('.is-target');
+          if (id === null) { return nodes.length === 0; }
+          return nodes.length === 1 && nodes[0].id === id;
+        }, wanted, { timeout: 4000 });
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    await page.goto(BASE + '/', { waitUntil: 'load' });
+    await page.goto(BASE + '/archive/', { waitUntil: 'load' });
+    await page.waitForSelector('.file-link');
+    check((await markedIds()).length === 0, 'a plain visit marks nothing',
+      JSON.stringify(await markedIds()));
+
+    await page.evaluate(function () { location.hash = '#completed-files'; });
+    check(await waitForMarker('completed-files'), 'a section jump marks exactly that section',
+      JSON.stringify(await markedIds()));
+
+    await page.evaluate(function () { location.hash = '#discoveries'; });
+    check(await waitForMarker('discoveries'), 'a second section jump leaves exactly one marker',
+      JSON.stringify(await markedIds()));
+
+    await page.evaluate(function () { location.hash = '#discovery-the-closed-beacon'; });
+    check(await waitForMarker('discovery-the-closed-beacon'),
+      'an entry jump replaces the section marker', JSON.stringify(await markedIds()));
+
+    await page.goBack();
+    check(await waitForMarker('discoveries'), 'Back leaves exactly one marker on the previous section',
+      JSON.stringify(await markedIds()));
+
+    await page.goForward();
+    check(await waitForMarker('discovery-the-closed-beacon'),
+      'Forward leaves exactly one marker on the entry', JSON.stringify(await markedIds()));
+
+    await page.evaluate(function () { location.hash = '#not-a-real-entry'; });
+    check(await waitForMarker(null), 'an unknown fragment clears the previous marker',
+      JSON.stringify(await markedIds()));
+    check(await page.evaluate(function () {
+      var note = document.getElementById('hash-note');
+      return note ? note.hidden === false : false;
+    }), 'the unknown fragment still shows its recovery note');
+
     /* ---------- 6. navigation ---------- */
 
     await page.goto(BASE + '/', { waitUntil: 'load' });

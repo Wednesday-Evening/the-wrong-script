@@ -296,6 +296,16 @@ check('the page provides a recovery note for an unknown hash', () => {
   return 'unknown hash explained';
 });
 
+check('only the addressed node keeps the target marker', () => {
+  const code = renderer.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  const remove = code.indexOf("classList.remove('is-target')");
+  const add = code.indexOf("classList.add('is-target')");
+  ok(add !== -1, 'the renderer never marks a resolved target');
+  ok(remove !== -1, 'the renderer never clears an earlier marker');
+  ok(remove < add, 'the marker is added before earlier markers are cleared');
+  return 'earlier markers cleared first';
+});
+
 check('the page explains itself without JavaScript', () => {
   ok(page.indexOf('<noscript>') !== -1, 'no noscript block');
   ok(page.indexOf('../stories/the-ninth-bell/') !== -1, 'noscript does not point at a story');

@@ -190,6 +190,15 @@
       clear(note);
     }
 
+    /* Phase 6A (F1): the marker belongs to whatever the fragment addresses, so
+       any earlier target is unmarked before this one is resolved. An empty or
+       unknown fragment therefore highlights nothing, exactly as a reload of the
+       same URL would. */
+    var marked = document.querySelectorAll('.is-target');
+    for (var i = 0; i < marked.length; i += 1) {
+      marked[i].classList.remove('is-target');
+    }
+
     if (!id) { return; }
 
     var target = document.getElementById(id);
