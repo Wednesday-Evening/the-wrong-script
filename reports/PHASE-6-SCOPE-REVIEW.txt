@@ -303,9 +303,12 @@ Acceptance additions worth writing into the prompt:
   - No deployment, hosting, DNS or environment change.
   - Screen-reader behaviour, real-device behaviour and multi-browser behaviour
     were not tested and are not certified.
-  - Dependency scanning is not applicable: the project has no package manifest,
-    no lockfile and zero resolved packages. That is not a security
-    certification of the source, the runtime or the hosted application.
+  - Dependency scanning was executed after this review, at the revision that
+    contains it, and returned NOT APPLICABLE: OSV-Scanner 2.7.0, 0 packages
+    resolved, 0 findings, 0 blocking. The project has no package manifest and no
+    lockfile, so there was nothing to resolve. This is not a security
+    certification of the source, the runtime or the hosted application, and it
+    says nothing about the correctness of the Archive plan.
 
 --------------------------------------------------------------------------------
 8. DECISIONS NEEDED BEFORE THE PHASE 6 PROMPT
