@@ -325,7 +325,7 @@ const ROUTES = [
     check(cardText.toLowerCase().indexOf('drafts') === -1, 'Lobby card no longer promises drafts');
 
     const eyebrow = await page.locator('.eyebrow').first().innerText();
-    check(/phase six/i.test(eyebrow), 'Lobby eyebrow reflects Phase 6', eyebrow);
+    check(/phase seven/i.test(eyebrow), 'Lobby eyebrow reflects Phase 7', eyebrow);
 
     for (const route of ['/stories/', '/arcade/', '/gallery/', '/social-room/', '/stories/the-ninth-bell/', '/arcade/signal-path/']) {
       await page.goto(BASE + route, { waitUntil: 'load' });
