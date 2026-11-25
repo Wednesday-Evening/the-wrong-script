@@ -289,11 +289,15 @@ C. ITEMS NOT COVERED BY EXECUTION
        judgement is the owner's)
 
 D. DEPENDENCY / SECURITY SCAN
-   NOT APPLICABLE. The repository has no package manifest and no lockfile, so
-   the advisory scanner has zero packages to resolve. This is not a
-   certification of the source, the runtime or overall security; the isolation
-   claims in section 9 rest on the source scan and the browser run above, not on
-   a dependency scan.
+   NOT APPLICABLE — executed, not assumed. The repository has no package
+   manifest and no lockfile, so the advisory scanner (OSV-Scanner 2.7.0,
+   workspace-dependencies policy) resolved 0 packages, reported 0 findings and
+   0 blocking findings, with status "not_applicable". The scan was run against
+   the final revision and needs no build, install or application execution.
+   This is not a certification of the source, the runtime or overall security,
+   and it does not cover unlocked, vendored or CDN content. The isolation claims
+   in section 9 rest on the source scan and the browser run above, not on a
+   dependency scan.
 
 E. CHRONOLOGY OF FAILED CHECKS AND THEIR RESOLUTION
    Earlier failures are retained here rather than replaced, so the record is
