@@ -222,7 +222,9 @@ check('the page has a skip link and landmarks', () => {
 
 check('the platform nav marks this room as the current page', () => {
   const nav = page.slice(page.indexOf('class="site-nav"'), page.indexOf('</nav>'));
-  ok(/href="\.\.\/social-room\/"[^>]*aria-current="page"/.test(nav) || /aria-current="page"[^>]*href="\.\.\/social-room\/"/.test(nav), 'the Social Room link is not marked current');
+  const self = nav.match(/<a[^>]*aria-current="page"[^>]*>[^<]*<\/a>/);
+  ok(self, 'no nav link is marked aria-current="page"');
+  ok(/href="\.\/"/.test(self[0]), 'the current link should point at this page, found ' + self[0]);
   ['href="../"', 'href="../film/"', 'href="../stories/"', 'href="../arcade/"', 'href="../gallery/"'].forEach((href) => {
     ok(nav.indexOf(href) !== -1, 'the nav is missing ' + href);
   });
@@ -238,8 +240,9 @@ check('styles and scripts load in the right order', () => {
   ok(lobby < room, 'lobby.css must load before social-room.css');
   ok(content !== -1 && render !== -1, 'a script is missing');
   ok(content < render, 'the content must load before the renderer');
-  ok(/defer/.test(page.slice(render, render + 120)), 'the renderer should defer');
-  return 'lobby.css, social-room.css, content, renderer';
+  ok(page.indexOf('</main>') < content, 'the scripts should load after the content');
+  ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(page), 'the page contains an inline script');
+  return 'lobby.css, social-room.css, content, renderer, after main';
 });
 
 check('the page carries no controls that imply unavailable features', () => {
@@ -259,15 +262,19 @@ check('the renderer builds text, not markup', () => {
   return 'textContent and createElement only';
 });
 
+function stripComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+}
+
 check('the room reads and writes no storage', () => {
   const files = [
-    ['assets/js/social-room.js', renderer],
-    ['assets/js/social-room-content.js', read('assets/js/social-room-content.js')],
+    ['assets/js/social-room.js', stripComments(renderer)],
+    ['assets/js/social-room-content.js', stripComments(read('assets/js/social-room-content.js'))],
     ['social-room/index.html', page]
   ];
   files.forEach(([name, text]) => {
     ['localStorage', 'sessionStorage', 'indexedDB', 'document.cookie'].forEach((bad) => {
-      ok(text.indexOf(bad) === -1, name + ' mentions ' + bad);
+      ok(text.indexOf(bad) === -1, name + ' uses ' + bad);
     });
   });
   return 'no storage API in any Social Room file';
@@ -298,15 +305,19 @@ check('the room makes no network request of its own', () => {
 check('the stylesheet respects reduced motion', () => {
   const css = read('assets/css/social-room.css');
   ok(/@media \(prefers-reduced-motion: reduce\)/.test(css), 'no reduced-motion block');
-  ok(/scroll-behavior:\s*auto/.test(css), 'reduced motion does not reset scroll behaviour');
-  return 'reduced-motion block present';
+  ok(/transition:\s*none/.test(css), 'the reduced-motion block leaves transitions in place');
+  if (/scroll-behavior:\s*smooth/.test(css)) {
+    ok(/scroll-behavior:\s*auto/.test(css), 'the page scrolls smoothly but reduced motion does not reset it');
+  }
+  ok(/prefers-reduced-motion: reduce/.test(renderer), 'the renderer does not check reduced motion for its scrolling');
+  ok(/behavior:\s*reduced\s*\?\s*'auto'\s*:\s*'smooth'/.test(renderer), 'the renderer always scrolls smoothly');
+  return 'transitions off, scrolls instantly when asked';
 });
 
 /* ---- the rest of the building -------------------------------------- */
 
 const PAGES = [
   ['index.html', 'social-room/'],
-  ['film/index.html', '../social-room/'],
   ['stories/index.html', '../social-room/'],
   ['stories/the-ninth-bell/index.html', '../../social-room/'],
   ['arcade/index.html', '../social-room/'],
@@ -341,12 +352,22 @@ check('no page still advertises the Social Room as upcoming', () => {
   return 'no stale "soon" label';
 });
 
-check('the film file is untouched by this phase', () => {
+check('the film carries none of this room\'s code', () => {
   const film = read('film/index.html');
-  ok(film.indexOf('social-room') !== -1, 'the film nav does not mention the room');
   ok(film.indexOf('window.SOCIAL_ROOM') === -1, 'the film loads Social Room data');
+  ok(film.indexOf('social-room.js') === -1, 'the film loads the Social Room renderer');
+  ok(film.indexOf('social-room.css') === -1, 'the film loads the Social Room stylesheet');
   ok(/localStorage/.test(film), 'the film no longer touches its own save');
-  return 'nav link only';
+  return 'no Social Room assets; the film keeps its own save';
+});
+
+check('the film is unchanged against the last commit', () => {
+  const { execSync } = require('child_process');
+  const diff = execSync('git diff --name-only HEAD -- film/', { cwd: ROOT, encoding: 'utf8' }).trim();
+  ok(diff === '', 'film/ has uncommitted changes: ' + diff);
+  const staged = execSync('git diff --cached --name-only HEAD -- film/', { cwd: ROOT, encoding: 'utf8' }).trim();
+  ok(staged === '', 'film/ has staged changes: ' + staged);
+  return 'no diff under film/';
 });
 
 /* ---- result -------------------------------------------------------- */
