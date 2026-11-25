@@ -1,0 +1,533 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 8 - CROSS-BROWSER, PHYSICAL-DEVICE AND ACCESSIBILITY VERIFICATION
+Verification-only handover report
+================================================================================
+
+Phase:           8
+Type:            VERIFICATION ONLY. No application file was modified.
+Date:            25 November 2026
+Repository:      Wednesday-Evening/the-wrong-script
+Branch:          appjet
+Starting HEAD:   8c4bff15a7155cb2c4d0c8e05f21a4b41d189a8e
+                 (Phase 7 report correction; working tree clean)
+Final HEAD:      Created after this report was written, so this file cannot
+                 contain its own hash. The exact final commit is in the
+                 completion message that accompanies this handover.
+Working tree:    Clean before the pass. The pass adds exactly one file, this
+                 report. No application file, test script, style, data file,
+                 save key or configuration was touched.
+Deployment:      NONE. No hosting, domain, DNS or environment change.
+Phase 9:         NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. WHAT WAS AUTHORISED, AND WHAT THIS REPORT CAN HONESTLY CLAIM
+--------------------------------------------------------------------------------
+
+The authorisation asked for a verification exercise covering Chromium, Firefox,
+Safari and Edge; physical Android and iPhone devices; TalkBack, VoiceOver and
+desktop screen readers; keyboard navigation and Back/Forward focus restoration;
+all ten routes; storage isolation; and regression of the film and accepted rooms.
+
+Read this report against that list. Four of those columns could not be produced
+in this environment at all:
+
+  Chromium            EXECUTED  - full matrix, all checks passed.
+  Firefox             BLOCKED   - engine binary present, cannot launch here.
+  Safari / WebKit     BLOCKED   - engine binary present, cannot launch here.
+  Edge                NOT TESTED- not installable here (Chromium-based engine
+                                  was tested, which is not the same product).
+  Android device      BLOCKED   - no physical device exists in this sandbox.
+  iPhone device       BLOCKED   - no physical device exists in this sandbox.
+  TalkBack            NOT TESTED- no Android device or emulator.
+  VoiceOver           NOT TESTED- no macOS or iOS.
+  Desktop screen
+  reader (NVDA/JAWS)  NOT TESTED- no assistive technology installed.
+
+Nothing in this report is an accessibility certification, a cross-browser
+certification or a physical-device result. Sections 4 and 14 say exactly what
+was and was not exercised. The final status reflects these gaps rather than
+hiding them.
+
+--------------------------------------------------------------------------------
+2. ENVIRONMENT ACTUALLY AVAILABLE (recorded, not assumed)
+--------------------------------------------------------------------------------
+
+  Operating system   Debian GNU/Linux 13 (trixie)
+  Kernel             Linux 6.8.12
+  User               uid 1000, not root
+  Privilege note     sudo is installed but unusable: "The 'no new privileges'
+                     flag is set, which prevents sudo from running as root."
+  Package sources    No Debian apt sources configured; only a GitHub CLI
+                     archive is listed. `apt-get update` has nothing to reach
+                     and `apt-get download libgtk-3-0t64` returns
+                     "Unable to locate package".
+  Node.js            v20.20.2
+  npm                11.13.0
+  Python             3.13.13
+  Playwright         1.62.1 (/opt/appjet/browser/node_modules/playwright)
+  Chromium           151.0.7922.34 - launches, renders, executes the matrix
+  Firefox            firefox-1538 downloaded, launch refused: "Host system is
+                     missing dependencies to run browsers."
+  WebKit             webkit-2336 downloaded, launch refused: same error
+  Static server      python3 -m http.server 4173 --bind 127.0.0.1
+                     (the port specified for this project's verification work)
+
+What was tried for the missing engines, and the outcome:
+
+  1. `playwright install firefox webkit` into the read-only shared location
+     (/opt/appjet/browser-binaries) - not writable.
+  2. The same install into /tmp/pw-browsers - downloads succeeded, but both
+     engines refuse to launch because their host libraries are absent.
+  3. Installing those libraries was attempted and is impossible here: root is
+     unavailable (no new privileges) and there are no Debian package sources.
+     This was attempted once and not retried, per instruction.
+
+So the Firefox and WebKit rows are a genuine environmental limit, not a
+skipped convenience. They cannot be closed inside this sandbox.
+
+--------------------------------------------------------------------------------
+3. METHOD AND EVIDENCE HYGIENE
+--------------------------------------------------------------------------------
+
+Three throwaway harnesses were written to /tmp, outside the repository, so that
+this verification pass adds no tooling to the project:
+
+  /tmp/phase8-matrix.cjs         routes x viewports x engine, keyboard,
+                                 Back/Forward, reduced motion, storage, film
+  /tmp/phase8-a11y.cjs           structural accessibility inspection and a
+                                 film interaction probe
+  /tmp/phase8-target-probe.cjs   enumeration of every interactive target on /
+                                 at 390px, to identify one failing element
+
+Each harness spawns its own static server on port 4173, drives a real Chromium,
+asserts, prints PASS/FAIL per assertion and exits non-zero on failure. They read
+the served site only. They write nothing into the repository.
+
+Status vocabulary used below is the one the project has used since Phase 2:
+
+  PASS              executed and passed
+  FAIL              executed and failed
+  NOT TESTED        not executed
+  CODE REVIEW ONLY  inspected in source, not executed
+  BLOCKED           cannot be executed in this environment
+
+Three harness defects occurred during this pass. They are recorded in section 12
+rather than quietly corrected, because the first run's output is part of the
+audit trail.
+
+--------------------------------------------------------------------------------
+4. TEST MATRIX A - ROUTES, VIEWPORTS AND ENGINES
+--------------------------------------------------------------------------------
+
+Routes: all ten destinations.
+Viewports: 390 x 844 (mobile emulation, touch enabled, DPR 3) and
+           1280 x 800 (desktop).
+
+Per route and viewport, six assertions were made: HTTP 200; no console errors;
+no uncaught page errors; no failed local requests; zero horizontal overflow;
+a main landmark present.
+
+  A1  Chromium 151, ten routes, 390 x 844            PASS   60 assertions
+  A2  Chromium 151, ten routes, 1280 x 800           PASS   60 assertions
+  A3  Structure pass at 1280 (h1, link names,
+      image alt attributes, button names)            PASS   32 assertions
+  A4  Firefox                                        BLOCKED (section 2)
+  A5  Safari / WebKit                                BLOCKED (section 2)
+  A6  Microsoft Edge                                 NOT TESTED
+
+  Chromium total for this matrix: 152 passed, 0 failed.
+
+  Route                 390px            1280px           Notes
+  --------------------  ---------------  ---------------  -------------------
+  /                     PASS             PASS             0px overflow
+  /film/                PASS             PASS             0px overflow
+  /stories/             PASS             PASS             0px overflow
+  /stories/the-ninth-
+    bell/               PASS             PASS             0px overflow
+  /arcade/              PASS             PASS             0px overflow
+  /arcade/signal-path/  PASS             PASS             0px overflow
+  /gallery/             PASS             PASS             0px overflow
+  /social-room/         PASS             PASS             0px overflow
+  /archive/             PASS             PASS             0px overflow
+  /creator-studio/      PASS             PASS             0px overflow
+
+Every route returned HTTP 200 with a non-empty document at both widths, produced
+no console error, no uncaught page error and no failed local request, and showed
+zero horizontal overflow (documentElement.scrollWidth - clientWidth = 0px).
+
+A3 detail - accessible names, from the desktop pass:
+
+  Every link on every route has an accessible name (text, aria-label or an
+  image with alt). Every button has an accessible name. Every img element
+  carries an alt attribute. Every route except /film/ exposes an h1; /film/ is
+  the standalone film shell and is recorded as DEF-02 in section 11, not
+  silently passed.
+
+--------------------------------------------------------------------------------
+5. TEST MATRIX B - KEYBOARD NAVIGATION AND FOCUS INDICATORS
+--------------------------------------------------------------------------------
+
+Five rooms were driven with Tab only: /, /gallery/, /archive/, /creator-studio/
+and /social-room/. Fourteen Tab presses per room.
+
+For each stop the computed style was read: a stop counts as visible when it has
+outline-style other than none with outline-width >= 1px, or a box-shadow.
+
+  B1  keyboard reaches focusable controls        PASS  all five rooms
+  B2  every tab stop shows a focus indicator     PASS  70 stops, 0 without a
+                                                       ring
+  B3  logical navigation order                   CODE REVIEW ONLY - the order
+                                                       was not judged against a
+                                                       standard
+  B4  focus restoration after Back/Forward       NOT TESTED - see section 6
+
+No stop took focus without a visible outline or shadow in any of the five rooms.
+
+--------------------------------------------------------------------------------
+6. TEST MATRIX C - BROWSER BACK AND FORWARD
+--------------------------------------------------------------------------------
+
+Driven on /archive/, which is the only room with in-page hash navigation.
+
+  C1  click the page's own "Completed Files" jump link      PASS  #completed-files
+  C2  second jump to #discoveries                            PASS  #discoveries
+  C3  Back restores #completed-files                         PASS
+  C4  Back leaves exactly one target marker                  PASS  1
+  C5  Forward restores #discoveries                          PASS
+  C6  Forward leaves exactly one target marker               PASS  1
+  C7  reload restores a deep link (#discoveries)             PASS  3 files
+                                                             rendered, 1 marker
+  C8  unknown fragment (#no-such-entry)                      PASS  recovery note
+                                                             visible, fragment
+                                                             not rewritten
+  C9  duplicate content or inconsistent state                PASS  none observed
+  C10 focus position after Back/Forward                      NOT TESTED - the
+                                                             harness logged the
+                                                             focused element but
+                                                             made no assertion
+                                                             about it, so no
+                                                             claim is made
+
+C3-C6 also confirm that the Phase 6A marker correction still holds: exactly one
+element carries .is-target after Back and after Forward, never two.
+
+--------------------------------------------------------------------------------
+7. TEST MATRIX D - REDUCED MOTION
+--------------------------------------------------------------------------------
+
+Emulated with Playwright's reducedMotion: 'reduce' on /gallery/, /archive/,
+/creator-studio/ and /arcade/signal-path/.
+
+  D1  the page can see the preference            PASS  4/4 routes,
+                                                       matchMedia reduce = true
+  D2  no long transition or animation remains    PASS  4/4 routes,
+                                                       transition 0ms,
+                                                       animation 0ms
+
+This is browser emulation of the media feature, not a real-device setting.
+
+--------------------------------------------------------------------------------
+8. TEST MATRIX E - STORAGE ISOLATION AND FILM PRESERVATION
+--------------------------------------------------------------------------------
+
+Three save keys were seeded in an isolated browser context, then six rooms were
+browsed (/, /archive/, /gallery/, /creator-studio/, /social-room/, /stories/,
+/arcade/), then a full localStorage snapshot was compared.
+
+  Seeded before browsing:
+    tws                                     {"scene":"cast","v":1,"sentinel":"phase8"}
+    wrong-script.story.the-ninth-bell.v1    {"watch":2,"sentinel":"phase8"}
+    wrong-script.arcade.signal-path.v1      {"unlocked":3,"sentinel":"phase8"}
+
+  E1  tws byte-identical after browsing                    PASS
+  E2  wrong-script.story.the-ninth-bell.v1 byte-identical   PASS
+  E3  wrong-script.arcade.signal-path.v1 byte-identical     PASS
+  E4  no additional storage key created by browsing         PASS  (only the
+                                                                 harness's own
+                                                                 __seeded flag)
+  E5  /film/ loads and renders its stage                    PASS  status 200
+  E6  /film/ does not rewrite tws on load                   PASS  seeded value
+                                                                 survived
+
+Film functionality, from the accessibility harness, in a fresh context with a
+seeded tws:
+
+  Controls offered on first load:
+    Sound: off | Calm | New | SKIP INTRO | Yes, do it | Cancel
+  E7  driving SKIP INTRO advances the production             PASS  stage text
+                                                                   45 -> 417
+                                                                   characters
+  E8  no console or page errors during that interaction      PASS  none
+  E9  the save remains parseable JSON                        PASS  seeded value
+                                                                 unchanged
+
+E7-E9 show the original production still responds to a real story control. They
+are one interaction, not a full playthrough: this phase did not replay the film
+to an ending. Earlier phases' route/ending coverage stands as recorded there.
+
+--------------------------------------------------------------------------------
+9. TEST MATRIX F - ACCESSIBILITY INSPECTION (AUTOMATED, NOT ASSISTIVE TECH)
+--------------------------------------------------------------------------------
+
+This is structural inspection of the rendered DOM and computed styles. It is not
+screen-reader testing and must not be read as one.
+
+  F1  document language declared             PASS  all ten routes, lang="en"
+  F2  main landmark present                  PASS  all ten routes
+  F3  heading outline starts at h1           PASS  nine routes; /film/ has no
+                                                   headings (DEF-02)
+  F4  no skipped heading levels              PASS  0 skips on every route
+                                                   (1 to 26 headings per page)
+  F5  sampled text contrast                  PASS  every sampled pair clears the
+                                                   3:1 absolute floor; lowest
+                                                   observed 7.41:1 (paragraph,
+                                                   /gallery/ and /social-room/),
+                                                   lowest elsewhere 7.5:1 and
+                                                   10.5:1
+  F6  standalone touch targets >= 24px       FAIL  1 route: / (DEF-01)
+  F7  standalone touch targets >= 44px       PARTIAL - the project's own aim is
+                                                   not met on / (6 of 20), and
+                                                   one 41px control exists on
+                                                   /gallery/, /archive/,
+                                                   /creator-studio/ and
+                                                   /social-room/ (DEF-03)
+
+  Accessibility harness total: 62 passed, 1 failed.
+
+F5 limitation: contrast was computed only where the background resolves to a
+flat colour. Routes reporting "no flat-background samples" (/stories/,
+/stories/the-ninth-bell/, /archive/, /creator-studio/) use gradient or image
+backgrounds that this method cannot measure, so their text contrast is NOT
+TESTED here. Only flat-background samples were measured.
+
+F6/F7 detail is in the defect register, section 11. No assistive technology was
+run, so no conformance claim is made for any WCAG success criterion; the numbers
+above are measurements, not a conformance result.
+
+--------------------------------------------------------------------------------
+10. TEST MATRIX G - EXISTING REPOSITORY SUITES (REGRESSION)
+--------------------------------------------------------------------------------
+
+Nine suites that already exist in the repository were re-run unmodified, in
+three groups. All three groups exited 0.
+
+  G1  node tools/verify-archive.js
+      node tools/verify-gallery.js
+      node tools/verify-social-room.js                    PASS  exit 0
+  G2  node tools/verify-creator-studio.js
+      node tools/verify-signal-path.js
+      node tools/verify-archive-ui.cjs                    PASS  exit 0
+  G3  node tools/verify-gallery-ui.cjs
+      node tools/verify-social-room-ui.cjs
+      node tools/verify-creator-studio-ui.cjs             PASS  exit 0
+
+Observed in the printed summaries: the Social Room static suite reports
+"all 26 static checks passed"; the Archive browser suite reports
+"RESULT all checks passed"; the archive static group includes
+"PASS the film is unchanged against the last commit [no diff under film/]";
+the browser group includes "PASS no fourth key" and
+"PASS no console, page or request errors during the storage run [clean]".
+
+Each suite prints its own assertion count. Where a run's tail was truncated in
+the log, the count is not restated here rather than guessed.
+
+Cross-engine note: all nine suites drive Chromium, so they are Chromium
+regression evidence only.
+
+--------------------------------------------------------------------------------
+11. DEFECT REGISTER - APPLICATION FINDINGS (NOT FIXED; THIS PHASE MAY NOT FIX)
+--------------------------------------------------------------------------------
+
+No application defect was found that breaks navigation, rendering, storage,
+history behaviour or the film. Three observations were recorded. None was
+corrected, because this authorisation is verification-only.
+
+  DEF-01  Lobby card meta links are 13px tall
+          Route:      /
+          Viewport:   390 x 844
+          Measured:   a[href="stories/"] "Open now - one story on the shelf"
+                      252 x 13 CSS px. Six sibling links of the same kind
+                      ("Open now - one game in the cabinet", gallery, social
+                      room, archive, creator studio) measure 255 x 23, and
+                      "Read it" measures 49 x 16.
+          Standard:   WCAG 2.2 SC 2.5.8 asks for 24 x 24 CSS px, with an
+                      exception for targets inside a sentence or block of text
+                      and a spacing exception.
+          Assessment: these are block-level lines inside card meta rows, not
+                      links inside a sentence, so the inline exception does not
+                      clearly apply. The spacing exception probably does, since
+                      the links sit on separate card rows and are 252px wide,
+                      but that is a judgement, not a measurement I can certify.
+          Impact:     LOW. Each link is wide and easy to hit horizontally, and
+                      the same destination is also reachable from the main
+                      navigation at 44px. This is a comfort issue for precise
+                      touch, not a blocked path.
+          Suggested fix (NOT APPLIED): give the card meta links a vertical
+                      padding that brings the hit area to 24px or more, or
+                      promote them to the 44px pattern used by the card
+                      buttons. Requires owner approval and its own pass.
+
+  DEF-02  /film/ has no heading structure
+          Route:      /film/
+          Measured:   0 h1-h6 elements, 0 footer landmarks, 1 main, 1 nav.
+          Assessment: the original production is a standalone full-screen
+                      experience and was deliberately preserved as-is in every
+                      phase since Phase 1. It has never had headings, and this
+                      report does not treat that as a regression - it is
+                      pre-existing and protected by the preservation rules.
+          Impact:     A screen-reader user gets no heading outline on that
+                      route. Whether to add a visually hidden h1 is an owner
+                      decision, because it touches the protected film file.
+          Suggested fix (NOT APPLIED): a visually hidden h1 plus an outline of
+                      the stage, in a separate authorised pass.
+
+  DEF-03  One 41px control on four rooms
+          Routes:     /gallery/, /archive/, /creator-studio/, /social-room/
+          Viewport:   390 x 844
+          Measured:   one standalone control at 41px on each of those routes
+                      (1 of 27, 1 of 43, 1 of 22 and 1 of 35 respectively).
+          Standard:   clears the 24 x 24 minimum; misses the project's own
+                      44px aim by 3px.
+          Impact:     LOW. Comfort, not access.
+          Suggested fix (NOT APPLIED): confirm which control and adjust its
+                      padding if the owner wants the 44px aim met exactly.
+
+--------------------------------------------------------------------------------
+12. HARNESS DEFECTS AND HISTORICAL FAILURES (PRESERVED, NOT HIDDEN)
+--------------------------------------------------------------------------------
+
+The first accessibility run reported 52 passed, 11 failed. Ten of those failures
+were defects in my harness, not in the application. They are recorded here so
+the audit trail is complete.
+
+  H-1  Array compared to a number
+       The touch-target assertion compared an array of offending elements to 0
+       with ===, which is always false. Every route therefore "failed" the
+       check, including /film/ whose detail line read "smallest 44px of 5
+       targets" - an obvious contradiction.
+       Resolution: compare array length; classify inline prose links
+       separately. Re-run: the false failures disappeared and one genuine
+       finding (DEF-01) remained.
+
+  H-2  Wrong film control clicked
+       The film probe clicked the first button in the stage, which is the
+       "Sound: off" toggle, so it correctly observed that neither scene text nor
+       the save changed, and reported a failure that said nothing about the
+       film.
+       Resolution: drive the "SKIP INTRO" control instead. Re-run: stage text
+       advanced from 45 to 417 characters with no errors.
+
+  H-3  Inline classification differed between two scripts
+       The matrix classified "Open now - ..." as inline prose; the probe showed
+       it is inside a paragraph but block-displayed, so the accessibility
+       harness counted it as a standalone target. The stricter reading was kept,
+       because it is the more useful one for touch users, and DEF-01 records the
+       measurement either way.
+
+  Historical failures from earlier phases remain in their own reports and were
+  not rewritten: reports/PHASE-2-HANDOVER.txt, PHASE-3-HANDOVER.txt,
+  PHASE-4-HANDOVER.txt, PHASE-5-HANDOVER.txt, PHASE-6-VERIFICATION.txt (F1, F2,
+  F3) and PHASE-7-CREATOR-STUDIO-HANDOVER.txt (section 6.6).
+
+--------------------------------------------------------------------------------
+13. PRESERVATION AND REPOSITORY STATE
+--------------------------------------------------------------------------------
+
+  Starting HEAD            8c4bff15a7155cb2c4d0c8e05f21a4b41d189a8e
+  Starting working tree    clean (git status --porcelain empty)
+  Diff since starting HEAD at the time of writing: empty for application files
+  Files added by this pass reports/PHASE-8-VERIFICATION-HANDOVER.txt (this file)
+  Files modified           none
+  Files deleted or moved   none
+  Final working tree       clean after the report commit
+
+  Application source, styles, scripts, data, routes, tests, README, save keys
+  and configuration are unchanged. The three harnesses live in /tmp and were
+  never added to the repository. Nothing was pushed to another branch, and no
+  commit was amended or rewritten.
+
+  Save keys, unchanged and untouched by this pass:
+    tws
+    wrong-script.story.the-ninth-bell.v1
+    wrong-script.arcade.signal-path.v1
+
+--------------------------------------------------------------------------------
+14. NOT TESTED, BLOCKED, AND WHAT WOULD CLOSE EACH ITEM
+--------------------------------------------------------------------------------
+
+  BLOCKED    Firefox. Binary downloaded; host libraries missing; cannot be
+             installed without root and Debian sources. Needs an environment
+             that permits package installation, or a machine with Firefox.
+  BLOCKED    Safari / WebKit. Same cause.
+  NOT TESTED Microsoft Edge. Not installable here. Chromium was tested, but
+             Chromium is not Edge.
+  BLOCKED    Physical Android phone and iPhone. No device exists in this
+             sandbox. All mobile figures above are Chromium viewport emulation
+             at 390 x 844 with touch enabled, not a real phone.
+  NOT TESTED TalkBack. No Android device or emulator.
+  NOT TESTED VoiceOver. No macOS or iOS.
+  NOT TESTED NVDA, JAWS or any desktop screen reader. No assistive technology
+             is installed. No AT audit was performed and none should be
+             inferred from section 9.
+  NOT TESTED Real touch gestures (swipe, long press, tap pressure). Controls
+             were operated with pointer clicks in a touch-enabled context.
+  NOT TESTED Focus restoration after Back/Forward - logged, not asserted.
+  NOT TESTED Text contrast on routes whose background is a gradient or image;
+             the measurement method requires a flat background.
+  NOT TESTED A full playthrough of the film to an ending in this pass. One
+             story control was driven; endings were covered by earlier phases.
+  NOT TESTED Zoom and reflow at 200%/400%, high-contrast or forced-colours
+             modes, and OS-level text scaling. These are the checks that most
+             directly substitute for part of the AT gap, and they are available
+             in Chromium - they were not in this pass's scope and should be the
+             first item of any follow-up.
+
+--------------------------------------------------------------------------------
+15. RECOMMENDATIONS FOR OWNER DECISION (NONE IMPLEMENTED)
+--------------------------------------------------------------------------------
+
+  1. Decide on DEF-01. It is the only finding this pass produced that is both
+     genuine and cheap to fix. A separate authorised pass could bring the Lobby
+     card meta links to at least 24px, ideally 44px.
+  2. Decide whether DEF-02 (no headings on /film/) should ever be addressed. It
+     touches the protected film file, so it needs an explicit preservation
+     exception if it is to happen at all.
+  3. Treat the four BLOCKED/NOT TESTED engines and devices as an environment
+     problem, not an application result. Closing them needs an environment with
+     package installation and real hardware; nothing in this repository can
+     produce that evidence.
+  4. Before commissioning real AT testing, a cheap intermediate step is worth
+     doing: 200% and 400% zoom/reflow, forced-colours mode, and OS text scaling
+     in Chromium. Those catch a large share of what AT users hit and need no
+     specialist hardware.
+
+--------------------------------------------------------------------------------
+16. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - No application source file, style, script, data file, route or test script
+    was created, modified, moved or deleted by this pass.
+  - The only file added is reports/PHASE-8-VERIFICATION-HANDOVER.txt.
+  - The three existing save keys were verified byte-identical after browsing,
+    and no fourth key was created.
+  - The original production still loads, renders and responds to a story
+    control, and its tws value was not rewritten by this pass.
+  - No dependency, framework, backend, database, account or network service was
+    introduced. The project still has no package manifest or lockfile, so the
+    dependency scan remains not_applicable: zero packages resolved. That is an
+    empty scan, not a security certification of the source, the runtime, the
+    hosting or the application.
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - Phase 9 was not started, and no defect was fixed.
+
+  The status below is deliberately INCOMPLETE rather than COMPLETE. The work
+  authorised included four browser engines, two physical devices and three
+  assistive technologies. Chromium was executed in full and passed; the rest
+  could not be executed here at all, and no amount of repository work can
+  change that. The passed evidence is real, the gaps are named, and neither is
+  dressed up as the other.
+
+================================================================================
+PHASE 8 VERIFICATION: INCOMPLETE - LIMITATIONS DOCUMENTED - AWAITING OWNER REVIEW
+================================================================================
