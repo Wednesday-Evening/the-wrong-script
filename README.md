@@ -42,11 +42,17 @@ external assets. The whole thing is a static site.
 | `assets/css/archive.css` | The Archive's own identity: the file cards, the collection shelves, the record. Loaded after `lobby.css`. |
 | `assets/js/archive-content.js` | The catalogue, written as data: three files, three collections, eight discoveries. Data only. |
 | `assets/js/archive.js` | Draws the catalogue, the jump list, the closed spoiler disclosures and the deep links. No storage, no network. |
+| `creator-studio/index.html` | The Creator Studio: the desk, the five formats, the standard, the review route and the honest list of what is not built. |
+| `assets/css/creator-studio.css` | The Studio's own identity: numbered drawers, gold counters, the review line. Loaded after `lobby.css`. |
+| `assets/js/creator-studio-content.js` | Every word the Studio says, written as data. Data only. |
+| `assets/js/creator-studio.js` | Draws the five parts from that data. No storage, no network, no forms. |
 | `tools/verify-signal-path.js` | Development check: solves every level, exercises the rules and the save reader. |
 | `tools/verify-gallery.js` | Development check: validates the collection, the artwork on disk and the Gallery's isolation from other rooms' saves. |
 | `tools/verify-social-room.js` | Development check: validates the boards, every destination link on disk, and the room's isolation from storage. |
 | `tools/verify-archive.js` | Development check: validates the catalogue, every link and Gallery deep link, the spoiler containment, and the Archive's isolation from storage. |
 | `tools/verify-archive-ui.cjs` | Development check: drives all nine routes in Chromium at 390px and 1280px, and checks the disclosures, deep links, focus, reduced motion and save isolation. |
+| `tools/verify-creator-studio.js` | Development check: validates the Studio's content shape, every link on disk, and its isolation from storage and the three save keys. |
+| `tools/verify-creator-studio-ui.cjs` | Development check: drives all ten routes in Chromium at 390px and 1280px, and checks the five parts, the jump links, focus, reduced motion and save isolation. |
 
 ## Running it
 
@@ -57,7 +63,8 @@ python3 -m http.server 8000
 Then open <http://localhost:8000>. The Lobby is at `/`, the film at `/film/`, the
 library at `/stories/`, the first story at `/stories/the-ninth-bell/`, the Arcade
 at `/arcade/`, SIGNAL PATH at `/arcade/signal-path/`, the Gallery at
-`/gallery/`, the Social Room at `/social-room/` and the Archive at `/archive/`.
+`/gallery/`, the Social Room at `/social-room/`, the Archive at `/archive/` and the
+Creator Studio at `/creator-studio/`.
 Opening `film/index.html` directly from disk also works, because the film carries
 its own styles and scripts inline. The Stories pages need to be served over HTTP
 (they load shared CSS and JavaScript by relative path, which is also how they
@@ -83,8 +90,10 @@ deploy).
   experiences, three curated collections, eight verified discoveries and a short
   record of what the Archive keeps. Read-only, curated, and it does not read
   anyone's saved progress.
-- **Reserved:** The Creator Studio. Its card states its state; it is not a button
-  that pretends to work.
+- **Phase 7 (done):** The Creator Studio. A read-only desk at `/creator-studio/`
+  with five parts: the Desk, the five Formats, the Standard, the Review Process
+  and Not Yet. No accounts, no uploads, no submissions, no forms and no storage;
+  the page says so rather than implying otherwise.
 
 ## The Stories
 
@@ -223,6 +232,45 @@ them unique; collections use `collections/#<collection-id>`. A discovery that gi
 anything away takes a `spoiler: { summary, body }` and is then rendered closed.
 `node tools/verify-archive.js` checks the shape, the counts, that every link exists
 on disk and that every Gallery deep link names a real exhibit.
+
+## The Creator Studio
+
+The Studio is the room that faces the other way: instead of holding finished work,
+it describes how work would be made here. It is at `/creator-studio/` and it is
+read-only. `assets/js/creator-studio-content.js` holds every word as data and
+`assets/js/creator-studio.js` draws it.
+
+Five parts, each doing a different job:
+
+- **The Desk** - why the room exists, and the rule it is built on: people should be
+  able to help build this world, and the standard should be visible before the
+  invitation is.
+- **The Format** - the five shapes work arrives in (stories and writing, games and
+  interactive experiences, visual art and design, music and sound, experiences and
+  collaborations), each with what that format asks of a contribution.
+- **The Standard** - seven principles a piece would be measured against, from
+  originality and a teenage audience through to privacy and review before
+  publication.
+- **The Review Process** - Draft, Submitted, Under Review, Changes Requested or
+  Approved, Published, plus the two other outcomes: Rejected and Unpublished.
+- **Not Yet** - accounts, uploads, submissions, collaborative tools and any
+  publication date, stated plainly as absent.
+
+### No storage, no forms, nothing to submit
+
+The Studio has no save key and needs none. It does not read, write or clear `tws`,
+`wrong-script.story.the-ninth-bell.v1` or
+`wrong-script.arcade.signal-path.v1`. The page has no form, no input, no upload
+control and no button other than the small-screen navigation toggle, and nothing on
+it pretends to accept work. `node tools/verify-creator-studio.js` checks the content
+shape, every link on disk, and that the room's code contains no storage, cookie or
+network call.
+
+### When contributions open
+
+Nothing here needs redesigning for that. Add the account and submission layer
+behind it, keep the standard and the review route as written, and replace the Not
+Yet list with the real state of each item.
 
 ## The original film
 
