@@ -214,9 +214,21 @@ async function waitForServer(deadlineMs) {
 
     await check('no entry claims members or live activity at ' + vp.name, async () => {
       const text = await page.evaluate(() => document.getElementById('boards').textContent.toLowerCase());
-      const banned = ['followers', 'likes', 'upvotes', 'trending', 'members online', 'joined by', 'comments ('];
-      const found = banned.filter((word) => text.indexOf(word) !== -1);
+      const claims = [
+        /\d+\s*likes/,
+        /\d+\s*followers/,
+        /\d+\s*comments/,
+        /members online/,
+        /joined by/,
+        /trending now/,
+        /\d+\s*attending/
+      ];
+      const found = claims.filter((re) => re.test(text)).map((re) => String(re));
       ok(found.length === 0, 'the room claims ' + found.join(', '));
+      const disowned = ['no likes', 'no visitor count', 'no ranking'].filter(
+        (phrase) => text.indexOf(phrase) === -1
+      );
+      ok(disowned.length === 0, 'the room does not disown ' + disowned.join(', '));
       const forms = await page.$$eval('form, input, textarea, select', (els) => els.length);
       ok(forms === 0, forms + ' form controls present');
       const buttons = await page.$$eval('button', (els) => els.map((e) => e.id));
@@ -228,13 +240,13 @@ async function waitForServer(deadlineMs) {
 
     await check('the jump list moves between boards at ' + vp.name, async () => {
       await page.goto(BASE + '/social-room/', { waitUntil: 'load' });
-      const count = await page.$$eval('#jump .jump-list a', (els) => els.length);
+      const count = await page.$$eval('#jump a[data-area]', (els) => els.length);
       ok(count === 4, 'expected 4 jump links, found ' + count);
-      await page.click('#jump .jump-list a[data-area="gathering-board"]');
+      await page.click('#jump a[data-area="gathering-board"]');
       await settle(page, 500);
       const state = await page.evaluate(() => ({
         hash: location.hash,
-        current: Array.from(document.querySelectorAll('#jump .jump-list a'))
+        current: Array.from(document.querySelectorAll('#jump a[data-area]'))
           .filter((a) => a.getAttribute('aria-current') === 'location')
           .map((a) => a.getAttribute('data-area'))
       }));
@@ -283,8 +295,10 @@ async function waitForServer(deadlineMs) {
       await page.click('#social-room a[href="social-room/"]');
       await page.waitForURL('**/social-room/');
       const heading = await page.textContent('h1');
-      ok(/social room/i.test(heading), 'the room heading reads ' + heading);
-      return 'reached /social-room/';
+      ok(heading.trim() === 'A room with the lights on', 'the room heading reads ' + heading);
+      const title = await page.title();
+      ok(/social room/i.test(title), 'the page title reads ' + title);
+      return 'reached /social-room/ — "' + heading.trim() + '"';
     });
 
     await check('the room returns to the Lobby at ' + vp.name, async () => {
@@ -329,7 +343,7 @@ async function waitForServer(deadlineMs) {
             return el ? Math.round(el.getBoundingClientRect().height) : -1;
           };
           return {
-            jump: pick('#jump .jump-list a'),
+            jump: pick('#jump a[data-area]'),
             entryLink: pick('.sr-link'),
             toggle: pick('#nav-toggle'),
             footerLink: pick('.footer-links a')
@@ -371,7 +385,7 @@ async function waitForServer(deadlineMs) {
           const el = document.querySelector(sel);
           return el ? getComputedStyle(el).transitionDuration : '0s';
         };
-        return { jump: read('#jump .jump-list a'), entry: read('.sr-entry'), link: read('.sr-link') };
+        return { jump: read('#jump a[data-area]'), entry: read('.sr-entry'), link: read('.sr-link') };
       });
       const running = Object.keys(durations).filter((key) =>
         durations[key].split(',').some((part) => parseFloat(part) > 0)
@@ -399,7 +413,7 @@ async function waitForServer(deadlineMs) {
       );
       await page.goto(BASE + '/social-room/', { waitUntil: 'load' });
       await settle(page, 600);
-      await page.click('#jump .jump-list a[data-area="noticeboard"]');
+      await page.click('#jump a[data-area="noticeboard"]');
       await settle(page, 300);
       const after = await page.evaluate(() => ({
         keys: Object.keys(localStorage).sort(),
