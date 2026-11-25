@@ -174,13 +174,19 @@ check('the stored solution agrees with the solved arrangement', function () {
 });
 
 check('rotating a mirror changes what the beam reaches', function () {
+  /* Room 1 is deliberately a one-mirror room, so one turn is supposed to
+     finish it. What must never happen is the room arriving already solved,
+     or a turn that changes nothing. */
   const level = LEVELS[0];
   const room = L.parse(level);
   const start = L.initialOrientations(room);
+  if (L.solved(room, start)) { throw new Error('room 1 is handed over already solved'); }
   const after = L.rotate(start, 0);
   if (after[0] === start[0]) { throw new Error('rotate() did not change the mirror'); }
-  if (L.solved(room, after)) { throw new Error('one turn solves room 1, which should need its stated answer'); }
-  return 'room 1 responds to one turn';
+  if (!L.solved(room, after)) { throw new Error('room 1 is a one-mirror room, so one turn should finish it'); }
+  const back = L.rotate(after, 0);
+  if (L.solved(room, back)) { throw new Error('turning the mirror back should darken the window again'); }
+  return 'room 1 starts dark, one turn lights it, turning back darkens it';
 });
 
 check('a beam that leaves the grid stops instead of looping', function () {

@@ -54,7 +54,7 @@ window.LAMPLIGHT_LEVELS = [
     idea: 'The beam turns twice and climbs a wall to reach the far window.',
     source: { x: 0, y: 2, dir: 'e' },
     grid: [
-      '../..//.',
+      '../..\\.',
       '..*....',
       'S.\\....',
       '.....*.',
@@ -108,6 +108,6 @@ window.LAMPLIGHT_LEVELS = [
       './../.',
       '......'
     ],
-    solution: ['\\', '/', '\\', '\\', '\\', '\\']
+    solution: ['\\', '/', '\\', '\\', '\\', '/']
   }
 ];

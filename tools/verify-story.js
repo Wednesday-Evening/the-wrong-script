@@ -57,6 +57,46 @@ const STORIES = [
   { slug: 'the-returns-hatch', data: 'stories/data/the-returns-hatch.js', page: 'stories/the-returns-hatch/index.html' }
 ];
 
+/* Some scenes build their choices at render time from the current state -
+   The Ninth Bell's tower hub is one, and it swaps its whole choice list once
+   the night is spent. A scene like that has no static `choices` array, so the
+   walker asks `build` for its choices under a few probe states and unions the
+   answers. The story data is never altered to suit this tool. */
+function choicesOf(scene, story) {
+  if (scene.choices && scene.choices.length) { return scene.choices; }
+  if (typeof scene.build !== 'function') { return []; }
+
+  const allFlags = {};
+  Object.keys(story.scenes).forEach(function (id) {
+    const s = story.scenes[id];
+    if (s.set) { Object.keys(s.set).forEach(function (k) { allFlags[k] = 1; }); }
+    (s.choices || []).forEach(function (c) {
+      if (c.set) { Object.keys(c.set).forEach(function (k) { allFlags[k] = 1; }); }
+    });
+  });
+
+  const probes = [0, 1, 2, 4, story.budget].filter(function (v, i, a) { return a.indexOf(v) === i; });
+  const seen = new Set();
+  const out = [];
+
+  probes.forEach(function (visits) {
+    [{}, allFlags].forEach(function (flagSet) {
+      let result;
+      try {
+        result = scene.build({ visits: visits, flags: Object.assign({}, flagSet), seen: [], ended: false });
+      } catch (err) { return; }
+      ((result && result.choices) || []).forEach(function (choice) {
+        const key = (choice.to || '') + '|' + (choice.label || '');
+        if (seen.has(key)) { return; }
+        seen.add(key);
+        out.push(choice);
+      });
+    });
+  });
+
+  return out;
+}
+
 /* Every scene id, flag and choice, collected once per story. */
 function facts(story) {
   const ids = Object.keys(story.scenes);
@@ -65,7 +105,7 @@ function facts(story) {
   ids.forEach(function (id) {
     const scene = story.scenes[id];
     if (scene.set) { Object.keys(scene.set).forEach(function (k) { flags.add(k); }); }
-    (scene.choices || []).forEach(function (choice) {
+    choicesOf(scene, story).forEach(function (choice) {
       if (choice.set) { Object.keys(choice.set).forEach(function (k) { flags.add(k); }); }
       if (choice.to) { targets.add(choice.to); }
     });
@@ -112,7 +152,7 @@ function walk(story) {
     const scene = story.scenes[node.scene];
     if (scene.ending) { endings.add(node.scene); }
 
-    (scene.choices || []).forEach(function (choice) {
+    choicesOf(scene, story).forEach(function (choice) {
       if (!story.scenes[choice.to]) { return; }
       if (choice.requires) {
         const ok = Object.keys(choice.requires).every(function (flag) {
@@ -160,7 +200,7 @@ STORIES.forEach(function (entry) {
   check(entry.slug + ': every choice leads somewhere real', function () {
     const broken = [];
     Object.keys(story.scenes).forEach(function (id) {
-      (story.scenes[id].choices || []).forEach(function (choice) {
+      choicesOf(story.scenes[id], story).forEach(function (choice) {
         if (!choice.to) { broken.push(id + ': a choice has no destination'); return; }
         if (!story.scenes[choice.to]) { broken.push(id + ' -> ' + choice.to); }
       });
@@ -172,7 +212,7 @@ STORIES.forEach(function (entry) {
   check(entry.slug + ': no scene is a dead end', function () {
     const dead = Object.keys(story.scenes).filter(function (id) {
       const scene = story.scenes[id];
-      return !scene.ending && !(scene.choices && scene.choices.length);
+      return !scene.ending && choicesOf(scene, story).length === 0;
     });
     if (dead.length) { throw new Error('stranded: ' + dead.join(', ')); }
     return 'every scene continues or ends';
@@ -222,7 +262,7 @@ STORIES.forEach(function (entry) {
     const known = facts(story).flags;
     const missing = [];
     Object.keys(story.scenes).forEach(function (id) {
-      (story.scenes[id].choices || []).forEach(function (choice) {
+      choicesOf(story.scenes[id], story).forEach(function (choice) {
         if (!choice.requires) { return; }
         Object.keys(choice.requires).forEach(function (flag) {
           if (known.indexOf(flag) === -1) { missing.push(id + ': ' + flag); }
@@ -238,7 +278,7 @@ STORIES.forEach(function (entry) {
     Object.keys(story.scenes).forEach(function (id) {
       const scene = story.scenes[id];
       const seen = new Set();
-      (scene.choices || []).forEach(function (choice) {
+      choicesOf(scene, story).forEach(function (choice) {
         if (!choice.label || choice.label.trim().length < 4) {
           problems.push(id + ': a choice label is too short');
         }
