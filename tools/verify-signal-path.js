@@ -205,7 +205,7 @@ check('the final move of each route reports completion', () => {
 check('the beacon does not complete a level with fragments outstanding', () => {
   const tested = [];
   parsed.levels.forEach((level) => {
-    const route = solve(level, { avoidFragments: true });
+    const route = solve(level, { avoidFragments: true, ignoreFragments: true });
     if (!route) { return; } // no fragment-free route on this level; nothing to prove here
 
     const run = Core.createRun(level);
