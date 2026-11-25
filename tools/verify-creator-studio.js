@@ -323,7 +323,13 @@ check('the Lobby card for the Studio is open and leads somewhere', () => {
 });
 
 check('the Social Room lists the Studio as open with a working link', () => {
-  const social = sandbox.window.SOCIAL_ROOM;
+  const socialSandbox = { window: {} };
+  vm.createContext(socialSandbox);
+  vm.runInContext(read('assets/js/social-room-content.js'), socialSandbox, {
+    filename: 'social-room-content.js'
+  });
+  const social = socialSandbox.window.SOCIAL_ROOM;
+  ok(social && Array.isArray(social.areas), 'window.SOCIAL_ROOM.areas is missing');
   const room = social.areas.filter((area) => area.id === 'whats-happening')[0];
   ok(room, 'What\'s Happening area is missing');
   const entry = room.entries.filter((item) => item.id === 'happening-creator-studio')[0];
@@ -360,11 +366,14 @@ check('the Studio code contains none of the three existing save keys', () => {
 });
 
 check('the renderer builds nodes without innerHTML', () => {
+  const code = renderer
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
   ['innerHTML', 'outerHTML', 'insertAdjacentHTML', 'document.write'].forEach((needle) => {
-    ok(renderer.indexOf(needle) === -1, 'renderer contains ' + needle);
+    ok(code.indexOf(needle) === -1, 'renderer contains ' + needle);
   });
-  ok(renderer.indexOf('textContent') !== -1, 'renderer never uses textContent');
-  ok(renderer.indexOf('createElement') !== -1, 'renderer never uses createElement');
+  ok(code.indexOf('textContent') !== -1, 'renderer never uses textContent');
+  ok(code.indexOf('createElement') !== -1, 'renderer never uses createElement');
   return 'createElement + textContent only';
 });
 

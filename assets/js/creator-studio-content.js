@@ -99,7 +99,7 @@ window.CREATOR_STUDIO_CONTENT = {
     {
       id: 'originality',
       title: 'Your own work, and respect for everyone else\u2019s',
-      text: 'A piece must be yours, or used with permission you can show. Existing characters, scripts, lyrics, photographs and recordings belong to the people who made them and are not yours to submit.'
+      text: 'Originality is the baseline. A piece must be yours, or used with permission you can show. Existing characters, scripts, lyrics, photographs and recordings belong to the people who made them and are not yours to submit.'
     },
     {
       id: 'teen-audience',
