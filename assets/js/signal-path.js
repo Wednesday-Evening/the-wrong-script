@@ -7,8 +7,9 @@
    score or a rank - it draws what the rules report.
 
    Storage: one key, wrong-script.arcade.signal-path.v1, holding only
-   { v, unlocked, completed, best }. It never touches the film's "tws"
-   key or the Stories key.
+   { v, unlocked, completed, best }. It never touches the film's save key
+   or the story's save key - this file reads and writes nothing else, and
+   tools/verify-signal-path.js fails the build if that ever changes.
    ===================================================================== */
 
 (function () {

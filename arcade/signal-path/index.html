@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Signal Path - The Arcade - The Wrong Script</title>
+<meta name="description" content="Signal Path: a six-level grid puzzle in The Wrong Script Arcade. Walk a signal unit to its beacon and collect every fragment on the way.">
+<meta name="theme-color" content="#05080a">
+<link rel="stylesheet" href="../../assets/css/lobby.css">
+<link rel="stylesheet" href="../../assets/css/arcade.css">
+</head>
+<body class="arcade">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header" id="top">
+  <div class="bar">
+    <a class="brand" href="../../">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="wordmark">The Wrong Script</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Platform">
+      <a href="../../">Lobby</a>
+      <a href="../../film/" class="is-live">The Original Production</a>
+      <a href="../../stories/" class="is-live">The Stories</a>
+      <a href="../" class="is-live" aria-current="page">The Arcade</a>
+      <a href="../../#gallery">The Gallery <span class="soon">Soon</span></a>
+      <a href="../../#social-room">The Social Room <span class="soon">Soon</span></a>
+      <a href="../../#archive">The Archive <span class="soon">Soon</span></a>
+      <a href="../../#creator-studio">The Creator Studio <span class="soon">Soon</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="arc-open">
+    <div>
+      <p class="eyebrow">The Arcade &middot; Signal Path</p>
+      <h1>Signal Path</h1>
+      <p class="identity">A small unit, a dark grid, and one beacon that will not open early.</p>
+      <p class="lede">Carry the unit from its start cell to the beacon. Every fragment on the grid has to be picked up first. The beacon is patient, the walls are not, and nothing here is timed.</p>
+      <div class="open-actions">
+        <a class="btn btn-ghost" href="../">Back to the Arcade</a>
+        <a class="btn btn-ghost" href="../../">The Lobby</a>
+      </div>
+    </div>
+    <div class="open-meta">
+      <span>Six handcrafted levels</span>
+      <span>Keyboard or touch</span>
+      <span>Saved in this browser</span>
+    </div>
+  </section>
+
+  <section class="play" aria-labelledby="play-heading">
+    <h2 id="play-heading" class="visually-hidden">The grid</h2>
+
+    <div class="play-grid">
+      <div class="play-main">
+
+        <div class="hud" role="group" aria-label="Level status">
+          <div class="hud-cell">
+            <span class="hud-lab">Level</span>
+            <span class="hud-val" data-level-index>1 of 6</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-lab">Fragments</span>
+            <span class="hud-val" data-frags>0 / 1</span>
+          </div>
+          <div class="hud-cell">
+            <span class="hud-lab">Moves</span>
+            <span class="hud-val" data-moves>0</span>
+          </div>
+        </div>
+
+        <p class="level-name" data-level-name>Relay Room</p>
+
+        <div class="board-wrap">
+          <div class="board" data-board aria-hidden="true"></div>
+        </div>
+
+        <p class="status" data-status aria-live="polite">Use the arrow keys, W A S D, or the pad below.</p>
+
+        <div class="result" data-result hidden>
+          <p class="result-kicker" data-result-kicker>Level complete</p>
+          <h3 data-result-title>Signal received</h3>
+          <p data-result-body></p>
+          <div class="result-actions">
+            <button class="btn btn-primary" type="button" data-next>Next level</button>
+            <button class="btn btn-ghost" type="button" data-replay>Replay this level</button>
+          </div>
+        </div>
+
+        <div class="pad" role="group" aria-label="Movement controls">
+          <button class="pad-btn pad-up" type="button" data-move="up" aria-label="Move up">
+            <span aria-hidden="true">&#8593;</span>
+          </button>
+          <button class="pad-btn pad-left" type="button" data-move="left" aria-label="Move left">
+            <span aria-hidden="true">&#8592;</span>
+          </button>
+          <button class="pad-btn pad-down" type="button" data-move="down" aria-label="Move down">
+            <span aria-hidden="true">&#8595;</span>
+          </button>
+          <button class="pad-btn pad-right" type="button" data-move="right" aria-label="Move right">
+            <span aria-hidden="true">&#8594;</span>
+          </button>
+        </div>
+
+      </div>
+
+      <aside class="play-side" aria-label="Levels and instructions">
+
+        <div class="side-block">
+          <h3>Relays</h3>
+          <div class="rail" data-rail></div>
+        </div>
+
+        <div class="side-block">
+          <h3>This level</h3>
+          <div class="side-actions">
+            <button class="btn btn-ghost btn-small" type="button" data-restart>Restart level</button>
+            <button class="btn btn-ghost btn-small" type="button" data-undo>Undo last move</button>
+          </div>
+        </div>
+
+        <div class="side-block">
+          <h3>How to play</h3>
+          <ul class="rules">
+            <li>Move one cell at a time with the arrow keys, W A S D, or the pad.</li>
+            <li>Hatched dark cells are walls. So is the edge of the grid.</li>
+            <li>Walk over every &#9670; fragment before you step on the beacon.</li>
+            <li>A sealed beacon tells you how many fragments are still out there, and the move still counts.</li>
+            <li>Only real moves count. A blocked move leaves the counter alone.</li>
+            <li>No timer, no lives, no score. Restart or undo whenever you like.</li>
+          </ul>
+        </div>
+
+        <div class="side-block">
+          <h3>Legend</h3>
+          <ul class="legend">
+            <li><span class="lg lg-start" aria-hidden="true">S</span> Start cell</li>
+            <li><span class="lg lg-frag" aria-hidden="true">&#9670;</span> Signal fragment</li>
+            <li><span class="lg lg-beacon" aria-hidden="true">&#9678;</span> Beacon, sealed</li>
+            <li><span class="lg lg-beacon is-ready" aria-hidden="true">&#9673;</span> Beacon, ready</li>
+            <li><span class="lg lg-player" aria-hidden="true">&#9650;</span> Your unit</li>
+            <li><span class="lg lg-wall" aria-hidden="true"></span> Wall</li>
+          </ul>
+        </div>
+
+        <div class="side-block">
+          <h3>Saved progress</h3>
+          <p class="save-note" data-save-note>Progress is saved in this browser only, under its own key.</p>
+          <button class="btn btn-ghost btn-small btn-danger" type="button" data-reset>Reset progress&hellip;</button>
+          <div class="confirm" data-reset-panel hidden>
+            <p>Reset every unlocked relay back to the first? This cannot be undone.</p>
+            <div class="confirm-actions">
+              <button class="btn btn-danger btn-small" type="button" data-reset-confirm>Yes, reset progress</button>
+              <button class="btn btn-ghost btn-small" type="button" data-reset-cancel>Keep my progress</button>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="foot-brand">The Wrong Script</p>
+    <p>An evolving digital universe of stories, games, creative experiences and community.</p>
+    <nav aria-label="Footer">
+      <a href="../../">The Lobby</a>
+      <a href="../../film/">The Original Production</a>
+      <a href="../../stories/">The Stories</a>
+      <a href="../" aria-current="page">The Arcade</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../../assets/js/arcade-shell.js" defer></script>
+<script src="../../assets/js/signal-path-core.js" defer></script>
+<script src="../data/signal-path-levels.js" defer></script>
+<script src="../../assets/js/signal-path.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Arcade - The Wrong Script</title>
+<meta name="description" content="The Arcade: small games with strange rules inside The Wrong Script universe. One cabinet is open now: Signal Path, a six-level grid puzzle.">
+<meta name="theme-color" content="#05080a">
+<link rel="stylesheet" href="../assets/css/lobby.css">
+<link rel="stylesheet" href="../assets/css/arcade.css">
+</head>
+<body class="arcade">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header" id="top">
+  <div class="bar">
+    <a class="brand" href="../">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="wordmark">The Wrong Script</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Platform">
+      <a href="../">Lobby</a>
+      <a href="../film/" class="is-live">The Original Production</a>
+      <a href="../stories/" class="is-live">The Stories</a>
+      <a href="./" class="is-live" aria-current="page">The Arcade</a>
+      <a href="../#gallery">The Gallery <span class="soon">Soon</span></a>
+      <a href="../#social-room">The Social Room <span class="soon">Soon</span></a>
+      <a href="../#archive">The Archive <span class="soon">Soon</span></a>
+      <a href="../#creator-studio">The Creator Studio <span class="soon">Soon</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="arc-open">
+    <div>
+      <p class="eyebrow">The Arcade &middot; open</p>
+      <h1>The Arcade</h1>
+      <p class="identity">Small games with strange rules, built to be finished in one sitting.</p>
+      <p class="lede">This is the interactive end of the universe: puzzles and small machines you play rather than read. One cabinet is plugged in. The rest of the room is empty on purpose, because a card for a game that does not exist is just a lie with a border around it.</p>
+      <div class="open-actions">
+        <a class="btn btn-primary" href="signal-path/">Play Signal Path</a>
+        <a class="btn btn-ghost" href="../">Back to the Lobby</a>
+      </div>
+    </div>
+    <div class="open-meta">
+      <span>One game in the cabinet</span>
+      <span>Keyboard and touch</span>
+      <span>No accounts, no scores</span>
+    </div>
+  </section>
+
+  <section class="cabinet" aria-labelledby="cabinet-heading">
+    <div class="cabinet-head">
+      <h2 id="cabinet-heading">The cabinet</h2>
+      <p class="cabinet-count" data-cabinet-count>One game in the cabinet</p>
+    </div>
+
+    <div data-cabinet></div>
+
+    <p class="cabinet-note">Only finished games are listed here. There is no placeholder card, no invented player count and no score to chase. When another game is ready it will be added to this cabinet and nowhere else.</p>
+  </section>
+
+  <section class="room-notes" aria-labelledby="room-heading">
+    <h2 id="room-heading">How this room works</h2>
+    <ul>
+      <li><strong>No accounts.</strong> Nothing here asks who you are, and there is nothing to sign up for. The games are single-player and stay that way.</li>
+      <li><strong>Progress stays in this browser.</strong> Each game keeps its own save key, so a game cannot overwrite the film's saved run or a story's place. Clearing site data clears it.</li>
+      <li><strong>No leaderboards, streaks or scores.</strong> There is nothing to keep up with and nothing that punishes you for leaving.</li>
+      <li><strong>Nothing is timed.</strong> Every game can be played at whatever pace suits you, and every level can be restarted or undone.</li>
+      <li><strong>Sound is off unless a game says otherwise</strong>, and no game starts playing audio on its own.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="foot-brand">The Wrong Script</p>
+    <p>An evolving digital universe of stories, games, creative experiences and community.</p>
+    <nav aria-label="Footer">
+      <a href="../">The Lobby</a>
+      <a href="../film/">The Original Production</a>
+      <a href="../stories/">The Stories</a>
+      <a href="./" aria-current="page">The Arcade</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/arcade-shell.js" defer></script>
+<script src="../assets/js/arcade-games.js" defer></script>
+<script src="../assets/js/arcade-library.js" defer></script>
+</body>
+</html>
