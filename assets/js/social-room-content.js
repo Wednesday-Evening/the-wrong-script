@@ -221,9 +221,10 @@ window.SOCIAL_ROOM = {
         {
           id: 'happening-creator-studio',
           kind: 'Listing',
-          status: 'In preparation',
+          status: 'Open now',
           title: 'The Creator Studio',
-          body: ['Tools for making your own scenes in this universe. Not built, and no date is being promised.']
+          body: ['The desk the universe is made at: five formats, one standard and the review route between a draft and publication. Read-only for now \u2014 no accounts, no uploads, and submissions are not open.'],
+          link: { label: 'Read the studio', href: '../creator-studio/' }
         }
       ]
     }
