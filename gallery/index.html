@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Gallery - The Wrong Script</title>
+<meta name="description" content="The Gallery: original art, photography, poetry, writing, illustration and written music from The Wrong Script Studio. Eight demonstration exhibits, open to browse without an account.">
+<meta name="theme-color" content="#0b0a09">
+<link rel="stylesheet" href="../assets/css/lobby.css">
+<link rel="stylesheet" href="../assets/css/gallery.css">
+</head>
+<body class="gallery">
+
+<a class="skip" href="#collection">Skip to the collection</a>
+
+<header class="site-header" id="top">
+  <div class="bar">
+    <a class="brand" href="../">
+      <span class="mark" aria-hidden="true"></span>
+      <span class="wordmark">The Wrong Script</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Platform">
+      <a href="../">Lobby</a>
+      <a href="../film/" class="is-live">The Original Production</a>
+      <a href="../stories/" class="is-live">The Stories</a>
+      <a href="../arcade/" class="is-live">The Arcade</a>
+      <a href="./" class="is-live" aria-current="page">The Gallery</a>
+      <a href="../#social-room">The Social Room <span class="soon">Soon</span></a>
+      <a href="../#archive">The Archive <span class="soon">Soon</span></a>
+      <a href="../#creator-studio">The Creator Studio <span class="soon">Soon</span></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="gal-hero" aria-labelledby="gallery-title">
+    <p class="eyebrow">The Gallery</p>
+    <h1 class="gal-title" id="gallery-title">A room for looking</h1>
+    <p class="gal-lede">Frames, drafts and small things made in this universe: art, constructed stills, poems, prose, line work and one written piece of music. Nothing here is for sale, nothing is ranked, and nothing is uploaded by anybody. It is a room with work in it.</p>
+    <p class="gal-open">Open now &middot; eight demonstration exhibits &middot; no account needed</p>
+  </section>
+
+  <section class="gal-note-box" aria-labelledby="gal-note-title">
+    <h2 class="gal-note-title" id="gal-note-title">What this is, and what it is not</h2>
+    <p>Every exhibit in this room was written or drawn for THE WRONG SCRIPT and is credited to <strong>The Wrong Script Studio</strong>. There are no member submissions, no public profiles, no comments, no likes and no visitor numbers, because none of those systems exist yet. When member work arrives it will be reviewed before it is shown; there is no upload or publishing control in this Gallery, and no way to add anything to it from the browser.</p>
+    <p>The <em>Original Music</em> shelf holds a written cue rather than a recording: the project has no original recording of it, so the exhibit shows the score sketch and the intention. Nothing in this Gallery plays sound, and nothing autoplays.</p>
+  </section>
+
+  <section class="gal-browse" aria-labelledby="browse-title">
+    <div class="gal-browse-head">
+      <h2 id="browse-title">Browse the collection</h2>
+      <p class="gal-hint">Six shelves. Pick one, or stay with everything.</p>
+    </div>
+
+    <div class="filters" id="filters" role="group" aria-label="Filter exhibits by category"></div>
+
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+
+    <p class="hash-note" id="hash-note" hidden></p>
+
+    <div class="collection" id="collection"></div>
+
+    <div class="empty" id="empty" hidden>
+      <p>There is nothing on this shelf yet.</p>
+      <button class="btn btn-ghost" id="empty-reset" type="button">Show everything</button>
+    </div>
+  </section>
+
+  <section class="panel" id="exhibit-panel" aria-labelledby="exhibit-title" hidden>
+    <div class="panel-inner">
+      <p class="eyebrow" id="exhibit-cat"></p>
+      <h2 class="panel-title" id="exhibit-title" tabindex="-1"></h2>
+      <p class="panel-meta" id="exhibit-meta"></p>
+
+      <figure class="panel-figure" id="exhibit-figure" hidden>
+        <img id="exhibit-img" alt="" decoding="async">
+        <figcaption id="exhibit-caption"></figcaption>
+      </figure>
+
+      <div class="panel-body" id="exhibit-body"></div>
+
+      <p class="panel-credit" id="exhibit-credit"></p>
+      <p class="panel-note" id="exhibit-note"></p>
+
+      <div class="panel-actions">
+        <button class="btn btn-ghost" id="exhibit-close" type="button">Back to the Gallery</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="gal-out" aria-labelledby="gal-out-title">
+    <h2 id="gal-out-title">Elsewhere in the building</h2>
+    <p>The Gallery sits alongside the other rooms. The Original Production is the film this universe started as, The Stories holds interactive fiction, and The Arcade holds small games. The Social Room, The Archive and The Creator Studio are still being built.</p>
+    <div class="gal-out-actions">
+      <a class="btn btn-primary" href="../">Return to the Lobby</a>
+      <a class="btn btn-ghost" href="../film/">The Original Production</a>
+      <a class="btn btn-ghost" href="../stories/">The Stories</a>
+      <a class="btn btn-ghost" href="../arcade/">The Arcade</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>THE WRONG SCRIPT &middot; an evolving digital universe of stories, games, creative experiences and community.</p>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="../">Lobby</a>
+      <a href="../film/">The Original Production</a>
+      <a href="../stories/">The Stories</a>
+      <a href="../arcade/">The Arcade</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/gallery-exhibits.js"></script>
+<script src="../assets/js/gallery.js"></script>
+</body>
+</html>

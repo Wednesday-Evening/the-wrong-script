@@ -1,0 +1,490 @@
+/* =====================================================================
+   THE WRONG SCRIPT - The Gallery
+   ---------------------------------------------------------------------
+   Layered on top of lobby.css, which supplies the palette, the header,
+   the navigation, the buttons and the footer. This file only adds the
+   Gallery's own room: an editorial wall, framed exhibits, the shelf
+   filters and the exhibit panel.
+
+   Identity: warmer and quieter than the Arcade, closer to the Stories
+   shelf, but with more air. Gold hairlines, serif titles, wide spacing,
+   and frames that look matted rather than bordered.
+   ===================================================================== */
+
+:root {
+  --gal-ink: #0b0a09;
+  --gal-wall: #121010;
+  --gal-frame: #171413;
+  --gal-line: rgba(185, 154, 98, 0.28);
+  --gal-line-soft: rgba(232, 221, 203, 0.14);
+  --gal-parch: #e8ddcb;
+  --gal-parch-dim: #b9ad9a;
+  --gal-gold: #b99a62;
+  --gal-red: #7a171c;
+}
+
+body.gallery {
+  background: var(--gal-ink);
+  color: var(--gal-parch);
+}
+
+.gallery main {
+  display: block;
+}
+
+/* ---------------------------------------------------------------------
+   Hero
+   --------------------------------------------------------------------- */
+
+.gal-hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 96px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 40px);
+  border-bottom: 1px solid var(--gal-line);
+}
+
+.gal-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0 0 clamp(16px, 2.4vw, 24px);
+  max-width: 20ch;
+}
+
+.gal-lede {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.7;
+  color: var(--gal-parch-dim);
+  margin: 0 0 20px;
+}
+
+.gal-open {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gal-gold);
+}
+
+/* ---------------------------------------------------------------------
+   The honesty note
+   --------------------------------------------------------------------- */
+
+.gal-note-box {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 44px) clamp(20px, 5vw, 56px);
+  border-bottom: 1px solid var(--gal-line-soft);
+  background: linear-gradient(180deg, rgba(122, 23, 28, 0.10), rgba(11, 10, 9, 0));
+}
+
+.gal-note-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  margin: 0 0 14px;
+  color: var(--gal-parch);
+}
+
+.gal-note-box p {
+  max-width: 74ch;
+  line-height: 1.72;
+  color: var(--gal-parch-dim);
+  font-size: 0.96rem;
+  margin: 0 0 12px;
+}
+
+.gal-note-box p:last-child { margin-bottom: 0; }
+
+.gal-note-box strong {
+  color: var(--gal-gold);
+  font-weight: 600;
+}
+
+.gal-note-box em {
+  color: var(--gal-parch);
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------------------
+   Browse: heading, filters, status
+   --------------------------------------------------------------------- */
+
+.gal-browse {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(32px, 5vw, 64px) clamp(20px, 5vw, 56px) clamp(24px, 4vw, 40px);
+}
+
+.gal-browse-head h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  margin: 0 0 8px;
+}
+
+.gal-hint {
+  margin: 0 0 24px;
+  color: var(--gal-parch-dim);
+  font-size: 0.94rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
+.filter-btn {
+  appearance: none;
+  font: inherit;
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 2px;
+  border: 1px solid var(--gal-line);
+  background: transparent;
+  color: var(--gal-parch-dim);
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.filter-btn:hover {
+  color: var(--gal-parch);
+  border-color: var(--gal-gold);
+}
+
+.filter-btn[aria-pressed="true"] {
+  background: var(--gal-gold);
+  border-color: var(--gal-gold);
+  color: #14110d;
+  font-weight: 600;
+}
+
+.filter-btn:focus-visible {
+  outline: 3px solid var(--gal-parch);
+  outline-offset: 3px;
+}
+
+.status {
+  margin: 0 0 22px;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gal-gold);
+}
+
+.hash-note {
+  margin: 0 0 22px;
+  padding: 14px 16px;
+  border-left: 2px solid var(--gal-red);
+  background: rgba(122, 23, 28, 0.12);
+  color: var(--gal-parch);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.hash-note a { color: var(--gal-gold); }
+
+/* ---------------------------------------------------------------------
+   The wall
+   --------------------------------------------------------------------- */
+
+.collection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 262px), 1fr));
+  gap: clamp(18px, 2.6vw, 30px);
+}
+
+.frame {
+  margin: 0;
+  min-width: 0;
+  background: var(--gal-frame);
+  border: 1px solid var(--gal-line-soft);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.frame:hover,
+.frame:focus-within {
+  border-color: var(--gal-line);
+}
+
+.frame-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.frame-link:focus-visible {
+  outline: 3px solid var(--gal-parch);
+  outline-offset: 3px;
+}
+
+.frame-media {
+  position: relative;
+  background: #080706;
+  border-bottom: 1px solid var(--gal-line-soft);
+  overflow: hidden;
+}
+
+.frame-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.plate {
+  min-height: 168px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px;
+  background:
+    repeating-linear-gradient(180deg, rgba(232, 221, 203, 0.05) 0 1px, transparent 1px 26px),
+    #0d0b0a;
+}
+
+.plate-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gal-gold);
+}
+
+.plate-line {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--gal-parch);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.frame-body {
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.frame-cat {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gal-gold);
+}
+
+.frame-title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 1.16rem;
+  line-height: 1.3;
+}
+
+.frame-blurb {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--gal-parch-dim);
+}
+
+.frame-open {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gal-parch);
+  border-top: 1px solid var(--gal-line-soft);
+  padding-top: 10px;
+}
+
+.empty {
+  margin: 24px 0 0;
+  padding: 28px;
+  border: 1px dashed var(--gal-line);
+  text-align: center;
+}
+
+.empty p {
+  margin: 0 0 16px;
+  color: var(--gal-parch-dim);
+}
+
+/* ---------------------------------------------------------------------
+   Exhibit panel
+   --------------------------------------------------------------------- */
+
+.panel {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 56px) clamp(32px, 5vw, 56px);
+}
+
+.panel-inner {
+  background: var(--gal-wall);
+  border: 1px solid var(--gal-line);
+  padding: clamp(22px, 4vw, 44px);
+  scroll-margin-top: 24px;
+}
+
+.panel-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  line-height: 1.1;
+  margin: 6px 0 10px;
+}
+
+.panel-title:focus-visible {
+  outline: 3px solid var(--gal-parch);
+  outline-offset: 6px;
+}
+
+.panel-meta {
+  margin: 0 0 22px;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gal-parch-dim);
+}
+
+.panel-figure {
+  margin: 0 0 24px;
+  background: #080706;
+  border: 1px solid var(--gal-line-soft);
+}
+
+.panel-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.panel-figure figcaption {
+  padding: 12px 16px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--gal-parch-dim);
+  border-top: 1px solid var(--gal-line-soft);
+}
+
+.panel-body p {
+  max-width: 68ch;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--gal-parch);
+  margin: 0 0 18px;
+  white-space: pre-line;
+}
+
+.panel-body p.is-verse {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.08rem;
+  line-height: 1.9;
+}
+
+.panel-credit {
+  max-width: 68ch;
+  margin: 24px 0 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gal-line-soft);
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gal-gold);
+}
+
+.panel-note {
+  max-width: 68ch;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--gal-parch-dim);
+}
+
+.panel-actions {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---------------------------------------------------------------------
+   Elsewhere
+   --------------------------------------------------------------------- */
+
+.gal-out {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(32px, 5vw, 56px) clamp(20px, 5vw, 56px) clamp(48px, 7vw, 88px);
+  border-top: 1px solid var(--gal-line);
+}
+
+.gal-out h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+  margin: 0 0 12px;
+}
+
+.gal-out p {
+  max-width: 68ch;
+  color: var(--gal-parch-dim);
+  line-height: 1.7;
+  font-size: 0.96rem;
+  margin: 0 0 22px;
+}
+
+.gal-out-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gal-out-actions .btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------
+   Narrow screens
+   --------------------------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .gal-hero { padding-top: 32px; }
+  .filters { gap: 8px; }
+  .filter-btn { font-size: 0.8rem; padding: 10px 13px; }
+  .frame-body { padding: 16px 16px 20px; }
+  .panel-inner { padding: 20px 16px 24px; }
+  .gal-out-actions .btn { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ---------------------------------------------------------------------
+   Reduced motion: nothing in this room moves on its own, and the two
+   hover transitions are dropped rather than shortened.
+   --------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-btn,
+  .frame {
+    transition: none;
+  }
+
+  .frame:hover {
+    transform: none;
+  }
+}
