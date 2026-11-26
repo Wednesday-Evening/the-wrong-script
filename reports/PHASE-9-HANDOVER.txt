@@ -16,10 +16,12 @@ commit:           df839095978a758c18c55a8674a8083c6a8fd9f3
                   "Add the Phase 9 planning proposal (documentation only)"
 HEAD before
 this report:      e78b477ec68da368924c73db2d9ac76c6cadba67
-Final commit:     Created after this report was written, so this file cannot
-                  contain its own hash. The exact final commit is recorded in
-                  the completion message that accompanies this handover.
-Working tree:     Clean before this report; clean after its commit.
+Report commit:    6b687648abfa380fcecfec971df2610e1599c065
+                  "Add the Phase 9 handover report"
+Current HEAD:     ee977d0fad9ee47e7f4aa018aa55a49009b4332c
+                  "Add files via upload" - six owner-supplied media files, added
+                  through GitHub, not part of this phase (section 15.1).
+Working tree:     Clean before this report and clean at the current HEAD.
 Deployment:       NONE. No hosting, domain, DNS or environment change.
 Phase 10:         NOT STARTED.
 
@@ -407,6 +409,69 @@ one, and it needs the owner's decision on review ownership and retention
 before any code is written. The verification gaps in section 11 (cross-browser,
 physical device, assistive technology) remain outstanding from Phase 8 and
 cannot be closed inside this environment.
+
+--------------------------------------------------------------------------------
+15. POST-RECOVERY VERIFICATION AND FINAL REPOSITORY STATE
+--------------------------------------------------------------------------------
+
+The command session was interrupted after this report was first written and
+could not be recovered for a period. The report itself was preserved and
+committed while execution was unavailable (6b68764). Once command execution
+returned, the whole suite was re-run against the current tree:
+
+  Command    node tools/verify-all.js
+  Result     PASS - 12 of 12 suites, "RESULT every suite passed"
+  Tree       git status --porcelain -> empty (clean)
+  Film       git diff --stat 3a2db22..HEAD -- film/ -> empty
+
+That run is the final evidence in this report. No application file changed
+after it; the only later change is this section.
+
+15.1 OWNER-SUPPLIED MEDIA UPLOADS AT HEAD
+
+Commit ee977d0 ("Add files via upload", added through GitHub rather than by any
+phase in this project) placed six media files in the repository root:
+
+  audiovisuaiseu-ocean-waves-sound-02-321572        3,332,352 bytes
+  sigmamusicart-cinematic-documentary-piano-162733  4,337,580 bytes
+  universfield-soft-interface-click-126517             45,975 bytes
+  video-01-lighthouse-720p.mp4                      1,586,732 bytes
+  video-02-abstract-motion-720p.mp4                 4,493,169 bytes
+  video-03-library-720p.mp4                           982,652 bytes
+
+These files are outside the Phase 9 scope. No page, script, stylesheet or test
+references them; they are in no audio or video element; Phase 9 introduced no
+autoplay and no new media dependency. They are preserved untouched.
+
+They must not be wired into any room on the strength of this phase. The file
+names carry third-party studio names, so licence, attribution and suitability
+for a teen audience all need an owner decision before use. If they are intended
+for the Gallery's music exhibits or for a later room, that is a separate
+authorised phase with its own rights check, and the assets should then be moved
+out of the repository root into that room's folder.
+
+15.2 COMMIT HISTORY SINCE THE ACCEPTED PHASE 8 BASELINE
+
+  df83909  Add the Phase 9 planning proposal (documentation only)
+  4082c3f  AppJet agent update (4 files)
+  6750583  AppJet agent update (2 files)
+  1db1326  AppJet agent update (3 files)
+  306c119  AppJet agent update
+  06788c1  AppJet agent update (2 files)
+  5c5bdec  Edit arcade/index.html
+  c4ec3be  Edit README.md
+  db1f608  Add a static navigation and truthfulness verifier
+  2ffff06  AppJet agent update (3 files)
+  f2537c4  AppJet agent update (2 files)
+  9825a0d  Edit arcade/data/lamplight-levels.js
+  d564aa2  Edit arcade/data/lamplight-levels.js
+  4ee18a9  Edit tools/verify-lamplight.js
+  4d0d057  AppJet agent update
+  e78b477  AppJet agent update
+  6b68764  Add the Phase 9 handover report
+  ee977d0  Add files via upload (owner; six media files, see 15.1)
+
+Baseline 3a2db224b79b65538fc4db820f0a7f65bd5e9a2d.
 
 ================================================================================
 PHASE 9 HANDOVER STATUS: READY FOR REVIEW
