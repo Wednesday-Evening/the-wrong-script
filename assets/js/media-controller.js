@@ -1,341 +1,438 @@
 /* =====================================================================
-   THE WRONG SCRIPT - the floating media controller
+   THE WRONG SCRIPT - floating media controller
    ---------------------------------------------------------------------
-   One pill, every room. Collapsed it reads the room and whether its
-   atmosphere is moving; expanded it holds master audio, the three audio
-   levels and the background video.
+   One pill, every room. It is the only place a visitor meets sound and
+   background video, so it has to be honest: a slider that moves must move
+   something, a switch that says off must be off, and a channel a room does
+   not have must say so rather than pretend.
 
-   What it guarantees:
+   Collapsed  : room, playback state, audio indicator, mute badge, expander.
+   Expanded   : master switch, music, effects, ambience, background video,
+                a recovery control when the browser has blocked playback,
+                and the first-visit sound choice.
 
-     1. It never invents a control. A channel the room does not have is
-        shown as absent and disabled, never as a switch that does nothing.
-     2. Levels are read from the room's own elements on load, so opening
-        the pill does not change how loud anything is. Only a deliberate
-        drag or toggle changes a level.
-     3. Master audio is a mute, not a play button: switching it off
-        silences everything, and switching it back on restores levels
-        without starting a single sound on its own.
-     4. Background video is independent of the audio controls.
-     5. Keyboard: the pill is a disclosure. Enter or Space opens it, Tab
-        moves through the controls, Escape closes it and returns focus.
-     6. Nothing is stored. The levels last for the page and no longer, so
-        this file introduces no storage key and touches none.
+   Everything it changes is stored by assets/js/audio-engine.js under the
+   single media-preference key. This file reads and writes no storage of
+   its own.
    ===================================================================== */
 
 (function () {
   'use strict';
 
+  var audio = window.TWSAudio || null;
+  var scene = window.TWSAmbience || null;
+
+  if (!audio && !scene) { return; }
+
   var CHANNELS = [
-    { id: 'music', label: 'Music' },
-    { id: 'effects', label: 'Effects' },
-    { id: 'ambience', label: 'Ambience' }
+    { id: 'music', name: 'Music' },
+    { id: 'effects', name: 'Effects' },
+    { id: 'ambience', name: 'Ambience' }
   ];
 
-  var ambience = window.TWSAmbience || null;
-  var roomLabel = (ambience && ambience.label) || document.title || 'This room';
+  var root = null;
+  var compact = null;
+  var panel = null;
+  var roomEl = null;
+  var statusEl = null;
+  var muteEl = null;
+  var liveEl = null;
+  var masterSwitch = null;
+  var videoSwitch = null;
+  var askBlock = null;
+  var recoverBlock = null;
+  var recoverText = null;
+  var recoverButton = null;
+  var sliderEls = {};
+  var valueEls = {};
+  var rowEls = {};
+  var asked = false;
+  var panelId = 'mixer-panel';
 
-  function make(tag, className, text) {
+  function el(tag, className, text) {
     var node = document.createElement(tag);
     if (className) { node.className = className; }
     if (text) { node.textContent = text; }
     return node;
   }
 
-  function audiosFor(channel) {
-    return Array.prototype.slice.call(
-      document.querySelectorAll('audio[data-audio-channel="' + channel + '"]')
-    );
+  function audioState() {
+    return audio ? audio.state() : null;
   }
 
-  function adaptersFor(channel) {
-    var list = window.TWSMixerAdapters || [];
-    return list.filter(function (item) { return item && item.channel === channel; });
+  function ambienceState() {
+    return scene ? scene.state() : { status: 'none', label: '', room: '' };
   }
 
-  function hasChannel(channel) {
-    return audiosFor(channel).length > 0 || adaptersFor(channel).length > 0;
+  function running() {
+    var a = audioState();
+    return !!(a && a.unlocked && a.master);
   }
 
-  /* ---------------- levels, read before anything is written ---------------- */
-
-  var levels = { music: 70, effects: 80, ambience: 60 };
-  var present = { music: false, effects: false, ambience: false };
-
-  CHANNELS.forEach(function (channel) {
-    var audio = audiosFor(channel.id)[0];
-    var adapter = adaptersFor(channel.id)[0];
-    present[channel.id] = hasChannel(channel.id);
-
-    var current = null;
-    if (audio && typeof audio.volume === 'number') {
-      current = audio.volume;
-    } else if (adapter && typeof adapter.getVolume === 'function') {
-      try { current = adapter.getVolume(); } catch (error) { current = null; }
-    }
-    if (typeof current === 'number' && isFinite(current)) {
-      levels[channel.id] = Math.max(0, Math.min(100, Math.round(current * 100)));
-    }
-  });
-
-  var master = true;
-
-  function setLevel(channel, value) {
-    var volume = master ? Math.max(0, Math.min(1, value / 100)) : 0;
-    audiosFor(channel).forEach(function (audio) {
-      try { audio.volume = volume; } catch (error) { /* detached element */ }
+  function anyChannel() {
+    var a = audioState();
+    if (!a) { return false; }
+    var present = a.present || {};
+    return CHANNELS.some(function (c) {
+      return present[c.id] && a.levels[c.id] > 0;
     });
-    adaptersFor(channel).forEach(function (adapter) {
-      if (typeof adapter.setVolume === 'function') {
-        try { adapter.setVolume(volume); } catch (error) { /* adapter gone */ }
-      }
-    });
-  }
-
-  /* ---------------- the pill ---------------- */
-
-  var root = make('div', 'mixer');
-
-  var toggle = make('button', 'mixer__compact');
-  toggle.type = 'button';
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.setAttribute('aria-controls', 'mixer-panel');
-
-  var pulse = make('span', 'mixer__pulse');
-  pulse.setAttribute('aria-hidden', 'true');
-
-  var text = make('span', 'mixer__text');
-  var roomNode = make('span', 'mixer__room', roomLabel);
-  var statusNode = make('span', 'mixer__status', 'Room atmosphere');
-  text.appendChild(roomNode);
-  text.appendChild(statusNode);
-
-  var wave = make('span', 'mixer__wave');
-  wave.setAttribute('aria-hidden', 'true');
-  for (var i = 0; i < 3; i += 1) { wave.appendChild(make('i')); }
-
-  var chev = make('span', 'mixer__chev');
-  chev.setAttribute('aria-hidden', 'true');
-
-  toggle.appendChild(pulse);
-  toggle.appendChild(text);
-  toggle.appendChild(wave);
-  toggle.appendChild(chev);
-
-  var panel = make('div', 'mixer__panel');
-  panel.id = 'mixer-panel';
-  panel.hidden = true;
-  panel.setAttribute('role', 'group');
-  panel.setAttribute('aria-label', 'Sound and video');
-
-  var head = make('div', 'mixer__head');
-  var title = make('p', 'mixer__title', 'Sound & video');
-  var close = make('button', 'mixer__close', '\u00d7');
-  close.type = 'button';
-  close.setAttribute('aria-label', 'Close sound and video');
-  head.appendChild(title);
-  head.appendChild(close);
-  panel.appendChild(head);
-
-  /* master audio */
-
-  var masterRow = make('div', 'mixer__row');
-  var masterName = make('span', 'mixer__name', 'Master audio');
-  var masterSwitch = make('button', 'mixer__switch');
-  masterSwitch.type = 'button';
-  masterSwitch.setAttribute('role', 'switch');
-  masterSwitch.setAttribute('aria-checked', 'true');
-  masterSwitch.setAttribute('aria-label', 'Master audio');
-  masterRow.appendChild(masterName);
-  masterRow.appendChild(masterSwitch);
-  panel.appendChild(masterRow);
-
-  /* one row per audio channel */
-
-  var controls = {};
-
-  CHANNELS.forEach(function (channel) {
-    var row = make('div', 'mixer__row mixer__row--slider');
-    var rowHead = make('div', 'mixer__rowhead');
-    var name = make('span', 'mixer__name', channel.label);
-    var value = make('output', 'mixer__val');
-    rowHead.appendChild(name);
-    rowHead.appendChild(value);
-
-    var range = make('input', 'mixer__range');
-    range.type = 'range';
-    range.min = '0';
-    range.max = '100';
-    range.step = '1';
-    range.value = String(levels[channel.id]);
-    range.setAttribute('aria-label', channel.label + ' volume');
-    range.setAttribute('aria-valuetext', levels[channel.id] + ' per cent');
-
-    if (!present[channel.id]) {
-      row.className += ' is-absent';
-      range.disabled = true;
-      value.textContent = '\u2014';
-      range.setAttribute('aria-valuetext', channel.label + ' is not present in this room');
-    } else {
-      value.textContent = levels[channel.id] + '%';
-    }
-
-    range.addEventListener('input', function () {
-      var next = parseInt(range.value, 10);
-      if (!isFinite(next)) { next = 0; }
-      levels[channel.id] = next;
-      value.textContent = next + '%';
-      range.setAttribute('aria-valuetext', next + ' per cent');
-      setLevel(channel.id, next);
-      update();
-    });
-
-    row.appendChild(rowHead);
-    row.appendChild(range);
-    panel.appendChild(row);
-
-    controls[channel.id] = { row: row, range: range, value: value };
-  });
-
-  /* background video */
-
-  var videoRow = make('div', 'mixer__row');
-  var videoName = make('span', 'mixer__name', 'Background video');
-  var videoSwitch = make('button', 'mixer__switch');
-  videoSwitch.type = 'button';
-  videoSwitch.setAttribute('role', 'switch');
-  videoSwitch.setAttribute('aria-checked', 'false');
-  videoSwitch.setAttribute('aria-label', 'Background video');
-  videoRow.appendChild(videoName);
-  videoRow.appendChild(videoSwitch);
-  panel.appendChild(videoRow);
-
-  var note = make('p', 'mixer__note',
-    'The background is always silent. Sound stays off until you switch it on, and these levels last for this page only.');
-  panel.appendChild(note);
-
-  root.appendChild(toggle);
-  root.appendChild(panel);
-  document.body.appendChild(root);
-
-  /* ---------------- wiring ---------------- */
-
-  function anyAudioPresent() {
-    return present.music || present.effects || present.ambience;
   }
 
   function statusText() {
-    var state = ambience ? ambience.state() : 'none';
-    var text;
-    if (state === 'playing') { text = 'Atmosphere \u00b7 playing'; }
-    else if (state === 'blocked') { text = 'Atmosphere \u00b7 tap to start'; }
-    else if (state === 'still') { text = 'Atmosphere \u00b7 still'; }
-    else if (state === 'unavailable') { text = 'Atmosphere \u00b7 poster only'; }
-    else if (state === 'none') { text = 'No background here'; }
-    else { text = 'Atmosphere \u00b7 paused'; }
+    var a = audioState();
+    var s = ambienceState();
+    var video = s.status;
+    var parts = [];
 
-    if (anyAudioPresent() && !master) { text += ' \u00b7 audio off'; }
-    return text;
-  }
-
-  function update() {
-    var state = ambience ? ambience.state() : 'none';
-    var playing = !!(ambience && ambience.isPlaying());
-
-    statusNode.textContent = statusText();
-    root.classList.toggle('is-playing', playing);
-    toggle.setAttribute('aria-label', roomLabel + '. ' + statusText() + '. Open sound and video controls.');
-
-    masterSwitch.setAttribute('aria-checked', master ? 'true' : 'false');
-    masterSwitch.setAttribute('aria-label', 'Master audio, ' + (master ? 'on' : 'off'));
-
-    videoSwitch.setAttribute('aria-checked', playing ? 'true' : 'false');
-    videoSwitch.setAttribute('aria-label', 'Background video, ' + (playing ? 'on' : 'off'));
-    videoSwitch.disabled = state === 'unavailable' || state === 'none';
-
-    CHANNELS.forEach(function (channel) {
-      var control = controls[channel.id];
-      if (!control) { return; }
-      control.range.disabled = !present[channel.id];
-    });
-
-    if (state === 'blocked') {
-      note.textContent = 'The browser has not started the background yet. The poster is showing instead.';
-    } else if (!anyAudioPresent()) {
-      note.textContent = 'This room has no audio of its own. The background is silent.';
-    } else {
-      note.textContent = 'The background is always silent. Sound stays off until you switch it on, and these levels last for this page only.';
+    if (a) {
+      if (!a.master) {
+        parts.push('Muted');
+      } else if (a.firstRun) {
+        parts.push('Sound not chosen');
+      } else if (a.choice === 'silent') {
+        parts.push('Silent');
+      } else if (a.suspended) {
+        parts.push('Sound waiting for a tap');
+      } else if (a.unlocked && anyChannel()) {
+        parts.push('Sound on');
+      } else {
+        parts.push('Sound on, this room is quiet');
+      }
     }
+
+    if (video === 'playing') { parts.push('video playing'); }
+    else if (video === 'blocked') { parts.push('video blocked'); }
+    else if (video === 'off') { parts.push('video off'); }
+    else if (video === 'still') { parts.push('still background'); }
+    else if (video === 'unavailable') { parts.push('video unavailable'); }
+
+    return parts.join(' - ') || 'Room media';
   }
 
-  function openPanel() {
-    panel.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
-    var first = panel.querySelector('button:not([disabled]), input:not([disabled])');
-    if (first) { first.focus(); }
-  }
-
-  function closePanel(returnFocus) {
-    if (panel.hidden) { return; }
+  function buildPanel() {
+    panel = el('div', 'mixer__panel');
+    panel.id = panelId;
     panel.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-    if (returnFocus) { toggle.focus(); }
+
+    var head = el('div', 'mixer__head');
+    head.appendChild(el('h2', 'mixer__title', 'Room media'));
+    var close = el('button', 'mixer__close', '\u00d7');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Close room media controls');
+    close.addEventListener('click', function () { collapse(true); });
+    head.appendChild(close);
+    panel.appendChild(head);
+
+    /* First-visit choice. Nothing plays before this is answered. */
+    askBlock = el('div', 'mixer__ask');
+    askBlock.hidden = true;
+    askBlock.appendChild(el('p', 'mixer__ask-title', 'Sound in this room'));
+    askBlock.appendChild(el('p', 'mixer__ask-text',
+      'Every room has its own quiet atmosphere, generated in the browser. ' +
+      'You can change or silence it at any time from this panel.'));
+
+    var askButtons = el('div', 'mixer__ask-actions');
+    var withSound = el('button', 'mixer__action', 'Enter with sound');
+    withSound.type = 'button';
+    withSound.setAttribute('data-choose', 'sound');
+    var silently = el('button', 'mixer__action mixer__action--quiet', 'Continue silently');
+    silently.type = 'button';
+    silently.setAttribute('data-choose', 'silent');
+    askButtons.appendChild(withSound);
+    askButtons.appendChild(silently);
+    askBlock.appendChild(askButtons);
+    panel.appendChild(askBlock);
+
+    [withSound, silently].forEach(function (button) {
+      button.addEventListener('click', function () {
+        var option = button.getAttribute('data-choose');
+        if (audio) { audio.choose(option); }
+        asked = true;
+        askBlock.hidden = true;
+        announce(option === 'sound'
+          ? 'Sound on. Every room has its own atmosphere.'
+          : 'Continuing silently. You can turn sound on from this panel.');
+        render();
+      });
+    });
+
+    /* Master */
+    var masterRow = el('div', 'mixer__row');
+    var masterName = el('span', 'mixer__name', 'All sound');
+    masterName.id = 'mixer-master-label';
+    masterRow.appendChild(masterName);
+    masterSwitch = el('button', 'mixer__switch');
+    masterSwitch.type = 'button';
+    masterSwitch.setAttribute('role', 'switch');
+    masterSwitch.setAttribute('aria-checked', 'true');
+    masterSwitch.setAttribute('aria-labelledby', 'mixer-master-label');
+    masterSwitch.addEventListener('click', function () {
+      if (!audio) { return; }
+      var next = !audio.state().master;
+      if (next && audio.state().choice === '') {
+        audio.choose('sound');
+        asked = true;
+        askBlock.hidden = true;
+      }
+      audio.setMaster(next);
+      announce(next ? 'All sound on.' : 'All sound muted.');
+      render();
+    });
+    masterRow.appendChild(masterSwitch);
+    panel.appendChild(masterRow);
+
+    /* Channels */
+    CHANNELS.forEach(function (channel) {
+      var row = el('div', 'mixer__row mixer__row--slider');
+      row.setAttribute('data-channel', channel.id);
+
+      var head2 = el('div', 'mixer__rowhead');
+      var name = el('span', 'mixer__name', channel.name);
+      name.id = 'mixer-' + channel.id + '-label';
+      var value = el('span', 'mixer__val', '0');
+      head2.appendChild(name);
+      head2.appendChild(value);
+      row.appendChild(head2);
+
+      var slider = document.createElement('input');
+      slider.type = 'range';
+      slider.className = 'mixer__range';
+      slider.min = '0';
+      slider.max = '100';
+      slider.step = '5';
+      slider.value = '0';
+      slider.setAttribute('aria-labelledby', name.id);
+      slider.addEventListener('input', function () {
+        if (!audio) { return; }
+        audio.setLevel(channel.id, Number(slider.value));
+        value.textContent = slider.value;
+        render();
+      });
+      slider.addEventListener('change', function () {
+        announce(channel.name + ' ' + slider.value + ' percent.');
+      });
+      row.appendChild(slider);
+
+      sliderEls[channel.id] = slider;
+      valueEls[channel.id] = value;
+      rowEls[channel.id] = row;
+      panel.appendChild(row);
+    });
+
+    /* Background video */
+    var videoRow = el('div', 'mixer__row');
+    var videoName = el('span', 'mixer__name', 'Background video');
+    videoName.id = 'mixer-video-label';
+    videoRow.appendChild(videoName);
+    videoSwitch = el('button', 'mixer__switch');
+    videoSwitch.type = 'button';
+    videoSwitch.setAttribute('role', 'switch');
+    videoSwitch.setAttribute('aria-checked', 'true');
+    videoSwitch.setAttribute('aria-labelledby', 'mixer-video-label');
+    videoSwitch.addEventListener('click', function () {
+      if (!scene) { return; }
+      var state = scene.state();
+      var on = state.status !== 'playing';
+      scene.setPlaying(on);
+      announce(on ? 'Background video on.' : 'Background video off.');
+      render();
+    });
+    videoRow.appendChild(videoSwitch);
+    panel.appendChild(videoRow);
+
+    /* Recovery: shown only when the browser has actually held playback back. */
+    recoverBlock = el('div', 'mixer__recover');
+    recoverBlock.hidden = true;
+    recoverText = el('p', 'mixer__recover-text',
+      'The browser has not started playback yet.');
+    recoverButton = el('button', 'mixer__action', 'Start playback');
+    recoverButton.type = 'button';
+    recoverButton.addEventListener('click', function () {
+      if (audio && audio.unlock) { audio.unlock(); }
+      if (scene) { scene.setPlaying(true); }
+      announce('Starting playback.');
+      render();
+    });
+    recoverBlock.appendChild(recoverText);
+    recoverBlock.appendChild(recoverButton);
+    panel.appendChild(recoverBlock);
+
+    panel.appendChild(el('p', 'mixer__note',
+      'Sound and video are decorative. Every story, game and exhibit works ' +
+      'without them. Nothing here is stored outside this browser.'));
+
+    liveEl = el('p', 'mixer__live');
+    liveEl.setAttribute('role', 'status');
+    liveEl.setAttribute('aria-live', 'polite');
+    panel.appendChild(liveEl);
+
+    return panel;
   }
 
-  toggle.addEventListener('click', function () {
-    if (panel.hidden) { openPanel(); } else { closePanel(false); }
-  });
+  function buildCompact() {
+    compact = el('button', 'mixer__compact');
+    compact.type = 'button';
+    compact.setAttribute('aria-expanded', 'false');
+    compact.setAttribute('aria-controls', panelId);
 
-  close.addEventListener('click', function () { closePanel(true); });
+    compact.appendChild(el('span', 'mixer__pulse'));
 
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && !panel.hidden) {
-      event.stopPropagation();
-      closePanel(true);
-    }
-  });
+    var text = el('span', 'mixer__text');
+    roomEl = el('span', 'mixer__room', 'Room');
+    statusEl = el('span', 'mixer__status', 'Room media');
+    text.appendChild(roomEl);
+    text.appendChild(statusEl);
+    compact.appendChild(text);
 
-  document.addEventListener('click', function (event) {
-    if (panel.hidden) { return; }
-    if (!root.contains(event.target)) { closePanel(false); }
-  });
+    muteEl = el('span', 'mixer__mute', 'Muted');
+    muteEl.hidden = true;
+    compact.appendChild(muteEl);
 
-  masterSwitch.addEventListener('click', function () {
-    master = !master;
-    CHANNELS.forEach(function (channel) {
-      if (present[channel.id]) { setLevel(channel.id, levels[channel.id]); }
+    var wave = el('span', 'mixer__wave');
+    wave.setAttribute('aria-hidden', 'true');
+    for (var i = 0; i < 3; i += 1) { wave.appendChild(el('i')); }
+    compact.appendChild(wave);
+
+    var chev = el('span', 'mixer__chev');
+    chev.setAttribute('aria-hidden', 'true');
+    compact.appendChild(chev);
+
+    compact.addEventListener('click', function () {
+      if (panel.hidden) { expand(); } else { collapse(true); }
     });
-    update();
-  });
 
-  videoSwitch.addEventListener('click', function () {
-    if (!ambience) { return; }
-    ambience.setPlaying(!ambience.isPlaying());
-    update();
-  });
+    return compact;
+  }
 
-  /* Keep the readout honest when the room changes its own media. */
-  document.addEventListener('tws:ambience', update);
+  function announce(message) {
+    if (liveEl) { liveEl.textContent = message; }
+  }
 
-  ['play', 'pause', 'volumechange', 'ended'].forEach(function (name) {
-    document.addEventListener(name, function (event) {
-      var target = event.target;
-      if (!target || !target.tagName) { return; }
-      var tag = target.tagName.toLowerCase();
-      if (tag !== 'audio' && tag !== 'video') { return; }
-      update();
-    }, true);
-  });
+  function expand() {
+    if (!panel || !compact) { return; }
+    panel.hidden = false;
+    compact.setAttribute('aria-expanded', 'true');
+    render();
+    announce('Room media controls open. ' + statusText() + '.');
+  }
 
-  /* One moving video at a time: if the visitor starts a room's own video,
-     the wash steps aside. The wash never starts a room's video. */
-  document.addEventListener('play', function (event) {
-    var target = event.target;
-    if (!target || target.tagName !== 'VIDEO') { return; }
-    if (!ambience || !ambience.video) { return; }
-    if (target === ambience.video) { return; }
-    ambience.pauseForOther();
-    update();
-  }, true);
+  function collapse(returnFocus) {
+    if (!panel || !compact) { return; }
+    panel.hidden = true;
+    compact.setAttribute('aria-expanded', 'false');
+    if (returnFocus) { compact.focus(); }
+  }
 
-  update();
+  function render() {
+    if (!root) { return; }
+
+    var a = audioState();
+    var s = ambienceState();
+    var label = s.label || 'Room';
+
+    if (roomEl) { roomEl.textContent = label; }
+    if (statusEl) { statusEl.textContent = statusText(); }
+
+    var muted = !!(a && !a.master);
+    if (muteEl) { muteEl.hidden = !muted; }
+
+    root.classList.toggle('is-audio', running() && anyChannel());
+    root.classList.toggle('is-playing', running() && anyChannel());
+    root.classList.toggle('is-muted', muted);
+
+    if (masterSwitch && a) {
+      masterSwitch.setAttribute('aria-checked', a.master ? 'true' : 'false');
+      masterSwitch.setAttribute('aria-label',
+        a.master ? 'All sound on' : 'All sound muted');
+    }
+
+    if (videoSwitch) {
+      var on = s.status === 'playing' || s.status === 'blocked' || s.status === 'still';
+      videoSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+      videoSwitch.setAttribute('aria-label',
+        on ? 'Background video on' : 'Background video off');
+    }
+
+    CHANNELS.forEach(function (channel) {
+      var present = a ? !!a.present[channel.id] : false;
+      var row = rowEls[channel.id];
+      var slider = sliderEls[channel.id];
+      var value = valueEls[channel.id];
+      if (!row || !slider || !value) { return; }
+
+      row.classList.toggle('is-absent', !present);
+
+      if (present && a) {
+        var level = a.levels[channel.id];
+        if (document.activeElement !== slider) { slider.value = String(level); }
+        slider.disabled = !a.master;
+        value.textContent = level + '%';
+      } else {
+        slider.disabled = true;
+        slider.value = '0';
+        value.textContent = 'Not here';
+      }
+    });
+
+    var needsRecovery = false;
+    var recoveryLabel = '';
+    if (a && a.choice === 'sound' && a.master && a.suspended && !a.unlocked) {
+      needsRecovery = true;
+      recoveryLabel = 'Sound is waiting for a tap before it can start.';
+    } else if (s.status === 'blocked') {
+      needsRecovery = true;
+      recoveryLabel = 'The browser paused the background video.';
+    }
+
+    if (recoverBlock) {
+      recoverBlock.hidden = !needsRecovery;
+      if (needsRecovery && recoverText) { recoverText.textContent = recoveryLabel; }
+    }
+
+    if (askBlock && a) {
+      var showAsk = a.firstRun && !asked;
+      askBlock.hidden = !showAsk;
+    }
+  }
+
+  function mount() {
+    root = el('div', 'mixer');
+    root.setAttribute('data-mixer', '');
+    root.appendChild(buildPanel());
+    root.appendChild(buildCompact());
+    document.body.appendChild(root);
+
+    render();
+
+    /* A first-time visitor is asked once, in the panel, before anything
+       plays. Returning visitors who already chose are not asked again. */
+    var a = audioState();
+    if (a && a.firstRun) {
+      expand();
+      announce('Choose whether this room plays sound.');
+    }
+
+    window.addEventListener('tws:audio', render);
+    window.addEventListener('tws:ambience', render);
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') { return; }
+      if (panel && !panel.hidden) {
+        event.preventDefault();
+        collapse(true);
+      }
+    });
+
+    /* Video state can settle without an event (a rejected autoplay, a
+       resumed tab), so the readout is refreshed rather than trusted. */
+    window.setInterval(function () {
+      if (!panel || panel.hidden) { render(); }
+    }, 1200);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mount);
+  } else {
+    mount();
+  }
 })();
