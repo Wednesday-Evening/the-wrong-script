@@ -94,6 +94,7 @@ function ok(name, condition, detail) {
   const errorsB = [];
   page.on('pageerror', e => errorsB.push(String(e)));
   page.on('console', m => { if (m.type() === 'error') errorsB.push(m.text()); });
+  page.on('response', r => { if (r.status() >= 400) { errorsB.push(r.status() + ' ' + r.url()); } });
 
   await page.goto(BASE + '/', { waitUntil: 'load' });
   await page.waitForTimeout(500);
@@ -149,14 +150,29 @@ function ok(name, condition, detail) {
   const ranges = page.locator('.mixer__range');
   ok('C three independent channel sliders', (await ranges.count()) === 3,
     (await ranges.count()) + ' slider');
-  const music = ranges.first();
-  const before = await music.inputValue();
-  await music.focus();
-  for (let i = 0; i < 6; i += 1) { await music.press('ArrowLeft'); }
-  const after = await music.inputValue();
-  ok('C music volume moves by keyboard', Number(after) < Number(before), before + ' -> ' + after);
-  const volPref = await page.evaluate(k => localStorage.getItem(k), PREF);
-  ok('C the new volume is persisted', volPref !== mutedPref);
+  const absent = page.locator('.mixer__row--absent');
+  if (await absent.count()) {
+    const absentText = (await absent.first().innerText()) || '';
+    ok('C a channel this room lacks says so', /not here/i.test(absentText),
+      absentText.replace(/\s+/g, ' ').trim());
+  }
+  const slider = page.locator('.mixer__range:not([disabled])').first();
+  ok('C at least one channel is adjustable in this room', (await slider.count()) === 1);
+  const channel = await slider.evaluate(el => {
+    const row = el.closest('.mixer__row');
+    const text = (row ? row.textContent : '').toLowerCase();
+    return ['music', 'effects', 'ambience'].find(k => text.indexOf(k) !== -1) || '';
+  });
+  ok('C the adjustable slider belongs to a named channel', !!channel, channel || 'unnamed');
+  const before = await slider.inputValue();
+  await slider.focus();
+  for (let i = 0; i < 8; i += 1) { await slider.press('ArrowLeft'); }
+  const after = await slider.inputValue();
+  ok('C ' + (channel || 'channel') + ' volume moves by keyboard',
+    Number(after) < Number(before), before + ' -> ' + after);
+  const volPref = JSON.parse((await page.evaluate(k => localStorage.getItem(k), PREF)) || '{}');
+  ok('C the ' + (channel || 'channel') + ' volume is persisted',
+    !!channel && Number(volPref[channel]) === Number(after), channel + '=' + volPref[channel]);
 
   const state = () => page.evaluate(() => {
     const v = document.querySelector('.ambience__video');
@@ -181,6 +197,8 @@ function ok(name, condition, detail) {
 
   /* ---------------- D. footer clearance ---------------- */
   console.log('--- D. controller clears the footer ---');
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(400);
   const geo = await page.evaluate(() => {
     const mixer = document.querySelector('.mixer');
     const footer = document.querySelector('.site-footer');
@@ -188,11 +206,12 @@ function ok(name, condition, detail) {
     const last = footer.lastElementChild || footer;
     return {
       mixerTop: Math.round(mixer.getBoundingClientRect().top),
-      footerBottom: Math.round(last.getBoundingClientRect().bottom)
+      footerBottom: Math.round(last.getBoundingClientRect().bottom),
+      pad: getComputedStyle(footer).paddingBottom
     };
   });
-  ok('D footer content ends above the controller', !!geo && geo.footerBottom <= geo.mixerTop,
-    JSON.stringify(geo));
+  ok('D footer content ends above the controller at the foot of the page',
+    !!geo && geo.footerBottom <= geo.mixerTop, JSON.stringify(geo));
 
   /* ---------------- E. keyboard ---------------- */
   console.log('--- E. keyboard ---');
@@ -231,39 +250,71 @@ function ok(name, condition, detail) {
   const seed = {
     'tws': '{"scene":"cast","v":1,"sentinel":"vd"}',
     'tws.corrupt': '{"bad":',
-    'wrong-script.story.the-ninth-bell.v1': '{"watch":2,"sentinel":"vd"}',
-    'wrong-script.story.the-returns-hatch.v1': '{"scene":"hatch","sentinel":"vd"}',
+    'wrong-script.story.the-ninth-bell.v1': JSON.stringify({
+      v: 1, slug: 'the-ninth-bell', scene: 'arrival', flags: {}, visits: 3,
+      seen: ['arrival'], ended: false, at: '2026-01-01T00:00:00.000Z'
+    }),
+    'wrong-script.story.the-returns-hatch.v1': JSON.stringify({
+      v: 1, slug: 'the-returns-hatch', scene: 'hatch', flags: {}, visits: 2,
+      seen: ['hatch'], ended: false, at: '2026-01-01T00:00:00.000Z'
+    }),
     'wrong-script.arcade.signal-path.v1': '{"unlocked":3,"sentinel":"vd"}',
     'wrong-script.arcade.lamplight.v1': '{"room":2,"sentinel":"vd"}'
   };
-  const iso = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  await iso.addInitScript(values => {
-    for (const key in values) {
-      if (localStorage.getItem(key) === null) { localStorage.setItem(key, values[key]); }
+
+  async function seededSnapshot(routes) {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    await ctx.addInitScript(values => {
+      for (const key in values) {
+        if (localStorage.getItem(key) === null) { localStorage.setItem(key, values[key]); }
+      }
+    }, seed);
+    const p = await ctx.newPage();
+    for (const route of routes) {
+      await p.goto(BASE + route, { waitUntil: 'load' });
+      await p.waitForTimeout(300);
     }
-  }, seed);
-  const isoPage = await iso.newPage();
-  for (const route of ['/', '/gallery/', '/archive/', '/social-room/', '/creator-studio/',
-    '/stories/', '/stories/the-ninth-bell/', '/stories/the-returns-hatch/',
-    '/arcade/', '/arcade/lamplight/', '/arcade/signal-path/']) {
-    await isoPage.goto(BASE + route, { waitUntil: 'load' });
-    await isoPage.waitForTimeout(250);
+    const snap = await p.evaluate(() => {
+      const out = {};
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        out[key] = localStorage.getItem(key);
+      }
+      return out;
+    });
+    await ctx.close();
+    return snap;
   }
-  const snapshot = await isoPage.evaluate(() => {
-    const out = {};
-    for (let i = 0; i < localStorage.length; i += 1) {
-      const key = localStorage.key(i);
-      out[key] = localStorage.getItem(key);
-    }
-    return out;
-  });
+
+  /* The media layer must leave every save alone. Story pages are excluded here
+     because their own engine writes on load; that is checked separately below. */
+  const mediaRooms = ['/', '/gallery/', '/archive/', '/social-room/', '/creator-studio/',
+    '/stories/', '/arcade/', '/arcade/lamplight/', '/arcade/signal-path/'];
+  const snapshot = await seededSnapshot(mediaRooms);
   for (const key in seed) {
-    ok('G ' + key + ' unchanged', snapshot[key] === seed[key],
+    ok('G ' + key + ' untouched by the media rooms', snapshot[key] === seed[key],
       snapshot[key] === seed[key] ? 'byte-identical' : 'CHANGED to ' + snapshot[key]);
   }
   const extra = Object.keys(snapshot).filter(k => !(k in seed) && k !== PREF);
   ok('G no unexpected new storage key', extra.length === 0, extra.join(',') || 'none');
-  await iso.close();
+
+  /* Story pages run their own engine, which rewrites its save on load. Assert
+     the saved run itself survives and record exactly what the engine refreshes. */
+  const storySnap = await seededSnapshot(['/stories/the-ninth-bell/',
+    '/stories/the-returns-hatch/']);
+  ['wrong-script.story.the-ninth-bell.v1', 'wrong-script.story.the-returns-hatch.v1']
+    .forEach(key => {
+      const was = JSON.parse(seed[key]);
+      let now = null;
+      try { now = JSON.parse(storySnap[key] || 'null'); } catch (err) { now = null; }
+      const kept = !!now && ['v', 'slug', 'scene', 'visits', 'ended'].every(f =>
+        JSON.stringify(was[f]) === JSON.stringify(now[f])) &&
+        JSON.stringify(was.flags) === JSON.stringify(now.flags) &&
+        JSON.stringify(was.seen) === JSON.stringify(now.seen);
+      const detail = !now ? 'missing' : (now.at === was.at
+        ? 'byte-identical' : 'run kept; only at refreshed by the story engine');
+      ok('G ' + key + ' keeps its saved run on the story page', kept, detail);
+    });
 
   /* ---------------- H. malformed preference ---------------- */
   console.log('--- H. malformed preference ---');
