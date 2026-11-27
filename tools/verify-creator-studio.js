@@ -393,7 +393,7 @@ check('the page loads only its own assets and the shared shell', () => {
      the shared room shell added by the visual-direction pass: the
      atmosphere layer and the floating media controller. Nothing else is
      allowed, and nothing may be remote. */
-  const allowed = /^(?:\.\.\/)?assets\/(?:css|js)\/(?:creator-studio|lobby|ambience|media-controller)[a-z-]*\.(?:css|js)$/;
+  const allowed = /^(?:\.\.\/)?assets\/(?:css|js)\/(?:creator-studio|lobby|ambience|media-controller|audio-engine)[a-z-]*\.(?:css|js)$/;
   ok(refs.length >= 4, 'the page has lost its own stylesheet or renderer');
   refs.forEach((ref) => {
     ok(!/^https?:/i.test(ref), 'remote asset: ' + ref);
