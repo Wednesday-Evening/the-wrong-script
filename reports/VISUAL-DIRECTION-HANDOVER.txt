@@ -1,0 +1,420 @@
+================================================================================
+THE WRONG SCRIPT
+VISUAL DIRECTION - ROOM ATMOSPHERE AND THE FLOATING MEDIA CONTROLLER
+Handover report
+================================================================================
+
+Phase:            Visual direction pass (follows accepted Phase 10 media work)
+Status:           COMPLETE - awaiting owner review
+Date:             27 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    0219a6c  (owner upload of the page-design reference board)
+                  Application baseline: f5f56d5 (accepted Phase 10 report commit)
+Implementation:   36b36b16ff4bcc80717d9bf8751145e547a5ee3b
+Report commit:    Created after this report was written, so this file cannot
+                  contain its own hash. It is recorded in the completion note.
+Working tree:     Clean after the report commit.
+Deployment:       NONE. No hosting, domain, DNS or environment change.
+Next phase:       NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. WHAT WAS BUILT, IN ONE PARAGRAPH
+--------------------------------------------------------------------------------
+
+Every existing room now carries a full-viewport, silent video atmosphere behind
+its content, with a poster frame underneath it, a gradient scrim and a
+per-room colour tint over it, and one shared floating pill in the bottom corner
+that reports the room and its playback state and expands into master audio, a
+music level, an effects level, an ambience level and an independent background
+video switch. Nothing was rebuilt, no room was added, no story, puzzle, ending,
+save key or navigation destination changed, and "/film/" was not touched.
+
+--------------------------------------------------------------------------------
+2. ROUTE INVENTORY (inspected before implementation)
+--------------------------------------------------------------------------------
+
+Eleven pages exist. All eleven were wired; none was created.
+
+  /                              Lobby
+  /stories/                      The Stories library
+  /stories/the-ninth-bell/       The Ninth Bell
+  /stories/the-returns-hatch/    The Returns Hatch
+  /arcade/                       The Arcade library
+  /arcade/signal-path/           SIGNAL PATH
+  /arcade/lamplight/             Lamplight
+  /gallery/                      The Gallery
+  /social-room/                  The Social Room
+  /archive/                      The Archive
+  /creator-studio/               The Creator Studio
+  /film/                         The Original Production - PROTECTED, untouched
+
+"/film/" is deliberately excluded. The film is a standalone full-screen
+experience; it has no data-room attribute, loads neither new file, and
+tools/verify-ambience.js asserts all three facts so a later edit cannot quietly
+add the shell to it.
+
+--------------------------------------------------------------------------------
+3. FILES
+--------------------------------------------------------------------------------
+
+CREATED (5)
+
+  assets/css/ambience.css        The wash, the scrim, the per-room tints and the
+                                 whole controller. One stylesheet for both, so
+                                 the pill cannot drift away from the layer.
+  assets/js/ambience.js          Builds the layer, owns the video element, owns
+                                 the motion and pause rules, and publishes
+                                 window.TWSAmbience for the controller.
+  assets/js/media-controller.js  The pill: compact and expanded states, the four
+                                 controls, keyboard handling, the live status.
+  tools/verify-ambience.js       88 source checks for the above (section 6).
+  reports/VISUAL-DIRECTION-HANDOVER.txt   This report.
+
+MODIFIED (14)
+
+  index.html                     data-room="lobby" + the three shared tags
+  stories/index.html             data-room="stories"
+  stories/the-ninth-bell/index.html      data-room="ninth-bell"
+  stories/the-returns-hatch/index.html   data-room="returns-hatch"
+  arcade/index.html              data-room="arcade"
+  arcade/signal-path/index.html  data-room="signal-path"
+  arcade/lamplight/index.html    data-room="lamplight"
+  gallery/index.html             data-room="gallery"
+  social-room/index.html         data-room="social-room"
+  archive/index.html             data-room="archive"
+  creator-studio/index.html      data-room="creator-studio"
+  assets/js/arcade-sound.js      Publishes the click channel through
+                                 window.TWSMixerAdapters so the Effects slider
+                                 controls the real 0.22 level. It cannot turn
+                                 the clicks on; the room's own toggle still
+                                 decides that.
+  tools/verify-all.js            Registers the new suite.
+  tools/verify-creator-studio.js One assertion widened - see section 7.
+
+Each page received exactly three lines: the stylesheet link, ambience.js and
+media-controller.js, both deferred and in that order, with the correct relative
+depth per page ("", "../", "../../"). No page's own markup, text, styles or
+scripts were otherwise altered.
+
+DELETED / MOVED / RENAMED: none.
+
+The owner's reference board image (file_0000000006a08208ac1e0c0cad026e69.png)
+is preserved in the repository root as supplied. The application does not load
+it.
+
+--------------------------------------------------------------------------------
+4. ROOM IDENTITIES
+--------------------------------------------------------------------------------
+
+Three videos exist in the project, so eleven rooms share them. Differentiation
+therefore comes from the tint and the scrim, not from unique footage per room.
+This is stated plainly because the alternative - implying each room has its own
+film - would be untrue.
+
+  Room                  Video            Identity
+  --------------------  ---------------  --------------------------------------
+  Lobby                 abstract-motion  luminous digital universe
+  The Stories           library          quiet shelves, warm paper
+  The Ninth Bell        lighthouse       storm and lamp, cold sea
+  The Returns Hatch     library          dust, deep shadow, lamplight
+  The Arcade            abstract-motion  neon, higher saturation
+  SIGNAL PATH           abstract-motion  neon grid, darkest scrim
+  Lamplight             lighthouse       night watch, low amber
+  The Gallery           abstract-motion  restrained, near-monochrome
+  The Social Room       library          warm, conversational
+  The Archive           library          record-room grey-green
+  The Creator Studio    abstract-motion  cool, working light
+
+Each tint is a CSS custom property pair set per data-room value in
+ambience.css; the layer, the scrim geometry and the pill are shared. A future
+room gets an identity by adding one rule and one entry in the ROOMS map - no
+new mechanism.
+
+--------------------------------------------------------------------------------
+5. HOW IT WORKS
+--------------------------------------------------------------------------------
+
+5.1 The layer
+
+  .ambience            position:fixed; inset:0; z-index:-1;
+                       pointer-events:none
+  .ambience__video     object-fit:cover; the poster is painted underneath, so a
+                       visitor sees a still frame while the video loads and
+                       keeps seeing it if the video never arrives
+  .ambience__tint      per-room colour wash
+  .ambience__scrim     gradient from the page colour at the bottom, for text
+
+Because the layer is pointer-events:none and sits behind everything, it cannot
+intercept a click, a drag or a focus. It cannot interfere with gameplay.
+
+body[data-room] has its background-color set to transparent so the wash is
+visible at all; every card, panel, bar and button keeps its own opaque
+background, so surfaces that already carried text are unchanged. Text sitting
+directly on the page now falls on the scrim.
+
+5.2 Motion rules, as implemented
+
+  - The video element is created with muted = true, playsInline = true and
+    loop = true, and no autoplay attribute is written anywhere. Playback is
+    started by script only.
+  - A muted autoplay attempt is made once, because browsers permit muted
+    autoplay. If the browser refuses, the layer stays on its poster and the
+    pill says so ("atmosphere blocked") rather than pretending to play.
+  - prefers-reduced-motion: reduce is read with matchMedia. When it matches, no
+    video is fetched and no autoplay is attempted; the poster alone is shown.
+  - visibilitychange pauses the video; pagehide pauses it and drops the source,
+    so leaving the room stops the transfer and nothing keeps playing in a
+    background tab.
+  - One layer, one video per page. tools/verify-ambience.js asserts a single
+    insertBefore and a single createElement for the video, so two decorative
+    videos cannot accumulate on one page.
+
+5.3 The controller
+
+  Compact state   room name and playback state ("Atmosphere - playing", or
+                  "paused", "off" or "atmosphere blocked"), plus a small
+                  waveform mark. The whole pill is one button.
+
+  Expanded state  a panel with:
+                    Master audio      a switch (mute everything, restore after)
+                    Music             slider, or "-" when the room has none
+                    Effects           slider, wired to the Arcade click channel
+                    Ambience          slider
+                    Background video  a switch, independent of all audio
+
+  Behaviour       the sliders read the real element volumes when the panel
+                  opens, so they never show an invented position. A slider for a
+                  channel the room does not have is disabled and says so
+                  ("Music is not present in this room") rather than sitting at a
+                  fake 60%. The master switch only mutes and unmutes; it never
+                  starts audio the room was not already playing.
+
+  Keyboard        the compact pill is a button; the panel is a disclosure with
+                  a labelled close control; Escape closes it and returns focus
+                  to the pill. Rows are switches with role="switch" and
+                  aria-checked, so their state is announced.
+
+  Position        bottom-right on desktop, full width above the safe-area inset
+                  on narrow screens, so it never sits under a thumb or off the
+                  edge.
+
+  Storage         none. The pill remembers nothing between visits, which is why
+                  no key was added. It is a control, not a preference store.
+
+--------------------------------------------------------------------------------
+6. VERIFICATION - WHAT WAS ACTUALLY RUN
+--------------------------------------------------------------------------------
+
+Status labels: PASS executed and passed; FAIL executed and failed;
+NOT TESTED not executed; CODE REVIEW ONLY inspected, not executed.
+
+6.1 Static suites
+
+  PASS  node tools/verify-all.js --static        10 of 10 suites passed, exit 0
+        nav, story, lamplight, signal-path, gallery, social-room, archive,
+        creator-studio, media, ambience
+
+  PASS  node tools/verify-ambience.js            all 88 static checks passed
+
+  What the 88 checks assert, grouped:
+
+    film isolation      /film/ has no data-room, loads no ambience layer and
+                        loads no media controller
+    layer               single fixed non-interactive layer; object-fit:cover;
+                        poster painted under the video; gradient scrim;
+                        per-room tint; room canvas steps aside
+    motion              muted and inline in source; loop; the wash never sets
+                        its own volume; no autoplay attribute anywhere; one
+                        layer inserted per page; one video created per page;
+                        pauses on visibilitychange; pauses on pagehide; reports
+                        a blocked autoplay; reduced motion read from the media
+                        query and honoured in CSS
+    wiring              all eleven pages declare the right data-room and load
+                        both scripts at the right depth, in the right order
+    isolation           no storage, cookie or network API and none of the three
+                        save-key strings in either new script
+
+6.2 Browser checks - Chromium 151, real browser, local server on port 4173
+
+  PASS  Desktop 1280x800, "/" then "/gallery/"       9 assertions, 0 failures
+        - compact pill visible on the Lobby
+        - status reads "Atmosphere"
+        - clicking the pill opens #mixer-panel
+        - the panel's title is present
+        - the Master audio switch is present and reachable
+        - clicking the Background video switch turns the video off
+        - the status changes to "paused" as a result
+        - Escape closes the panel (proved by the next click re-opening it)
+        - navigating to /gallery/ shows the pill labelled GALLERY
+
+  PASS  Mobile 390x844, "/stories/the-ninth-bell/"   5 assertions, 0 failures
+        - the ambience video element is visible
+        - the compact pill is visible
+        - the pill opens the panel
+        - the Music slider is present (disabled, correctly, because the Ninth
+          Bell has no music channel of its own)
+        - the room label reads NINTH
+
+  PASS  No console errors, no uncaught page errors and no failed requests on
+        either run.
+
+  These two runs are the whole of the browser evidence for the new controller.
+  They cover opening, one real toggle, the resulting status change, Escape and
+  the room label. They do not cover every slider in every room.
+
+6.3 Storage isolation and film preservation - direct checks
+
+  PASS  rg for localStorage / sessionStorage / indexedDB / document.cookie in
+        ambience.js, media-controller.js and ambience.css: no matches.
+  PASS  rg for the three save-key strings in both new scripts: no matches.
+  PASS  git diff --stat f5f56d5 HEAD -- film/  ->  0 lines changed.
+  PASS  git status --porcelain film/  ->  empty.
+
+  The three keys remain: tws, wrong-script.story.the-ninth-bell.v1,
+  wrong-script.arcade.signal-path.v1. No new key was introduced.
+
+6.4 Dependency scan
+
+  NOT APPLICABLE. The project still has no package manifest, lockfile or
+  resolved dependencies, so the advisory scanner had zero packages to resolve
+  (0 checked, 0 findings). That is an empty scan, not a security certification
+  of the source, the runtime, the hosting or the application.
+
+--------------------------------------------------------------------------------
+7. ONE EXISTING ASSERTION WAS WIDENED - PLEASE REVIEW THIS
+--------------------------------------------------------------------------------
+
+tools/verify-creator-studio.js previously asserted that the Studio page loads
+exactly four assets ("expected 2 stylesheets and 2 scripts"). That count was a
+proxy for its real intent: nothing remote, nothing unexpected, nothing missing.
+
+The shared shell legitimately adds three assets to that page, so the count
+broke. The check now uses an explicit allowlist instead:
+
+  allowed = /^(?:\.\.\/)?assets\/(?:css|js)\/(?:creator-studio|lobby|ambience|media-controller)[a-z-]*\.(?:css|js)$/
+
+and still asserts, for every reference, that it is not remote, that it matches
+the allowlist, and that the file exists on disk.
+
+What this keeps: remote assets, third-party assets, unexpected local assets and
+missing files all still fail.
+What it loses: the exact "four" figure. That figure was the weakest part of the
+check and is now replaced by a stronger one.
+
+This is the only existing assertion changed anywhere in this pass, and it is
+called out here rather than buried, because widening a test to make a change
+pass is exactly the sort of thing that should be visible.
+
+--------------------------------------------------------------------------------
+8. HISTORICAL FAILURES IN THIS PASS (kept, not hidden)
+--------------------------------------------------------------------------------
+
+  F-1  creator-studio asset count        3 runs failed, then resolved
+       Run 1: "expected 2 stylesheets and 2 scripts, found 7". Cause: the
+       hard-coded count above. Not an application defect.
+       Run 2: after the allowlist, "unexpected asset: ../assets/css/lobby.css".
+       Cause: the Studio also loads the shared palette sheet, which I had left
+       out of the allowlist. Still not an application defect.
+       Run 3: same failure again, because the allowlist anchored at
+       "assets/..." while that page's references carry a "../" prefix.
+       Resolution: allow the optional relative prefix and include lobby.css.
+       Run 4: PASS, 10 of 10 suites.
+
+  F-2  ambiguous locator, mobile run        1 run failed, then resolved
+       ".mixer__range" matched all three sliders and strict mode rejected it.
+       The panel had in fact opened correctly. Corrected only the locator to the
+       uniquely named Music slider; the same route, viewport and assertions were
+       re-run and passed. Harness defect, not an application defect.
+
+  F-3  press without a selector, desktop run   1 run failed, then resolved
+       The desktop flow aborted before executing because the Escape step had no
+       selector. Re-run with the pill as the selector; 9 assertions passed.
+       Harness defect, not an application defect.
+
+--------------------------------------------------------------------------------
+9. LIMITATIONS
+--------------------------------------------------------------------------------
+
+  1.  THREE VIDEOS, ELEVEN ROOMS. Only abstract-motion, lighthouse and library
+      exist. Rooms share footage and are distinguished by tint and scrim. The
+      brief's per-room atmosphere is met by colour and grading, not by unique
+      footage. Supplying more video would allow genuinely distinct rooms.
+
+  2.  THE ASSETS ARE NOT RIGHTS-CLEARED, AND I CANNOT CLAIM THEY ARE. The brief
+      asks for "rights-cleared" video. assets/media/ASSET-CREDITS.txt records
+      all six assets as owner-supplied with source, creator, licence and
+      attribution unresolved. Nothing in this pass establishes a licence, and
+      this report does not describe any asset as cleared, licensed or safe to
+      publish. If the project is published publicly, that question needs an
+      owner decision first.
+
+  3.  TEXT CONTRAST OVER MOVING VIDEO WAS NOT MEASURED. The scrim is designed
+      for contrast and the earlier Phase 8 flat-background measurements still
+      apply to the surfaces themselves, but automated contrast measurement
+      cannot evaluate text over a moving image. It needs a visual review on
+      real screens. This is CODE REVIEW ONLY, not a measurement.
+
+  4.  REDUCED MOTION AND THE PAUSE RULES ARE CODE REVIEW ONLY in this pass.
+      They are implemented and statically asserted, but this pass did not
+      emulate prefers-reduced-motion in a browser, and did not simulate
+      visibilitychange. The behaviour is asserted in source, not observed at
+      runtime.
+
+  5.  CHROMIUM ONLY. Firefox, WebKit and Edge cannot launch in this sandbox
+      (missing host libraries, no root, no package sources), as recorded in the
+      Phase 8 handover. Mobile figures are 390x844 viewport emulation with
+      touch enabled, not a physical phone.
+
+  6.  NO ASSISTIVE-TECHNOLOGY TESTING. The switches expose role="switch" and
+      aria-checked and the panel is a labelled disclosure, but no screen reader
+      was run. Nothing here is an accessibility certification.
+
+  7.  THE SLIDERS ARE NOT PERSISTED, by design. A visitor who mutes the
+      atmosphere is not remembered on the next visit. This is deliberate - it
+      keeps the pass free of new storage - but it is a real behaviour a visitor
+      may notice.
+
+  8.  THE PILL OVERLAPS CONTENT on short pages, because it is fixed. It is
+      offset above the safe-area inset and never covers a navigation control,
+      but on a very short viewport it sits over the footer area.
+
+  9.  EXISTING PHASE 8 DEFECTS REMAIN OPEN. DEF-01 (13px Lobby card meta links)
+      and DEF-03 (one 41px control on four rooms) were not addressed here; this
+      pass did not touch their styling. DEF-02 stays protected with "/film/".
+
+--------------------------------------------------------------------------------
+10. PRESERVATION CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - No room, route, story, ending, puzzle, level, exhibit, notice or collection
+    was added, removed or rewritten.
+  - No story logic, choice, ending condition or save format changed.
+  - "/film/" and everything under it are byte-identical to f5f56d5.
+  - The three save keys are neither read nor written by the new code.
+  - No new storage key, no backend, no database, no accounts, no network
+    request, no dependency, no framework, no build step.
+  - Existing navigation is unchanged; the new files add no navigation item.
+  - The Phase 10 media elements still behave as recorded there: no autoplay,
+    user-started playback, sound off by default in the Arcade.
+
+--------------------------------------------------------------------------------
+11. RECOMMENDED NEXT STEP (not started)
+--------------------------------------------------------------------------------
+
+Owner review of this pass, with two decisions that are yours, not mine:
+
+  1.  The asset licensing question in limitation 2. If the site is to be public,
+      the six owner-supplied assets need their rights established or replaced.
+  2.  Whether rooms should receive distinct footage. Three videos for eleven
+      rooms is the main reason the atmospheres read as variations rather than
+      as different places.
+
+After that, the cheapest genuine improvement is the one Phase 8 already
+recommended and this pass did not do: reduced-motion, 200% zoom/reflow and
+forced-colours verification in Chromium, which needs no specialist hardware and
+would close limitation 4 honestly.
+
+================================================================================
+VISUAL DIRECTION HANDOVER STATUS: READY FOR REVIEW
+================================================================================
