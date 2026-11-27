@@ -314,6 +314,17 @@
     }
   }
 
+  /* A page video that starts on its own - a story cinematic, a gallery
+     recording, the lobby reel - takes the room from the wash. Listening in
+     the capture phase means every video on the page yields the room without
+     each page having to remember to call pauseForOther itself. */
+  document.addEventListener('play', function (event) {
+    var node = event.target;
+    if (!node || node === video) { return; }
+    if (node.tagName !== 'VIDEO') { return; }
+    pauseForOther(node);
+  }, true);
+
   if (!config) {
     window.TWSAmbience = {
       state: function () {
