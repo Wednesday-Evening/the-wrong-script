@@ -387,11 +387,17 @@ check('the stylesheet respects reduced motion and loads nothing remote', () => {
   return 'reduced-motion block, no remote assets, no keyframes';
 });
 
-check('the page loads only local styles and scripts', () => {
+check('the page loads only its own assets and the shared shell', () => {
   const refs = (page.match(/(?:src|href)="([^"]+\.(?:css|js))"/g) || []).map((hit) => hit.split('"')[1]);
-  ok(refs.length === 4, 'expected 2 stylesheets and 2 scripts, found ' + refs.length);
+  /* The room's own stylesheet and renderer, plus the shared room shell
+     added by the visual-direction pass: the atmosphere layer and the
+     floating media controller. Nothing else is allowed, and nothing may
+     be remote. */
+  const allowed = /^assets\/(?:css|js)\/(?:creator-studio|ambience|media-controller)[a-z-]*\.(?:css|js)$/;
+  ok(refs.length >= 4, 'the page has lost its own stylesheet or renderer');
   refs.forEach((ref) => {
     ok(!/^https?:/i.test(ref), 'remote asset: ' + ref);
+    ok(allowed.test(ref), 'unexpected asset: ' + ref);
     ok(exists(path.relative(ROOT, path.resolve(ROOT, 'creator-studio', ref))), 'missing asset: ' + ref);
   });
   return refs.join(', ');
