@@ -72,4 +72,18 @@
   window.addEventListener('pagehide', function () {
     try { audio.pause(); } catch (error) { /* nothing to stop */ }
   });
+
+  /* Hand this channel to the floating media controller so its Effects
+     slider reads the real click level (0.22) and can lower or mute it.
+     The toggle above stays the room's own switch: the controller never
+     turns the clicks on. */
+  window.TWSMixerAdapters = (window.TWSMixerAdapters || []).concat([{
+    channel: 'effects',
+    getVolume: function () { return audio.volume; },
+    setVolume: function (value) {
+      var next = Number(value);
+      if (!isFinite(next)) { return; }
+      audio.volume = Math.max(0, Math.min(1, next));
+    }
+  }]);
 })();

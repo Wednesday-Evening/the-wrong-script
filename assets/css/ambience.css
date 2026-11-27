@@ -100,6 +100,14 @@ body[data-room="creator-studio"]{
   --amb-accent:#9dbfe4;
 }
 
+/* The room's own canvas steps aside so the wash can be seen at all. Cards,
+   panels, bars and buttons keep their own opaque backgrounds, so the text
+   that sits on them is unaffected. Text that sits directly on the page
+   falls on the scrim, which is what keeps it readable. */
+body[data-room]{
+  background-color:transparent;
+}
+
 /* ---------- the wash ---------- */
 
 .ambience{
