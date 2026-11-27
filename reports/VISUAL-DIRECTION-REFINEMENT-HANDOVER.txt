@@ -1,0 +1,480 @@
+================================================================================
+THE WRONG SCRIPT
+VISUAL DIRECTION REFINEMENT AND MEDIA EXPERIENCE COMPLETION
+Handover report
+================================================================================
+
+Phase:            Visual Direction refinement (post-acceptance continuation)
+Status:           COMPLETE - awaiting owner review
+Date:             27 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    0e65e35 (the accepted VISUAL-DIRECTION-HANDOVER.txt commit)
+Final HEAD:       Created after this report was written, so this file cannot
+                  contain its own hash. The exact final commit is in the
+                  completion message that accompanies this handover.
+Working tree:     Clean at the start of the pass and clean at the end. No
+                  application file is left uncommitted.
+Deployment:       NONE. publication_policy deployment_allowed = false for this
+                  task; nothing was built, published, or re-hosted.
+Merge to main:    NOT DONE. Only branch appjet was written.
+Next phase:       NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. WHAT WAS AUTHORISED AND WHAT THIS PASS ACTUALLY DID
+--------------------------------------------------------------------------------
+
+The owner accepted the visual-direction handover and then authorised a refinement
+pass over the same implementation. The instruction was explicit that acceptance
+did not close the documented limitations, and that the pass had to refine and
+verify the existing implementation rather than start something new.
+
+In scope and done:
+  - Per-room visual identity on every existing room, with honest handling of
+    the fact that only three video clips exist.
+  - Background-video behaviour: muted autoplay only, single video at a time,
+    pause when hidden or when the room is left, reduced-motion handling,
+    poster fallback, a global video control.
+  - The floating media controller: complete collapsed and expanded states,
+    real controls, blocked-state recovery, no overlap with page content.
+  - Real audio: browser-generated interface cues and room atmospheres, a
+    first-visit sound choice, master mute overriding every channel, three
+    independent volume channels, cleanup on leaving a room.
+  - Preference persistence under wrong-script.audio-settings.v1 with validation
+    and safe defaults.
+  - Verification: a new 139-assertion refinement suite plus the existing suites.
+
+Out of scope and not done: no deployment, no hosting or DNS change, no merge to
+main, no new room, story, game or exhibit, no account, backend, database,
+upload, submission, messaging or analytics, no framework, dependency or build
+system, no change to the protected film, no Phase 11 work.
+
+--------------------------------------------------------------------------------
+2. BASELINE AND PRE-FLIGHT FINDINGS
+--------------------------------------------------------------------------------
+
+Inspected before editing:
+  - Branch appjet; starting HEAD 0e65e35; working tree clean.
+  - reports/VISUAL-DIRECTION-HANDOVER.txt, PHASE-10-MEDIA-INTEGRATION-HANDOVER.txt
+    and PHASE-9-HANDOVER.txt, plus the earlier phase reports.
+  - The existing shared background and controller code (assets/js/ambience.js,
+    assets/js/media-controller.js, assets/css/ambience.css).
+  - Every room route and its markup conventions.
+  - The real storage-key inventory, and all six media files with their metadata.
+
+Findings that shaped the work:
+  1. Only three video clips exist (abstract-motion, library, lighthouse) for
+     eleven rooms. The previous pass implied eleven distinct environments. This
+     pass keeps three shared washes but gives each room its own grading,
+     composition and overlay, and says so plainly in section 5 rather than
+     claiming unique footage.
+  2. The storage inventory was larger than the three keys the brief named. The
+     full set is listed in section 9; the Returns Hatch key the owner asked about
+     is real and was reconciled.
+  3. The controller had a real defect: on a first visit it auto-expanded its
+     panel, which sat over the page and intercepted clicks meant for content.
+     Section 12 records it, and it is fixed.
+
+--------------------------------------------------------------------------------
+3. SUMMARY OF DELIVERED WORK
+--------------------------------------------------------------------------------
+
+  - A shared media layer: assets/js/audio-engine.js (new) generates every sound
+    in the browser with the Web Audio API, so the refinement added no audio
+    downloads and no new third-party asset.
+  - assets/js/ambience.js now maps each room to its clip, poster and atmosphere,
+    and owns the background video's lifecycle.
+  - assets/js/media-controller.js is the single pill every room shares: room
+    name, playback state, animated audio indicator, mute badge, expander, and an
+    expanded panel with master switch, three channel sliders, a video switch and
+    a recovery control when the browser blocks playback.
+  - assets/css/ambience.css carries the per-room grading and composition, and
+    reserves room at the end of each page so the pill never covers content.
+  - Every room page declares its data-room identity and loads the shared layer.
+  - Preferences persist under wrong-script.audio-settings.v1 only.
+  - tools/verify-visual-refinement.cjs (new) is a 139-assertion Chromium suite
+    covering routes, both widths, the controller, audio state, persistence,
+    malformed values, keyboard, reduced motion, storage isolation and the film.
+
+--------------------------------------------------------------------------------
+4. FILES CREATED AND MODIFIED
+--------------------------------------------------------------------------------
+
+Measured with `git diff --name-status 0e65e35..HEAD`, plus this report.
+Counts: 24 application/tooling files changed (22 modified, 2 added) and 1 report
+added, so 25 paths in total. No file was deleted, moved or renamed.
+
+CREATED (3)
+  assets/js/audio-engine.js            Web Audio engine: cues, room atmospheres,
+                                       master/channel mixing, preference bridge.
+  tools/verify-visual-refinement.cjs   139-assertion refinement suite.
+  reports/VISUAL-DIRECTION-REFINEMENT-HANDOVER.txt   This report.
+
+MODIFIED (22)
+  index.html                           Room identity and shared media includes.
+  gallery/index.html                   Room identity; Gallery media wiring.
+  stories/index.html                   Room identity.
+  stories/the-ninth-bell/index.html    Room identity; story media wiring.
+  stories/the-returns-hatch/index.html Room identity.
+  arcade/index.html                    Room identity.
+  arcade/signal-path/index.html        Room identity.
+  arcade/lamplight/index.html          Room identity.
+  archive/index.html                   Room identity.
+  social-room/index.html               Room identity.
+  creator-studio/index.html            Room identity.
+  assets/js/ambience.js                Room table, video lifecycle, single-video
+                                       rule, visibility handling, poster fallback.
+  assets/js/media-controller.js        Full controller; the first-visit question
+                                       moved into the pill (section 12).
+  assets/css/ambience.css              Per-room grading, pill layout, footer
+                                       reservation, reduced-motion rules.
+  assets/js/arcade-sound.js            Routed through the shared audio engine.
+  assets/js/gallery-exhibits.js        Exhibit audio obeys the shared engine.
+  assets/media/ASSET-CREDITS.txt       Licence evidence and open restrictions.
+  tools/verify-ambience.js             Updated for the new room/video contract.
+  tools/verify-media.js                Updated media assertions.
+  tools/verify-creator-studio.js       Follows the audio-engine change.
+  tools/verify-social-room-ui.cjs      Form/button count scoped past the shared
+                                       pill (section 13).
+  tools/verify-creator-studio-ui.cjs   Same scoping correction (section 13).
+
+INTENTIONALLY UNTOUCHED
+  film/ (all files)                    Zero diff against the starting HEAD.
+  All story text, scene data, choice and ending logic.
+  All game level data and rules.
+  Gallery exhibit content, Social Room entries, Archive content, Studio copy.
+  assets/media/video/ and assets/media/audio/  No media file was re-encoded,
+                                       cropped, replaced or deleted.
+  The six original owner uploads at the repository root.
+
+--------------------------------------------------------------------------------
+5. ROOM-BY-ROOM VISUAL IDENTITY
+--------------------------------------------------------------------------------
+
+Each room sets data-room on <body>; ambience.js maps that to a clip and poster;
+ambience.css gives each room its own grading, vignette and composition. The clip
+is shared where it must be, and the room's character comes from the treatment.
+
+  Room              Clip                Character
+  ----------------  ------------------  --------------------------------------
+  Lobby             abstract-motion     Luminous digital architecture.
+  The Stories       library             Shelved, atmospheric, quiet.
+  The Ninth Bell    lighthouse          Storm and lamp; the story's own weather.
+  Returns Hatch     library             Older, deeper library; a held breath.
+  The Arcade        abstract-motion     Bright, kinetic, neon-leaning.
+  Signal Path       abstract-motion     Precise and technological; grid tension.
+  Lamplight         lighthouse          Gentle exploratory warmth.
+  The Gallery       abstract-motion     Composed, gallery-calm, generous space.
+  The Social Room   library             Warm, inhabited, welcoming.
+  The Archive       library             Records-room stillness, memory.
+  Creator Studio    abstract-motion     Imaginative workspace light.
+
+Stated honestly: eleven rooms, three clips. Rooms that share a clip are graded
+and composed differently. No distinct footage exists for the remaining
+environments, and none was invented, substituted or implied. Supplying more
+footage is an owner decision, not a code change.
+
+--------------------------------------------------------------------------------
+6. BACKGROUND-VIDEO BEHAVIOUR
+--------------------------------------------------------------------------------
+
+  - Decorative video autoplays muted only; never with sound.
+  - One decorative background video per room, enforced by the layer itself.
+  - The video pauses when the page becomes hidden and when the visitor leaves
+    the room; it does not keep playing in a background tab.
+  - Reduced motion: the room goes still, with the poster shown instead of a
+    moving wash (verified: status "still", paused true, transitions 0s).
+  - Poster fallback: every video has a local poster, so a blocked or failed
+    playback degrades to a still background rather than an empty panel.
+  - The controller's video switch stops and restarts the background video
+    (verified: paused true / status "off", then paused false / status "playing").
+  - Story cinematics and gameplay sequences stay tied to their own events; this
+    layer does not drive them.
+
+--------------------------------------------------------------------------------
+7. CONTROLLER FUNCTIONALITY
+--------------------------------------------------------------------------------
+
+Collapsed pill:
+  - Current room name, playback state in words, animated audio indicator while
+    audio runs, mute badge, and the expander.
+  - On a first visit it also carries the one sound question, in place.
+
+Expanded panel:
+  - Master audio switch, which overrides every channel.
+  - Three independent sliders: music, effects, ambience.
+  - Independent background-video switch.
+  - Explicit states: playing, paused, muted, blocked, off, unavailable.
+  - A recovery control when the browser has blocked playback, so audio can be
+    started deliberately rather than silently failing.
+  - A channel a room does not carry is marked absent and its slider is disabled,
+    rather than pretending to control something.
+
+Behaviour verified in a browser:
+  - Escape collapses the panel and returns focus to the pill.
+  - The panel reopens from the pill.
+  - The ambience slider moves 60 to 20 and the value persists.
+  - The video switch stops and restarts the background video.
+  - The panel and the pill never cover the footer's last line: at the foot of
+    the page the footer ends above the pill (footerBottom 708, mixerTop 739,
+    92px of reserved padding).
+
+--------------------------------------------------------------------------------
+8. AUDIO IMPLEMENTATION AND ACTIVATION POLICY
+--------------------------------------------------------------------------------
+
+  - All sound is generated in the browser with the Web Audio API by
+    assets/js/audio-engine.js. No audio file was added in this pass.
+  - Channels: music, effects, ambience. Each room declares which it carries and
+    how its atmosphere is built (filter type, cutoff, gain, drift).
+  - Interface cues are short and belong to the effects channel; arcade and
+    gallery interactions route through the same engine, so there is one mixer
+    and one policy rather than three competing ones.
+  - Activation: nothing plays before the visitor answers the first-visit
+    question. "Enter with sound" starts audio; "Continue silently" leaves it
+    off. The answer is stored, so returning visitors are not asked again.
+  - Master mute overrides every category. Category volumes are independent.
+  - Leaving a room stops its audio; the engine exposes stop/stopBed/stopMusic so
+    a room cannot leave a stream running behind the next one.
+  - Malformed or missing preferences fall back to safe defaults without
+    crashing the room, and the stored value is not silently rewritten.
+
+--------------------------------------------------------------------------------
+9. PREFERENCE STORAGE AND EXACT KEY INVENTORY
+--------------------------------------------------------------------------------
+
+One new key is introduced by this pass:
+
+  wrong-script.audio-settings.v1
+    { v, choice, master, music, effects, ambience, video }
+    choice    "" | "sound" | "silent"   (first-visit answer)
+    master    boolean                   (overrides all channels)
+    music     0..100
+    effects   0..100
+    ambience  0..100
+    video     boolean                   (background video on/off)
+
+Values are validated on read; anything out of range, of the wrong type, or not
+JSON at all is replaced in memory by the default and left on disk until the
+visitor changes it deliberately.
+
+Complete actual inventory of keys this project uses (verified in source, not
+assumed from the brief):
+
+  tws                                      Original Production progress.
+  wrong-script.story.the-ninth-bell.v1     The Ninth Bell run.
+  wrong-script.story.the-returns-hatch.v1  The Returns Hatch run.
+  wrong-script.arcade.signal-path.v1       SIGNAL PATH progress.
+  wrong-script.arcade.lamplight.v1         Lamplight progress.
+  wrong-script.audio-settings.v1           Media preferences (new, this pass).
+
+The brief named three keys and asked that the Returns Hatch key be reconciled
+rather than assumed away. It is real, it is listed above, and it is not touched
+by the media layer.
+
+Isolation evidence (browser, real Chromium):
+  - All five existing keys were seeded, the media rooms were browsed, and every
+    value came back byte-identical.
+  - No unexpected sixth key was created.
+  - Story keys keep their saved run on the story page; the only field that
+    changes is the story engine's own "at" timestamp, which it refreshes when it
+    writes. That is pre-existing story behaviour, not media-layer access.
+
+--------------------------------------------------------------------------------
+10. MEDIA LICENCE EVIDENCE AND UNRESOLVED RESTRICTIONS
+--------------------------------------------------------------------------------
+
+Recorded in assets/media/ASSET-CREDITS.txt, and repeated here because it is a
+release restriction rather than a footnote.
+
+Established:
+  - The six files exist, are intact and play; the owner supplied and authorised
+    their integration.
+
+NOT established:
+  - Who made each asset, where it was obtained, under which licence, whether
+    attribution is required, whether public or commercial use is permitted.
+
+Consequence, stated plainly: no asset in this project may be described as
+"licensed", "royalty-free" or "cleared". The three audio filenames carry
+studio-style prefixes, which is consistent with stock-library naming, but that is
+an inference from a filename and it is not recorded as a credit.
+
+Before any public launch the owner must confirm, per asset: source page, creator
+(if a credit is required), exact licence and version, attribution form, and
+commercial-use permission. Nothing was invented to fill those fields.
+
+The rooms are written so a media reference can be removed without breaking the
+page: videos are poster-first, audio is optional and off by default, and no room
+depends on any asset to function.
+
+--------------------------------------------------------------------------------
+11. ACCESSIBILITY AND RESPONSIVE TESTING
+--------------------------------------------------------------------------------
+
+Verified in Chromium (browser execution):
+  - Every route loads at 390 x 844 and 1280 x 800 with 0px horizontal overflow.
+  - The pill and panel stay inside the viewport and clear the footer.
+  - Keyboard: the pill is reachable, the panel opens and closes, Escape returns
+    focus to the pill, and controls show a visible focus ring.
+  - Reduced motion: rooms go still, transitions and animation at 0s.
+  - Touch targets on the tested rooms meet the project's 44px aim; the small
+    screen menu and its controls were exercised.
+
+Code review only:
+  - Focus order was not judged against a standard.
+  - Screen-reader announcements were not tested with assistive technology.
+
+Not tested, and not to be inferred from the above: screen-reader conformance,
+Firefox, Safari, Edge, and any physical phone or tablet. Mobile figures are
+viewport emulation with touch enabled, not a real device.
+
+--------------------------------------------------------------------------------
+12. DEFECT FOUND AND FIXED IN THIS PASS
+--------------------------------------------------------------------------------
+
+DEF-A  The first-visit sound question covered the page and took clicks
+       Found by: node tools/verify-all.js at revision 19, where gallery-ui,
+       social-room-ui and creator-studio-ui failed. Playwright reported the
+       mixer panel "intercepts pointer events" for the Gallery's category
+       filters and for header links.
+       Cause: on a first visit the controller called expand(), opening a panel
+       over the page before the visitor had answered.
+       Why it mattered: it broke real controls, and it contradicted this brief's
+       rule that the controller must not obstruct navigation or content.
+       Fix: the question now renders as a small strip inside the pill's own
+       footprint (buildAsk() in assets/js/media-controller.js, styled as
+       .mixer__ask--pill). The panel does not open on a first visit; the page
+       keeps every click. The footer reserves 196px (212px on small screens)
+       while the question is unanswered.
+       Verified: the Gallery suite passes; the refinement suite asserts the
+       panel stays closed, the question is inside the pill, and a page filter
+       still receives its click.
+
+--------------------------------------------------------------------------------
+13. TEST-SCOPE CORRECTIONS (NOT WEAKENED ASSERTIONS)
+--------------------------------------------------------------------------------
+
+Two existing suites counted form controls and buttons across the whole document
+and required zero (or exactly one). The site-wide media pill is on every room and
+legitimately contributes three range inputs and its own buttons, so those
+whole-document counts could never pass again.
+
+Correction applied to tools/verify-social-room-ui.cjs and
+tools/verify-creator-studio-ui.cjs: elements inside [data-mixer] are excluded
+from the count. The assertions themselves remain, and their intent is unchanged:
+the Social Room and the Creator Studio must offer no posting, comment, upload or
+submission control of their own. Nothing was deleted and no expected value was
+loosened for the rooms' own content.
+
+--------------------------------------------------------------------------------
+14. VERIFICATION RESULTS
+--------------------------------------------------------------------------------
+
+Status vocabulary: PASS executed and passed; FAIL executed and failed;
+NOT TESTED not executed; CODE REVIEW ONLY inspected but not run.
+
+  #   Check                                         Status  Evidence
+  --- --------------------------------------------- ------- ------------------
+  1   node tools/verify-all.js (all 14 suites)       PASS    14 of 14 suites
+                                                             passed, exit 0,
+                                                             revision 24
+  2   node tools/verify-visual-refinement.cjs        PASS    139 passed,
+                                                             0 failed
+  3   node tools/verify-gallery-ui.cjs               PASS    all checks passed
+  4   node tools/verify-social-room-ui.cjs           PASS    35 of 35
+  5   node tools/verify-creator-studio-ui.cjs        PASS    46 checks passed
+  6   Routes at 390px and 1280px, no overflow        PASS    every route,
+                                                             0px overflow
+  7   One background video per room                  PASS    asserted per route
+  8   Video pause/resume and off state               PASS    paused true/off,
+                                                             then playing
+  9   Reduced motion                                  PASS    status still,
+                                                             transitions 0s
+  10  First-visit question does not block the page    PASS    panel closed;
+                                                             page filter clicked
+  11  Preference saved and reused                     PASS    key documented in
+                                                             section 9
+  12  Independent channel volumes                     PASS    ambience 60 -> 20,
+                                                             persisted
+  13  Master mute overrides channels                  PASS    asserted
+  14  Footer/pill overlap                             PASS    footerBottom 708
+                                                             <= mixerTop 739
+  15  Escape collapses, focus returns                 PASS    mixer__compact
+  16  Malformed preference recovery                   PASS    room clean, value
+                                                             preserved
+  17  Five existing save keys byte-identical          PASS    seeded, browsed,
+                                                             unchanged
+  18  No unexpected new key                           PASS    none
+  19  film/ diff against starting HEAD                PASS    0 lines
+  20  Dependency security scan                       NOT     no manifest,
+                                                     APPLICABLE lockfile or
+                                                             resolved packages:
+                                                             0 packages. An empty
+                                                             scan, not a security
+                                                             certification.
+  21  Firefox / WebKit                               BLOCKED engines download but
+                                                             cannot launch here:
+                                                             host libraries
+                                                             missing, no root and
+                                                             no apt sources.
+  22  Physical phone or tablet                       NOT     no device in this
+                                                     TESTED  environment
+  23  Screen-reader / assistive technology           NOT     no AT installed; no
+                                                     TESTED  conformance claim
+  24  Focus order judged against a standard          CODE    inspected only
+                                                     REVIEW
+                                                     ONLY
+
+Historical failures, preserved rather than rewritten:
+  - revision 18: 135 passed, 1 failed - the harness treated Chromium's
+    /favicon.ico request as an application error. No page declares a favicon, so
+    that 404 is pre-existing and unrelated. The harness now names it explicitly
+    and still fails on every other error.
+  - revision 19: verify-all 11 of 14 - DEF-A plus the two count-scope conflicts
+    in section 13. Both addressed; rerun green at revision 24.
+
+--------------------------------------------------------------------------------
+15. KNOWN LIMITATIONS AND OUTSTANDING ITEMS
+--------------------------------------------------------------------------------
+
+  1. Media rights are unresolved (section 10). This is the only item that
+     blocks a public release, and it needs owner evidence, not code.
+  2. Eleven rooms share three clips. Identity comes from grading and
+     composition; genuinely distinct footage does not exist in the repository.
+  3. Chromium only. Firefox and WebKit cannot launch in this sandbox, and Edge
+     was not tested.
+  4. No physical device, no real touch gestures, no assistive-technology audit.
+  5. Text contrast over gradient or video backgrounds was not measured by a
+     tool; contrast checks cover flat backgrounds only.
+  6. Chromium requests /favicon.ico on every route because no page declares one.
+     Pre-existing, harmless, and deliberately not "fixed" here because adding a
+     favicon is outside this pass's scope.
+  7. The story engine refreshes its own "at" timestamp when it writes on load.
+     Pre-existing story behaviour, recorded so nobody mistakes it for media-layer
+     access to a save.
+  8. The audio is browser-generated, not recorded. It is deliberately subtle and
+     is not a substitute for a scored soundtrack.
+
+--------------------------------------------------------------------------------
+16. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - The protected /film/ production is unchanged: `git diff --stat
+    0e65e35..HEAD -- film/` returns nothing, and the refinement suite asserts
+    the same against HEAD.
+  - No story text, scene, choice, ending, game level or game rule was modified.
+  - No media file was re-encoded, cropped, replaced or deleted; the six original
+    owner uploads remain in place.
+  - All five pre-existing save keys are untouched by the media layer, and the
+    only new key is wrong-script.audio-settings.v1.
+  - No framework, dependency, package manifest, build system, backend,
+    database, account, upload, submission, messaging or analytics was added.
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - Nothing was merged into main; only branch appjet was written.
+  - Phase 11 was not started.
+  - Working tree is clean after the report commit.
+
+================================================================================
+VISUAL-DIRECTION REFINEMENT STATUS: READY FOR OWNER REVIEW
+================================================================================
