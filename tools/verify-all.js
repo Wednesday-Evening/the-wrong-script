@@ -30,6 +30,7 @@ const SUITES = [
   { short: 'social-room', file: 'tools/verify-social-room.js', kind: 'static' },
   { short: 'archive', file: 'tools/verify-archive.js', kind: 'static' },
   { short: 'creator-studio', file: 'tools/verify-creator-studio.js', kind: 'static' },
+  { short: 'media', file: 'tools/verify-media.js', kind: 'static' },
   { short: 'archive-ui', file: 'tools/verify-archive-ui.cjs', kind: 'browser' },
   { short: 'gallery-ui', file: 'tools/verify-gallery-ui.cjs', kind: 'browser' },
   { short: 'social-room-ui', file: 'tools/verify-social-room-ui.cjs', kind: 'browser' },
