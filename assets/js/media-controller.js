@@ -113,6 +113,8 @@
     panel = el('div', 'mixer__panel');
     panel.id = panelId;
     panel.hidden = true;
+    panel.setAttribute('role', 'group');
+    panel.setAttribute('aria-label', 'Sound and video');
 
     var head = el('div', 'mixer__head');
     head.appendChild(el('h2', 'mixer__title', 'Room media'));
