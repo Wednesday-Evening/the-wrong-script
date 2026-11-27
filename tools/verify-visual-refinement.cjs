@@ -105,9 +105,20 @@ function ok(name, condition, detail) {
   const pill = page.locator('.mixer__compact').first();
   const panel = page.locator('.mixer__panel').first();
 
-  ok('B the panel opens on a first visit', await panel.isVisible());
+  ok('B the panel stays closed on a first visit', !(await panel.isVisible()));
   ok('B the sound question is shown before anything plays',
     await page.locator('.mixer__ask').isVisible());
+  ok('B the question sits inside the pill, not over the page',
+    await page.evaluate(() => {
+      const ask = document.querySelector('.mixer__ask');
+      const root = document.querySelector('.mixer');
+      const panelEl = document.querySelector('.mixer__panel');
+      if (!ask || !root) { return false; }
+      const a = ask.getBoundingClientRect();
+      const r = root.getBoundingClientRect();
+      return a.top >= r.top - 1 && a.bottom <= r.bottom + 1 &&
+        (!panelEl || panelEl.hidden);
+    }));
   ok('B the question offers both choices',
     (await page.getByRole('button', { name: 'Enter with sound' }).count()) === 1 &&
     (await page.getByRole('button', { name: 'Continue silently' }).count()) === 1);
@@ -130,6 +141,21 @@ function ok(name, condition, detail) {
   ok('B the pill reopens the panel', await panel.isVisible());
   ok('B the reopened panel still hides the question',
     !(await page.locator('.mixer__ask').isVisible()));
+
+  /* The defect this pass fixed: an unanswered question must never take a click
+     meant for the page. This is the regression guard for it. */
+  const ctxAsk = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const askPage = await ctxAsk.newPage();
+  await askPage.goto(BASE + '/gallery/', { waitUntil: 'load' });
+  await askPage.waitForTimeout(500);
+  ok('B the question is present while a room control is used',
+    await askPage.locator('.mixer__ask').isVisible());
+  const musicFilter = askPage.locator('#filters button[data-category="music"]');
+  await musicFilter.click();
+  await askPage.waitForTimeout(200);
+  ok('B a page control still takes the click while the question is open',
+    (await musicFilter.getAttribute('aria-pressed')) === 'true');
+  await ctxAsk.close();
 
   /* ---------------- C. real controls ---------------- */
   console.log('--- C. master mute, channel volumes, video control ---');
