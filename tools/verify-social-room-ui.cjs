@@ -249,9 +249,14 @@ async function waitForServer(deadlineMs) {
         (phrase) => text.indexOf(phrase) === -1
       );
       ok(disowned.length === 0, 'the room does not disown ' + disowned.join(', '));
-      const forms = await page.$$eval('form, input, textarea, select', (els) => els.length);
+      /* The site-wide media pill is on every room and is not part of this room's
+         content, so it is excluded here. The intent of the check is unchanged:
+         the Social Room itself must offer no posting, comment or submission UI. */
+      const forms = await page.$$eval('form, input, textarea, select',
+        (els) => els.filter((e) => !e.closest('[data-mixer]')).length);
       ok(forms === 0, forms + ' form controls present');
-      const buttons = await page.$$eval('button', (els) => els.map((e) => e.id));
+      const buttons = await page.$$eval('button',
+        (els) => els.filter((e) => !e.closest('[data-mixer]')).map((e) => e.id));
       ok(buttons.length === 1 && buttons[0] === 'nav-toggle', 'unexpected buttons: ' + buttons.join(', '));
       return 'no social proof, no form controls, only the nav toggle';
     });
