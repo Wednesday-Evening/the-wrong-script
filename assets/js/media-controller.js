@@ -7,9 +7,11 @@
    not have must say so rather than pretend.
 
    Collapsed  : room, playback state, audio indicator, mute badge, expander.
-   Expanded   : master switch, music, effects, ambience, background video,
-                a recovery control when the browser has blocked playback,
-                and the first-visit sound choice.
+                On a first visit the pill also carries the one sound question,
+                in place, because a panel opened over the page would cover
+                navigation, a card or a game control.
+   Expanded   : master switch, music, effects, ambience, background video and
+                a recovery control when the browser has blocked playback.
 
    Everything it changes is stored by assets/js/audio-engine.js under the
    single media-preference key. This file reads and writes no storage of
@@ -124,39 +126,6 @@
     close.addEventListener('click', function () { collapse(true); });
     head.appendChild(close);
     panel.appendChild(head);
-
-    /* First-visit choice. Nothing plays before this is answered. */
-    askBlock = el('div', 'mixer__ask');
-    askBlock.hidden = true;
-    askBlock.appendChild(el('p', 'mixer__ask-title', 'Sound in this room'));
-    askBlock.appendChild(el('p', 'mixer__ask-text',
-      'Every room has its own quiet atmosphere, generated in the browser. ' +
-      'You can change or silence it at any time from this panel.'));
-
-    var askButtons = el('div', 'mixer__ask-actions');
-    var withSound = el('button', 'mixer__action', 'Enter with sound');
-    withSound.type = 'button';
-    withSound.setAttribute('data-choose', 'sound');
-    var silently = el('button', 'mixer__action mixer__action--quiet', 'Continue silently');
-    silently.type = 'button';
-    silently.setAttribute('data-choose', 'silent');
-    askButtons.appendChild(withSound);
-    askButtons.appendChild(silently);
-    askBlock.appendChild(askButtons);
-    panel.appendChild(askBlock);
-
-    [withSound, silently].forEach(function (button) {
-      button.addEventListener('click', function () {
-        var option = button.getAttribute('data-choose');
-        if (audio) { audio.choose(option); }
-        asked = true;
-        askBlock.hidden = true;
-        announce(option === 'sound'
-          ? 'Sound on. Every room has its own atmosphere.'
-          : 'Continuing silently. You can turn sound on from this panel.');
-        render();
-      });
-    });
 
     /* Master */
     var masterRow = el('div', 'mixer__row');
@@ -306,6 +275,43 @@
     return compact;
   }
 
+  /* The first-visit question. It is deliberately NOT in the panel: the panel
+     opens upward over the page, and a question that covers a filter, a card or
+     a game control would take clicks away from them. Here it is a small strip
+     stacked above the pill, inside the same fixed footprint, so the page keeps
+     every click. Nothing plays before it is answered. */
+  function buildAsk() {
+    askBlock = el('div', 'mixer__ask mixer__ask--pill');
+    askBlock.hidden = true;
+    askBlock.appendChild(el('p', 'mixer__ask-title', 'Sound in this room?'));
+
+    var askButtons = el('div', 'mixer__ask-actions');
+    var withSound = el('button', 'mixer__action', 'Enter with sound');
+    withSound.type = 'button';
+    withSound.setAttribute('data-choose', 'sound');
+    var silently = el('button', 'mixer__action mixer__action--quiet', 'Continue silently');
+    silently.type = 'button';
+    silently.setAttribute('data-choose', 'silent');
+    askButtons.appendChild(withSound);
+    askButtons.appendChild(silently);
+    askBlock.appendChild(askButtons);
+
+    [withSound, silently].forEach(function (button) {
+      button.addEventListener('click', function () {
+        var option = button.getAttribute('data-choose');
+        if (audio) { audio.choose(option); }
+        asked = true;
+        askBlock.hidden = true;
+        announce(option === 'sound'
+          ? 'Sound on. Every room has its own atmosphere.'
+          : 'Continuing silently. You can turn sound on from this panel.');
+        render();
+      });
+    });
+
+    return askBlock;
+  }
+
   function announce(message) {
     if (liveEl) { liveEl.textContent = message; }
   }
@@ -401,16 +407,18 @@
     root = el('div', 'mixer');
     root.setAttribute('data-mixer', '');
     root.appendChild(buildPanel());
+    root.appendChild(buildAsk());
     root.appendChild(buildCompact());
     document.body.appendChild(root);
 
     render();
 
-    /* A first-time visitor is asked once, in the panel, before anything
-       plays. Returning visitors who already chose are not asked again. */
+    /* A first-time visitor is asked once, in place, before anything plays.
+       The panel is NOT opened here: that would put a 500px card over the
+       page and intercept clicks meant for navigation or content. Returning
+       visitors who already chose are not asked again. */
     var a = audioState();
     if (a && a.firstRun) {
-      expand();
       announce('Choose whether this room plays sound.');
     }
 
