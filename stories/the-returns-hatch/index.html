@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#060a0b">
 <link rel="stylesheet" href="../../assets/css/lobby.css">
 <link rel="stylesheet" href="../../assets/css/stories.css">
+<link rel="stylesheet" href="../../assets/css/media.css">
 </head>
 <body class="stories">
 
@@ -56,6 +57,20 @@
 
   <p class="notice" data-notice hidden></p>
 
+  <figure class="media-figure scene-media" data-media>
+    <video class="media-video" data-media-video preload="none" muted loop playsinline
+           width="1280" height="720" poster="../../assets/media/video/library.jpg"
+           aria-hidden="true" tabindex="-1">
+      <source src="../../assets/media/video/library.mp4" type="video/mp4">
+    </video>
+    <figcaption class="media-bar">
+      <button class="media-toggle" type="button" data-media-toggle
+              data-label-off="Play the reading room"
+              data-label-on="Pause the reading room">Play the reading room</button>
+      <span class="media-note">A silent loop of the library after hours. The story reads the same without it.</span>
+    </figcaption>
+  </figure>
+
   <p class="scene-chapter" data-chapter>The Returns Hatch</p>
   <h1 class="scene-title" data-title>Loading the story</h1>
   <div class="lines" data-lines></div>
@@ -84,6 +99,7 @@
   </div>
 </footer>
 
+<script src="../../assets/js/media-player.js" defer></script>
 <script src="../data/the-returns-hatch.js" defer></script>
 <script src="../../assets/js/story-engine.js" defer></script>
 </body>

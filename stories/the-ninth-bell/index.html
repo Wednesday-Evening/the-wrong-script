@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#060a0b">
 <link rel="stylesheet" href="../../assets/css/lobby.css">
 <link rel="stylesheet" href="../../assets/css/stories.css">
+<link rel="stylesheet" href="../../assets/css/media.css">
 </head>
 <body class="stories">
 
@@ -56,6 +57,28 @@
 
   <p class="notice" data-notice hidden></p>
 
+  <figure class="media-figure scene-media" data-media>
+    <video class="media-video" data-media-video preload="none" muted loop playsinline
+           width="1280" height="720" poster="../../assets/media/video/lighthouse.jpg"
+           aria-hidden="true" tabindex="-1">
+      <source src="../../assets/media/video/lighthouse.mp4" type="video/mp4">
+    </video>
+    <figcaption class="media-bar">
+      <button class="media-toggle" type="button" data-media-toggle
+              data-label-off="Play the light"
+              data-label-on="Pause the light">Play the light</button>
+      <span class="media-note">A silent loop of the light. The story reads the same without it.</span>
+    </figcaption>
+  </figure>
+
+  <div class="media-audio" data-media-audio-block>
+    <button class="media-toggle" type="button" data-audio-toggle
+            data-label-off="Ocean sound: off"
+            data-label-on="Ocean sound: on">Ocean sound: off</button>
+    <audio data-media-audio preload="none" loop src="../../assets/media/audio/ocean-waves.mp3"></audio>
+    <p class="media-note">Optional sea, off by default. Nothing is required to read the story.</p>
+  </div>
+
   <p class="scene-chapter" data-chapter>The Ninth Bell</p>
   <h1 class="scene-title" data-title>Loading the story</h1>
   <div class="lines" data-lines></div>
@@ -84,6 +107,7 @@
   </div>
 </footer>
 
+<script src="../../assets/js/media-player.js" defer></script>
 <script src="../data/the-ninth-bell.js" defer></script>
 <script src="../../assets/js/story-engine.js" defer></script>
 </body>
