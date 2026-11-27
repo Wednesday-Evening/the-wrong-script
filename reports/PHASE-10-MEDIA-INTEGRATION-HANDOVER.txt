@@ -1,0 +1,525 @@
+================================================================================
+THE WRONG SCRIPT
+PHASE 10 - CONTROLLED MEDIA INTEGRATION
+Implementation handover
+================================================================================
+
+Phase:            10 - Controlled media integration
+Status:           IMPLEMENTED AND VERIFIED ON BRANCH. Awaiting owner review.
+Date:             27 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    3be3b31 (Phase 9 report edit; working tree clean)
+Final HEAD:       This report cannot contain its own commit hash. The exact final
+                  HEAD is stated in the completion message that accompanies this
+                  handover.
+Working tree:     Clean before the pass and clean after the report commit.
+Deployment:       NONE. No hosting, domain, DNS or environment change.
+Phase 11:         NOT STARTED.
+
+--------------------------------------------------------------------------------
+1. WHAT WAS AUTHORISED
+--------------------------------------------------------------------------------
+
+Integrate the six owner-supplied media assets into five existing experiences -
+Lobby, The Ninth Bell, The Returns Hatch, Gallery and Arcade - with accessible,
+responsive playback; organise the assets under assets/media/; record credits and
+licensing honestly; preserve every accepted room and save key; and verify.
+
+Everything below stays inside that boundary. No new room, story, game, account,
+backend, dependency, framework, storage key or deployment was added.
+
+--------------------------------------------------------------------------------
+2. PRE-FLIGHT FINDINGS
+--------------------------------------------------------------------------------
+
+  Repository and branch     Wednesday-Evening/the-wrong-script, appjet.
+  Phase 9 baseline          Accepted revision 4e1bb42. The Phase 9 handover and
+                            the owner-upload commit ee977d0 are both present in
+                            branch history. No discrepancy was found, so the
+                            stop condition did not apply.
+  Architecture              Plain static HTML, CSS and vanilla JavaScript. No
+                            manifest, no lockfile, no dependencies, no build
+                            step, no backend. Unchanged by this phase.
+  Routes present            /, /film/, /stories/, /stories/the-ninth-bell/,
+                            /stories/the-returns-hatch/, /arcade/,
+                            /arcade/signal-path/, /arcade/lamplight/, /gallery/,
+                            /social-room/, /archive/, /creator-studio/.
+  Existing tooling          tools/verify-all.js plus eleven route suites,
+                            including four Playwright browser suites that spawn
+                            their own python3 http.server on port 4173.
+
+ASSET DISCREPANCY - STATED PLAINLY
+
+The authorisation listed expected filenames such as
+"13729581_3840_2160_60fps.mp4". Those files are NOT in the repository. What the
+owner actually uploaded in commit ee977d0 ("Add files via upload") is a
+different set: three 720p MP4 files with descriptive names, and three MP3 files
+with no extension. The six present files were used as found. Nothing was
+substituted, and nothing was re-encoded, cropped, stretched or compressed.
+
+--------------------------------------------------------------------------------
+3. THE SIX ASSETS AS INSPECTED
+--------------------------------------------------------------------------------
+
+Inspected with ffprobe/ffmpeg (file metadata), and one frame per video was
+extracted to make a poster.
+
+  File (as uploaded, repo root)                     Bytes      Media
+  ------------------------------------------------  ---------  -----------------
+  video-01-lighthouse-720p.mp4                      1,586,732  H.264, no audio
+  video-02-abstract-motion-720p.mp4                 4,493,169  H.264, no audio
+  video-03-library-720p.mp4                           982,652  H.264 + AAC 48k
+  sigmamusicart-cinematic-documentary-piano-162733  4,337,580  MPEG-1 L3 44.1k
+  audiovisuaiseu-ocean-waves-sound-02-321572        3,332,352  MPEG-1 L3 48k
+  universfield-soft-interface-click-126517             45,975  MPEG-1 L3 44.1k
+
+  Playable detail:
+    lighthouse.mp4        1280x720, 5.77 s, loops
+    abstract-motion.mp4   1280x720, 10.00 s, loops
+    library.mp4           1280x720, 14.02 s, loops, carries an audio track
+    cinematic-piano.mp3   2 min 15.5 s, loops
+    ocean-waves.mp3       1 min 44.1 s, loops
+    interface-click.mp3   1.44 s, single hit, not looped
+
+  All six decode correctly. None was corrupt or unsupported. No asset was
+  missing.
+
+--------------------------------------------------------------------------------
+4. FINAL ORGANISATION AND PATHS
+--------------------------------------------------------------------------------
+
+  assets/media/video/lighthouse.mp4            <- video-01-lighthouse-720p.mp4
+  assets/media/video/abstract-motion.mp4       <- video-02-abstract-motion-720p.mp4
+  assets/media/video/library.mp4               <- video-03-library-720p.mp4
+  assets/media/video/lighthouse.jpg            poster, generated from 00:00:01
+  assets/media/video/abstract-motion.jpg       poster, generated from 00:00:01
+  assets/media/video/library.jpg               poster, generated from 00:00:01
+  assets/media/audio/cinematic-piano.mp3       <- sigmamusicart-...-162733
+  assets/media/audio/ocean-waves.mp3           <- audiovisuaiseu-...-321572
+  assets/media/audio/interface-click.mp3       <- universfield-...-126517
+  assets/media/ASSET-CREDITS.txt               credits and licensing record
+
+Copies, not moves. SHA-256 comparison of each upload against its copy confirms
+all six pairs are identical; only the filename changed. The three posters are
+frames taken from the owner's own video files, so they contain nothing that is
+not already in those files, and they carry the same unresolved licence status.
+
+--------------------------------------------------------------------------------
+5. CREDITS AND LICENSING - THE HONEST POSITION
+--------------------------------------------------------------------------------
+
+assets/media/ASSET-CREDITS.txt records, per asset: original filename, bytes,
+format, duration, intended placement, source page, creator, licence,
+attribution and suitability.
+
+  Established:      the files exist, are intact and playable; the owner supplied
+                    them and authorised this integration.
+  NOT established:  who made each asset, where it came from, under which licence,
+                    whether attribution is required, whether public or
+                    commercial use is permitted.
+
+No asset is described anywhere in this project as "licensed", "royalty-free" or
+"cleared". The studio-style words inside three audio filenames (sigmamusicart,
+audiovisuaiseu, universfield) are NOT recorded as credits - that would be a
+guess from a filename, and this report does not make it.
+
+OWNER ACTION BEFORE ANY PUBLIC LAUNCH: for each of the six assets, record the
+source page, the creator (if a credit is required), the exact licence, whether
+attribution must be shown to visitors, and whether commercial use is allowed.
+Until then treat all six as unverified for public release.
+
+Removal is safe by design: every video block is poster-first and user-started,
+every audio element is optional and off by default, and no room depends on any
+asset to function. Deleting one reference degrades to a working page.
+
+--------------------------------------------------------------------------------
+6. WHAT WAS INTEGRATED, ROOM BY ROOM
+--------------------------------------------------------------------------------
+
+A. LOBBY  (/)
+
+   The decorative "reel" block in the introduction panel is now a real media
+   figure: the abstract-motion loop, poster-first, muted, looping, playsinline,
+   preload="none", aria-hidden with tabindex="-1" because it is decorative, and
+   a visible control labelled "Play background motion" / "Pause background
+   motion" with aria-pressed. It does not obstruct navigation or text.
+
+   The cinematic piano was NOT used as Lobby ambience. The authorisation made
+   that optional ("consider"), and section 4D places the piano with the Gallery
+   music context. Adding it in both places would have produced the competing
+   audio streams section 5 warns against. This is a recorded decision, not an
+   omission.
+
+B. THE NINTH BELL  (/stories/the-ninth-bell/)
+
+   The lighthouse loop sits above the scene text as a silent loop, poster-first
+   and user-started. Ocean waves are offered as optional atmosphere through a
+   state-labelled control ("Ocean sound: off" / "Ocean sound: on"), off by
+   default, preload="none", looping. Story text reads identically with the media
+   unused.
+
+   Preserved: all ten scenes, five endings, the deliberately early ending,
+   choice logic, ending logic and the story's own save behaviour. Story files
+   changed only by the added media block (24 added lines, no other edit).
+
+C. THE RETURNS HATCH  (/stories/the-returns-hatch/)
+
+   The library loop sits above the scene text. This is the only video with an
+   audio track, so the markup carries `muted` as well as playing muted in
+   script: no browser can start it with sound. No audio element was added, so
+   nothing competes with the story.
+
+   Preserved: all ten scenes, five endings, the early ending, choice and ending
+   logic, save behaviour. Only the media block was added (16 added lines).
+
+D. GALLERY  (/gallery/)
+
+   The piano is attached to the "Cue 07: The Door Opens Twice" exhibit, inside
+   the existing exhibit panel, and labelled there as supplied atmosphere - not
+   as a recording of that cue. The audio block is hidden until an exhibit that
+   carries audio is opened, the source is attached at open time, and playback
+   stops when the panel closes or Escape is pressed. A text description is
+   present, so the exhibit is complete without sound.
+
+   Preserved: every exhibit, category, description and the browsing behaviour.
+
+E. ARCADE  (/arcade/, /arcade/signal-path/, /arcade/lamplight/)
+
+   One quiet click on a deliberate press, from a single shared player,
+   preloaded on demand and throttled to one tick per 90 ms so holding a
+   direction pad cannot machine-gun it. Off by default: the first press makes no
+   sound. A visible "Interface sounds: off / on" toggle with aria-pressed sits
+   on the Arcade library and both games, so sound can be disabled without
+   reloading.
+
+   Preserved: SIGNAL PATH's six levels, Lamplight's rooms, both save systems,
+   move counting and completion behaviour.
+
+--------------------------------------------------------------------------------
+7. FILES ADDED AND MODIFIED
+--------------------------------------------------------------------------------
+
+Measured against the Phase 9 accepted revision 4e1bb42: 26 files, 14 added and
+12 modified, 0 deleted, 0 moved.
+
+ADDED (14)
+
+  assets/css/media.css                 media figure, control and panel styling
+  assets/js/media-player.js            one shared controller: label sync, play/
+                                       pause, single-stream pausing, pagehide stop
+  assets/js/arcade-sound.js            throttled single click, off by default
+  assets/media/ASSET-CREDITS.txt       credits and licensing record
+  assets/media/video/lighthouse.mp4    asset copy
+  assets/media/video/abstract-motion.mp4
+  assets/media/video/library.mp4
+  assets/media/video/lighthouse.jpg    generated poster
+  assets/media/video/abstract-motion.jpg
+  assets/media/video/library.jpg
+  assets/media/audio/cinematic-piano.mp3
+  assets/media/audio/ocean-waves.mp3
+  assets/media/audio/interface-click.mp3
+  tools/verify-media.js                new suite, 99 checks (see section 10)
+
+MODIFIED (12)
+
+  index.html                           Lobby media figure
+  stories/the-ninth-bell/index.html    video + optional ocean audio block
+  stories/the-returns-hatch/index.html video block
+  gallery/index.html                   exhibit audio block, stylesheet, script
+  assets/js/gallery.js                 audio references on open/close
+  assets/js/gallery-exhibits.js        Cue 07 audio path and description
+  arcade/index.html                    sound toggle
+  arcade/signal-path/index.html        sound toggle
+  arcade/lamplight/index.html          sound toggle
+  tools/verify-all.js                  registers the media suite
+  tools/verify-gallery.js              audio assertion replaces the old
+                                       "no audio in the Gallery" assumption
+  reports/PHASE-9-HANDOVER.txt         Phase 9 reconciliation metadata carried in
+                                       the first Phase 10 commit; no Phase 9
+                                       finding or result was altered
+
+NOT TOUCHED: film/ (all files), stories/index.html, the story engine, story
+data, arcade level data, gallery exhibit content beyond Cue 07's audio fields,
+social-room/, archive/, creator-studio/, README.md, and the six root uploads.
+
+--------------------------------------------------------------------------------
+8. PLAYBACK AND ACCESSIBILITY IMPLEMENTATION
+--------------------------------------------------------------------------------
+
+  - No autoplay anywhere, with or without sound. Every video is user-started;
+    every audio element is off until pressed.
+  - preload="none" on all video and audio, so a page entry does not pull
+    megabytes of media. The 4.5 MB abstract-motion file is not fetched until the
+    visitor asks for it.
+  - Posters for all three videos, so an unstarted block is never an empty box.
+  - playsinline on all three videos for mobile.
+  - Controls are real <button> elements with state in aria-pressed and a text
+    label that changes with state ("Play/Pause background motion", "Ocean
+    sound: off/on", "Interface sounds: off/on"), so the state is not carried by
+    colour alone.
+  - One shared controller pauses other media before starting a new one, and a
+    pagehide handler stops playback when the visitor leaves, so audio does not
+    follow them across rooms.
+  - Focus rings come from the existing project convention; the new controls use
+    the same focus treatment as the rest of the site.
+  - prefers-reduced-motion removes transitions and animation on the media
+    figure; measured at 0s in the browser.
+  - Sizing is responsive with no crop or distortion; the Lobby video measured
+    348 px wide inside a 390 px viewport with 0 px page overflow.
+
+--------------------------------------------------------------------------------
+9. BEFORE AND AFTER VERIFICATION
+--------------------------------------------------------------------------------
+
+BEFORE  (starting state, commit cc668ed, run in a git worktree so the suites
+         that assert Git state behave correctly): 12 of 12 suites passed.
+
+AFTER   (current revision, 9394cb9): 13 of 13 suites passed, the new media suite
+         included.
+
+  Suite inventory after this phase: nav, story, lamplight, signal-path, gallery,
+  social-room, archive, creator-studio, media, archive-ui, gallery-ui,
+  social-room-ui, creator-studio-ui.
+
+METHOD NOTE, RECORDED BECAUSE IT PRODUCED FALSE FAILURES: the same before-run
+was first attempted against a `git archive` copy of the baseline. social-room and
+archive exited 1 there, because both assert Git state ("the film is unchanged
+against the last commit") and an archive has no .git. That was a property of the
+copy, not of the application. The before-figures above come from the worktree
+run, which is the valid comparison.
+
+--------------------------------------------------------------------------------
+10. TEST MATRIX
+--------------------------------------------------------------------------------
+
+Labels: PASS executed and passed; FAIL executed and failed; NOT TESTED not
+executed; CODE REVIEW ONLY inspected in source, not run.
+
+A. STATIC AND RULES SUITES (node, Chromium-free where applicable)
+
+  A1  node tools/verify-all.js (13 suites)                  PASS  exit 0
+  A2  node tools/verify-media.js                            PASS  99 checks
+  A3  tools/verify-gallery.js with the audio assertion      PASS  (in A1)
+  A4  tools/verify-all.js at cc668ed, git worktree          PASS  12/12
+
+  What verify-media.js actually checks: every asset and poster exists with a
+  non-zero size; each file's container/codec signature is what its extension
+  claims (MP4 ftyp, ID3/MPEG frame for MP3, JPEG SOI); each page that uses media
+  references a path that resolves; the media scripts contain no storage, cookie
+  or network API and no save-key string; the Arcade click is the only script
+  allowed to construct a player, and its limits are asserted; the credits file
+  records the original upload filenames; the six root uploads are present.
+
+B. BROWSER SUITE (Chromium 151, real page, port 4173)
+
+  B1  Lobby 1280: video present, paused, no autoplay attribute, preload none,
+      muted+loop, playsinline, correct poster and source         PASS
+  B2  Lobby: poster image loads (960x540)                       PASS
+  B3  Lobby: pressing the control starts playback; currentTime advanced to
+      0.87 s; label switched to "Pause background motion"; aria-pressed true
+                                                                 PASS
+  B4  Lobby: pressing again pauses; label returns to play        PASS
+  B5  Lobby 1280: 0 px horizontal overflow                       PASS
+  B6  Lobby 390 (touch, DPR 3): 0 px overflow; video 348 px wide; control 44 px
+      tall; touch press starts playback                          PASS
+  B7  Ninth Bell: lighthouse video present and paused; ocean audio present,
+      paused, preload none; label starts "Ocean sound: off"      PASS
+  B8  Ninth Bell: press starts the ocean sound; currentTime advanced to 0.80 s;
+      label became "Ocean sound: on"                             PASS
+  B9  Ninth Bell: press again stops it; label returns to off     PASS
+  B10 Ninth Bell: light loop starts on request                   PASS
+  B11 Ninth Bell: a story choice still advances the scene        PASS
+      (clicked the first [data-choices] button; [data-lines] text changed)
+  B12 Ninth Bell: dispatching pagehide stops playing audio       PASS
+  B13 Returns Hatch: library video present, paused, muted; starts on request;
+      zero audio elements; choices still offered                 PASS
+  B14 Gallery: exhibit audio present and paused on arrival; audio block hidden
+      until needed                                               PASS
+  B15 Gallery: opening Cue 07 reveals the block and attaches cinematic-piano.mp3
+                                                                 PASS
+  B16 Gallery: piano starts on request and advances to 0.83 s    PASS
+  B17 Gallery: Escape closes the panel and stops the piano       PASS
+  B18 Arcade library: toggle rendered, off by default, 44 px; turns on; turns
+      off again                                                  PASS
+  B19 SIGNAL PATH: toggle present and off; a move with sound on still increments
+      the counter (up blocked 0->0, right 0->1)                  PASS
+  B20 Reduced motion (emulated): preference visible; media styling transition
+      and animation 0s; video still not autoplaying              PASS
+  B21 Storage, per room, seeded then visited: /, /gallery/, /arcade/,
+      /arcade/signal-path/, /arcade/lamplight/ change nothing; the two story
+      rooms change only their own story key                      PASS
+  B22 No console errors, no uncaught page errors, no failed requests, no
+      HTTP >= 400 on any tested route                            PASS
+
+  Totals: 65 assertions executed, 65 passed, 0 failed.
+
+C. CODE REVIEW ONLY
+
+  C1  Semantic structure of the new controls (real buttons, aria-pressed,
+      meaningful labels) - inspected and asserted in the DOM, but not reviewed
+      against a WCAG conformance standard.
+  C2  Media element focus order relative to surrounding content - the controls
+      are ordinary focusable buttons in document order; no focus trap was
+      introduced. Not judged against a standard.
+  C3  Suitability of asset content beyond the sampled frames and file metadata.
+
+D. NOT TESTED, AND WHY
+
+  D1  Firefox, Safari/WebKit, Edge. Firefox and WebKit cannot launch in this
+      sandbox (host libraries missing, no root, no Debian package sources);
+      Edge is not installable. Chromium is not a substitute for any of them.
+  D2  Physical Android or iPhone. No device exists here. The 390 px runs are
+      Chromium viewport emulation with touch enabled, not a real phone.
+  D3  Real touch gestures (swipe, long press). Controls were pressed with
+      pointer clicks in a touch-enabled context.
+  D4  Screen readers (TalkBack, VoiceOver, NVDA, JAWS). No assistive technology
+      is installed. Nothing here is an accessibility certification.
+  D5  A full listening pass of the two long audio files, and a full viewing of
+      all three videos. One frame per video was inspected for the poster; file
+      metadata was read for all six.
+  D6  A full film playthrough in this pass. The film was checked for an empty
+      diff and its routes still load; its endings are covered by earlier phases.
+  D7  Text contrast on media captions over gradient backgrounds - the measuring
+      method needs a flat background.
+
+--------------------------------------------------------------------------------
+11. BROWSER AND DEVICE COVERAGE
+--------------------------------------------------------------------------------
+
+  Chromium 151.0.7922.34 via Playwright 1.62.1, Linux sandbox, headless.
+  Viewports: 1280x900 desktop and 390x844 mobile (touch enabled, DPR 3).
+  Static server: python3 -m http.server 4173 --bind 127.0.0.1, started and
+  stopped by the harness itself.
+
+  The browser harness lives at /tmp/phase10-media2.cjs, outside the repository,
+  so this phase adds no tooling to the project beyond tools/verify-media.js.
+
+--------------------------------------------------------------------------------
+12. LIMITATIONS AND OUTSTANDING ITEMS
+--------------------------------------------------------------------------------
+
+  1.  Licensing is unverified for all six assets. This is the most important
+      open item in the phase, and it is an owner action, not a code defect.
+  2.  The expected 4K filenames in the authorisation were not present; the
+      actual uploads are 720p. The integration uses what exists. If the owner
+      intended the 4K originals, they will need uploading and the references
+      re-pointed.
+  3.  Chromium only, emulated mobile only, no assistive technology (section 10D).
+  4.  Media is served as-is. The 4.5 MB abstract-motion file is the largest
+      single asset; preload="none" keeps it off the critical path, but a slower
+      connection will still wait after the visitor presses play. No re-encode was
+      performed, because the authorisation forbids degrading media for a size
+      target without a stated reason and approval.
+  5.  The Gallery piano is labelled as supplied atmosphere, deliberately not as
+      a recording of Cue 07. If the owner wants a different exhibit pairing, it
+      is a one-field change in gallery-exhibits.js.
+  6.  Story rooms write their own story save keys on load. That is pre-existing
+      Phase 9 engine behaviour, confirmed identical at baseline; media code
+      touches no storage at all.
+  7.  No interface-sound preference is persisted. Sound resets to off on each
+      visit, which is the safe default, but the owner may later want a stored
+      preference - that would need a new, separately authorised key.
+  8.  No defect was found in the five rooms during this pass, so none was fixed.
+
+--------------------------------------------------------------------------------
+13. ORIGINAL UPLOADS PRESERVED
+--------------------------------------------------------------------------------
+
+All six uploads remain in the repository root, unchanged:
+
+  video-01-lighthouse-720p.mp4                          1,586,732
+  video-02-abstract-motion-720p.mp4                     4,493,169
+  video-03-library-720p.mp4                               982,652
+  sigmamusicart-cinematic-documentary-piano-162733      4,337,580
+  audiovisuaiseu-ocean-waves-sound-02-321572            3,332,352
+  universfield-soft-interface-click-126517                 45,975
+
+SHA-256 comparison: all six root files are byte-identical to their copies under
+assets/media/. Nothing was moved, renamed, overwritten or re-encoded. No
+application file references the root copies.
+
+--------------------------------------------------------------------------------
+14. SAVE-KEY PRESERVATION
+--------------------------------------------------------------------------------
+
+Existing keys: tws, wrong-script.story.the-ninth-bell.v1,
+wrong-script.arcade.signal-path.v1. No key was read, written, cleared, renamed
+or migrated by this phase, and no new key was introduced by media code.
+
+Evidence, per room, seeded with all three keys and then visited:
+
+  /                          changed=[] added=[]
+  /gallery/                  changed=[] added=[]
+  /arcade/                   changed=[] added=[]
+  /arcade/signal-path/       changed=[] added=[]
+  /arcade/lamplight/         changed=[] added=[]
+  /stories/the-ninth-bell/   changed=[its own story key] added=[]
+  /stories/the-returns-hatch changed=[] added=[its own story key]
+
+The same probe run against the Phase 9 baseline (git archive of 3be3b31) gives
+the identical result line for line. The story rooms' own-key behaviour is
+therefore pre-existing, not introduced here. The fourth key that appears,
+wrong-script.story.the-returns-hatch.v1, is defined at baseline in
+assets/js/stories-index.js:44 - it is Phase 9's Returns Hatch save, not a Phase
+10 addition.
+
+Static confirmation: tools/verify-media.js asserts that the media scripts contain
+no localStorage, sessionStorage, indexedDB or cookie access and no save-key
+string.
+
+--------------------------------------------------------------------------------
+15. FILM PRESERVATION
+--------------------------------------------------------------------------------
+
+  git diff --stat 4e1bb42..HEAD -- film/     empty (no output)
+
+film/index.html and every file under film/ are unchanged since the Phase 9
+accepted revision. The film was not restyled, not given media, and not touched by
+the media controller: its own audio behaviour is untouched. The empty diff is
+Git evidence, not a claim.
+
+--------------------------------------------------------------------------------
+16. COMMITS AND FINAL STATE
+--------------------------------------------------------------------------------
+
+  Phase 9 accepted revision           4e1bb42
+  Phase 9 report edit before this     3be3b31
+  Phase 10 starting HEAD              3be3b31
+  Phase 10 commits, oldest first
+    cc668ed   media copies + Phase 9 report metadata
+    446de10   media stylesheet and player
+    b75b692   Lobby and story integration
+    937edd9   Arcade sound and toggles
+    a05b099   Gallery integration
+    e5e9a23   credits and media suite
+    e9d71b0   suite registration and checks
+    9394cb9   media verifier corrections
+  Report commit                       created after this file; hash in the
+                                      completion message
+  Final HEAD                          stated in the completion message
+
+  Working tree at handover            clean
+  Remote                              pushed to appjet
+  Deployment                          NONE
+
+--------------------------------------------------------------------------------
+17. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - Implementation stayed inside the five named rooms and the six named assets.
+  - No new room, story, game, account, upload path, submission, comment,
+    reaction, message, analytics or tracking was added.
+  - No framework, package manager, dependency, build step, backend, database or
+    network service was introduced. The dependency scan remains not_applicable:
+    no manifest, lockfile or resolved packages exist. That is an empty scan, not
+    a security certification of the source, runtime or hosting.
+  - No save key was read, written, cleared or migrated; no new key came from
+    media code.
+  - film/ has an empty diff against the Phase 9 accepted revision.
+  - No deployment, hosting, domain, DNS or environment change occurred.
+  - Phase 11 was not started, and no unrelated defect was fixed.
+
+================================================================================
+PHASE 10 STATUS: IMPLEMENTED AND VERIFIED - AWAITING OWNER REVIEW
+================================================================================
