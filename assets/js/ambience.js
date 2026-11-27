@@ -1,256 +1,361 @@
 /* =====================================================================
    THE WRONG SCRIPT - room atmosphere
    ---------------------------------------------------------------------
-   Builds one full-viewport, silent video wash behind the page and hands
-   it to the floating controller. Nothing else on the page changes.
+   Builds one full-viewport, silent video wash behind the page and hands it
+   to the floating controller. Nothing else on the page changes.
 
    What it guarantees:
 
      1. One layer, one video. The layer is built once per page, and it is
         pointer-events: none, so it can never swallow a click meant for
         navigation, a story choice or a game control.
-     2. Silent, always. The video element is created muted and is never
-        given a volume, so the wash can never make a sound. Sound lives in
-        the rooms' own audio elements and in the controller.
-     3. A poster underneath. The poster image is painted on the frame
-        element, so a slow, blocked or failed video still shows an image
-        instead of a black rectangle.
-     4. It stops when it should: when the tab is hidden, when the page is
-        being left, when the visitor asks it to stop, and when a room's own
-        video starts playing (so two decorative videos never run at once).
-     5. prefers-reduced-motion is honoured: the wash starts as a still
-        poster and only moves if the visitor explicitly asks for it.
+     2. A poster first. The still is painted before any video is requested,
+        so a blocked, slow or absent file still leaves a room with an image.
+     3. Nothing is fetched on entry. The source is attached after the page
+        has settled, and only when the visitor has not switched video off.
+     4. Video is muted, looped and inline. It never plays sound, and it never
+        competes with a story cinematic or a game sequence.
+     5. Reduced motion means a still room. The video is not started; the
+        poster carries the room, and the controller can still start it.
+     6. Leaving or hiding the page pauses it.
 
-   It reads no storage, writes no storage and knows nothing about any
-   room's save key. The room comes from a data-room attribute on <body>;
-   a page without one (the original film) gets no layer at all.
+   Public surface - window.TWSAmbience
+
+     state()             { room, label, video, poster, status }
+     setPlaying(bool)    start or stop, and remember the preference
+     pauseForOther(el)   let another video have the room
    ===================================================================== */
 
 (function () {
   'use strict';
 
-  /* Room identities. The video is chosen to suit the room's content, and
-     the tint that finishes the atmosphere lives in ambience.css. */
+  /* One entry per room. The video is the shared wash; the room's own
+     character comes from the grading and composition set in ambience.css.
+     Only three clips exist, so rooms that share a clip are graded and
+     composed differently rather than pretending to have unique footage. */
   var ROOMS = {
-    'lobby': { label: 'Lobby', video: 'abstract-motion', poster: 'abstract-motion' },
-    'stories': { label: 'The Stories', video: 'library', poster: 'library' },
-    'ninth-bell': { label: 'The Ninth Bell', video: 'lighthouse', poster: 'lighthouse' },
-    'returns-hatch': { label: 'The Returns Hatch', video: 'library', poster: 'library' },
-    'arcade': { label: 'The Arcade', video: 'abstract-motion', poster: 'abstract-motion' },
-    'signal-path': { label: 'Signal Path', video: 'abstract-motion', poster: 'abstract-motion' },
-    'lamplight': { label: 'Lamplight', video: 'lighthouse', poster: 'lighthouse' },
-    'gallery': { label: 'The Gallery', video: 'abstract-motion', poster: 'abstract-motion' },
-    'social-room': { label: 'The Social Room', video: 'library', poster: 'library' },
-    'archive': { label: 'The Archive', video: 'library', poster: 'library' },
-    'creator-studio': { label: 'The Creator Studio', video: 'abstract-motion', poster: 'abstract-motion' }
+    'lobby': {
+      label: 'Lobby',
+      video: 'abstract-motion.mp4',
+      poster: 'abstract-motion.jpg'
+    },
+    'stories': {
+      label: 'The Stories',
+      video: 'library.mp4',
+      poster: 'library.jpg'
+    },
+    'ninth-bell': {
+      label: 'The Ninth Bell',
+      video: 'lighthouse.mp4',
+      poster: 'lighthouse.jpg'
+    },
+    'returns-hatch': {
+      label: 'The Returns Hatch',
+      video: 'library.mp4',
+      poster: 'library.jpg'
+    },
+    'arcade': {
+      label: 'The Arcade',
+      video: 'abstract-motion.mp4',
+      poster: 'abstract-motion.jpg'
+    },
+    'signal-path': {
+      label: 'Signal Path',
+      video: 'abstract-motion.mp4',
+      poster: 'abstract-motion.jpg'
+    },
+    'lamplight': {
+      label: 'Lamplight',
+      video: 'lighthouse.mp4',
+      poster: 'lighthouse.jpg'
+    },
+    'gallery': {
+      label: 'The Gallery',
+      video: 'abstract-motion.mp4',
+      poster: 'abstract-motion.jpg'
+    },
+    'social-room': {
+      label: 'The Social Room',
+      video: 'library.mp4',
+      poster: 'library.jpg'
+    },
+    'archive': {
+      label: 'The Archive',
+      video: 'library.mp4',
+      poster: 'library.jpg'
+    },
+    'creator-studio': {
+      label: 'The Creator Studio',
+      video: 'abstract-motion.mp4',
+      poster: 'abstract-motion.jpg'
+    }
   };
 
-  var body = document.body;
-  if (!body) { return; }
+  var room = (document.body && document.body.getAttribute('data-room')) || '';
+  var config = ROOMS[room] || null;
 
-  var roomId = body.getAttribute('data-room') || '';
-  var room = ROOMS[roomId];
-
-  /* The film, and any page without a known room, keeps exactly the page it
-     had: no layer, no controller video switch, no network cost. */
-  if (!room) {
-    window.TWSAmbience = {
-      room: roomId,
-      label: '',
-      video: null,
-      hasVideo: function () { return false; },
-      state: function () { return 'none'; },
-      isPlaying: function () { return false; },
-      setPlaying: function () {},
-      pauseForOther: function () {}
-    };
-    return;
-  }
-
-  /* Resolve asset paths from this script's own URL, so a page at any depth
-     needs nothing but data-room. */
-  var base = 'assets/media/video/';
-  var script = document.currentScript;
-  if (script && script.src) {
-    try {
-      base = new URL('../media/video/', script.src).href;
-    } catch (error) {
-      /* keep the relative default */
-    }
-  }
-
-  var reduceQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  function reduced() {
-    return !!(reduceQuery && reduceQuery.matches);
-  }
-
+  var layer = null;
+  var video = null;
+  var status = 'none';
   var userPaused = false;
-  var blocked = false;
-  var failed = false;
-  var lastState = '';
+  var attached = false;
+  var starting = false;
 
-  /* ---------------- the layer ---------------- */
-
-  var layer = document.createElement('div');
-  layer.className = 'ambience';
-  layer.setAttribute('aria-hidden', 'true');
-
-  var frame = document.createElement('div');
-  frame.className = 'ambience__frame';
-  frame.style.backgroundImage = 'url("' + base + room.poster + '.jpg")';
-
-  var video = document.createElement('video');
-  video.className = 'ambience__video';
-  video.muted = true;
-  video.defaultMuted = true;
-  video.loop = true;
-  video.playsInline = true;
-  video.preload = 'metadata';
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
-  video.setAttribute('webkit-playsinline', '');
-  video.setAttribute('aria-hidden', 'true');
-  video.setAttribute('tabindex', '-1');
-  video.setAttribute('disablepictureinpicture', '');
-  video.poster = base + room.poster + '.jpg';
-
-  var source = document.createElement('source');
-  source.src = base + room.video + '.mp4';
-  source.type = 'video/mp4';
-  video.appendChild(source);
-
-  var tint = document.createElement('div');
-  tint.className = 'ambience__tint';
-
-  var scrim = document.createElement('div');
-  scrim.className = 'ambience__scrim';
-
-  layer.appendChild(frame);
-  layer.appendChild(video);
-  layer.appendChild(tint);
-  layer.appendChild(scrim);
-  body.insertBefore(layer, body.firstChild);
-
-  /* ---------------- state ---------------- */
-
-  function computeState() {
-    if (failed) { return 'unavailable'; }
-    if (blocked) { return 'blocked'; }
-    if (userPaused) { return 'paused'; }
-    if (reduced()) { return 'still'; }
-    if (document.hidden) { return 'paused'; }
-    return video.paused ? 'paused' : 'playing';
+  function base() {
+    var scripts = document.querySelectorAll('script[src]');
+    for (var i = 0; i < scripts.length; i += 1) {
+      var src = scripts[i].getAttribute('src') || '';
+      var match = src.match(/^(.*)assets\/js\/ambience\.js$/);
+      if (match) { return match[1]; }
+    }
+    return '';
   }
 
-  function settle() {
-    var state = computeState();
-    layer.setAttribute('data-state', state);
-    video.classList.toggle('is-live', state === 'playing');
-    if (state === lastState) { return; }
-    lastState = state;
-    document.dispatchEvent(new CustomEvent('tws:ambience', {
-      detail: { room: roomId, label: room.label, state: state }
-    }));
-  }
-
-  function attempt(force) {
-    if (failed) { settle(); return; }
-    if (document.hidden) { settle(); return; }
-    if (!force && (userPaused || reduced())) { settle(); return; }
-
-    var play;
+  function reduced() {
     try {
-      play = video.play();
-    } catch (error) {
-      failed = true;
-      settle();
-      return;
-    }
-
-    if (play && typeof play.then === 'function') {
-      play.then(function () {
-        blocked = false;
-        settle();
-      }).catch(function () {
-        /* Autoplay was refused (a browser policy, a battery saver, an
-           embedded view). The poster stays and the controller says so. */
-        blocked = true;
-        settle();
-      });
-    } else {
-      settle();
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch (e) {
+      return false;
     }
   }
 
-  video.addEventListener('playing', function () {
-    blocked = false;
-    settle();
-  });
-  video.addEventListener('pause', settle);
-  video.addEventListener('error', function () {
-    failed = true;
-    settle();
-  });
+  function wanted() {
+    if (userPaused) { return false; }
+    if (window.TWSAudio && window.TWSAudio.videoPref) {
+      return window.TWSAudio.videoPref() !== false;
+    }
+    return true;
+  }
 
-  /* ---------------- lifecycle ---------------- */
+  function notify() {
+    try {
+      window.dispatchEvent(new CustomEvent('tws:ambience', {
+        detail: state()
+      }));
+    } catch (e) { /* older browser: the controller polls */ }
+  }
 
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) {
-      if (!video.paused) { video.pause(); }
-      settle();
+  function state() {
+    return {
+      room: room,
+      label: config ? config.label : '',
+      video: config ? config.video : '',
+      poster: config ? config.poster : '',
+      status: status,
+      attached: attached
+    };
+  }
+
+  function build() {
+    if (!config) { return; }
+    if (document.querySelector('.ambience')) {
+      layer = document.querySelector('.ambience');
       return;
     }
-    if (!userPaused && !reduced()) { attempt(false); }
-  });
 
-  window.addEventListener('pagehide', function () {
-    try { video.pause(); } catch (error) { /* already stopped */ }
-  });
+    var prefix = base();
 
-  if (reduceQuery) {
-    var onPreference = function () {
-      if (reduced()) {
-        if (!video.paused) { video.pause(); }
-        settle();
-      } else if (!userPaused) {
+    layer = document.createElement('div');
+    layer.className = 'ambience';
+    layer.setAttribute('data-room', room);
+    layer.setAttribute('aria-hidden', 'true');
+
+    var frame = document.createElement('div');
+    frame.className = 'ambience__frame';
+    frame.style.backgroundImage = 'url("' + prefix + 'assets/media/video/' + config.poster + '")';
+
+    video = document.createElement('video');
+    video.className = 'ambience__video';
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('preload', 'none');
+    video.setAttribute('tabindex', '-1');
+    video.setAttribute('poster', prefix + 'assets/media/video/' + config.poster);
+    video.setAttribute('aria-hidden', 'true');
+
+    var ident = document.createElement('div');
+    ident.className = 'ambience__ident';
+
+    var tint = document.createElement('div');
+    tint.className = 'ambience__tint';
+
+    var scrim = document.createElement('div');
+    scrim.className = 'ambience__scrim';
+
+    layer.appendChild(frame);
+    layer.appendChild(video);
+    layer.appendChild(ident);
+    layer.appendChild(tint);
+    layer.appendChild(scrim);
+    document.body.insertBefore(layer, document.body.firstChild);
+
+    video.addEventListener('playing', function () {
+      status = 'playing';
+      video.classList.add('is-live');
+      notify();
+    });
+    video.addEventListener('pause', function () {
+      if (status === 'playing') { status = 'paused'; }
+      video.classList.remove('is-live');
+      notify();
+    });
+    video.addEventListener('error', function () {
+      status = 'unavailable';
+      video.classList.remove('is-live');
+      notify();
+    });
+  }
+
+  function attempt(explicit) {
+    if (!video || !config) { return; }
+    if (!explicit && reduced()) {
+      status = 'still';
+      notify();
+      return;
+    }
+    if (!explicit && !wanted()) {
+      status = 'off';
+      notify();
+      return;
+    }
+
+    if (!attached) {
+      var prefix = base();
+      video.src = prefix + 'assets/media/video/' + config.video;
+      attached = true;
+    }
+
+    starting = true;
+    var played;
+    try {
+      played = video.play();
+    } catch (e) {
+      played = null;
+    }
+
+    if (played && typeof played.then === 'function') {
+      played.then(function () {
+        starting = false;
+      }).catch(function () {
+        starting = false;
+        status = 'blocked';
+        video.classList.remove('is-live');
+        notify();
+      });
+    } else if (!played) {
+      starting = false;
+      status = 'blocked';
+      notify();
+    }
+  }
+
+  function schedule() {
+    if (!video) { return; }
+    if (!wanted()) {
+      status = 'off';
+      notify();
+      return;
+    }
+    if (reduced()) {
+      status = 'still';
+      notify();
+      return;
+    }
+
+    var start = function () {
+      if (document.hidden) {
+        status = 'paused';
+        notify();
+        return;
+      }
+      attempt(false);
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(start, { timeout: 1500 });
+    } else {
+      window.setTimeout(start, 900);
+    }
+  }
+
+  function setPlaying(on) {
+    userPaused = !on;
+    if (window.TWSAudio && window.TWSAudio.setVideoPref) {
+      window.TWSAudio.setVideoPref(!!on);
+    }
+    if (on) {
+      attempt(true);
+    } else if (video) {
+      try { video.pause(); } catch (e) { /* nothing to pause */ }
+      status = 'off';
+      video.classList.remove('is-live');
+      notify();
+    }
+  }
+
+  /* Only one decorative background video may run at a time. Story cinematics
+     and gallery recordings call this so the wash steps aside. */
+  function pauseForOther(keep) {
+    var videos = document.querySelectorAll('.ambience__video');
+    for (var i = 0; i < videos.length; i += 1) {
+      if (videos[i] === keep) { continue; }
+      if (!videos[i].paused) {
+        try { videos[i].pause(); } catch (e) { /* already stopped */ }
+      }
+    }
+    if (video && keep !== video) {
+      status = 'paused';
+      video.classList.remove('is-live');
+      notify();
+    }
+  }
+
+  if (!config) {
+    window.TWSAmbience = {
+      state: function () {
+        return { room: room, label: '', video: '', poster: '', status: 'none', attached: false };
+      },
+      setPlaying: function () {},
+      pauseForOther: pauseForOther,
+      rooms: Object.keys(ROOMS)
+    };
+  } else {
+    build();
+
+    window.TWSAmbience = {
+      state: state,
+      setPlaying: setPlaying,
+      pauseForOther: pauseForOther,
+      rooms: Object.keys(ROOMS)
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', schedule);
+    } else {
+      schedule();
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (!video) { return; }
+      if (document.hidden) {
+        if (!video.paused) {
+          try { video.pause(); } catch (e) { /* already stopped */ }
+          status = 'paused';
+          notify();
+        }
+      } else if (!userPaused && wanted() && !reduced()) {
         attempt(false);
       }
-    };
-    if (typeof reduceQuery.addEventListener === 'function') {
-      reduceQuery.addEventListener('change', onPreference);
-    } else if (typeof reduceQuery.addListener === 'function') {
-      reduceQuery.addListener(onPreference);
-    }
-  }
+    });
 
-  /* ---------------- public surface ---------------- */
-
-  window.TWSAmbience = {
-    room: roomId,
-    label: room.label,
-    video: video,
-    hasVideo: function () { return !failed; },
-    state: computeState,
-    isPlaying: function () { return !video.paused; },
-    setPlaying: function (on) {
-      if (on) {
-        userPaused = false;
-        blocked = false;
-        attempt(true);
-      } else {
-        userPaused = true;
-        if (!video.paused) { video.pause(); }
-        settle();
+    window.addEventListener('pagehide', function () {
+      if (video && !video.paused) {
+        try { video.pause(); } catch (e) { /* already stopped */ }
       }
-    },
-    /* Used when the visitor starts a room's own video: the wash steps
-       aside without remembering it as their choice. */
-    pauseForOther: function () {
-      if (!video.paused) { video.pause(); }
-      settle();
-    }
-  };
-
-  settle();
-  attempt(false);
+    });
+  }
 })();
