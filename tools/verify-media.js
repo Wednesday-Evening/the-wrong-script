@@ -143,13 +143,19 @@ PAGES.forEach(function (page) {
   if (click) { refs.push(click[1]); }
 
   if (page === 'gallery/index.html') {
-    /* The Gallery's recording is named in its exhibit data rather than in the
-       page, so section 3b resolves that reference instead. */
-    check(page + ' carries the audio block the exhibit data fills in',
-      /data-media-audio-block/.test(html) && /data-audio-toggle/.test(html));
-  } else {
+    /* The Gallery's supplied recording is no longer played: its licence is
+       unresolved, so the exhibit carries writing and a score sketch instead. */
+    check(page + ' carries no recorded-audio block',
+      !/data-media-audio-block/.test(html));
+    check(page + ' loads the generated room audio instead',
+      /assets\/js\/audio-engine\.js/.test(html));
+  } else if (/<video\b/i.test(html)) {
     check(page + ' references at least one media file', refs.length > 0,
       refs.length + ' reference(s)');
+    check(page + ' names no recorded audio file', !/\.mp3/.test(html));
+  } else {
+    check(page + ' embeds no recorded media file',
+      refs.length === 0 && !/\.mp3/.test(html), refs.length + ' reference(s)');
   }
 
   refs.forEach(function (ref) {
@@ -161,12 +167,11 @@ PAGES.forEach(function (page) {
 console.log('\n3b. GALLERY EXHIBIT AUDIO REFERENCE');
 
 var galleryData = text('assets/js/gallery-exhibits.js');
-var galleryRef = (galleryData.match(/src:\s*'(\.\.\/assets\/media\/[^']+)'/) || [])[1];
-check('gallery-exhibits.js names one media file', !!galleryRef, galleryRef || 'none');
-if (galleryRef) {
-  var galleryResolved = path.normalize(path.join('gallery', galleryRef));
-  check('the exhibit audio path resolves on disk', exists(galleryResolved), galleryResolved);
-}
+check('gallery-exhibits.js names no recorded audio file',
+  !/\.mp3/.test(galleryData));
+check('the music exhibit is described, not played',
+  /No recording of Cue 07 exists/.test(galleryData) &&
+  /not played while its licence is unresolved/.test(galleryData));
 
 console.log('\n4. INERT BY DEFAULT');
 
@@ -192,15 +197,10 @@ VIDEO_PAGES.forEach(function (page) {
 ['stories/the-ninth-bell/index.html', 'gallery/index.html'].forEach(function (page) {
   var html = text(page);
   var tags = html.match(/<audio\b[^>]*>/gi) || [];
-  check(page + ' carries exactly one audio element', tags.length === 1,
+  check(page + ' carries no recorded audio element', tags.length === 0,
     tags.length + ' found');
-
-  if (tags.length === 1) {
-    check(page + ' audio does not preload', /preload="none"/.test(tags[0]));
-    check(page + ' audio has no autoplay', !/autoplay/.test(tags[0]));
-    check(page + ' audio has a visible toggle control',
-      /data-audio-toggle/.test(html));
-  }
+  check(page + ' loads the generated room audio instead',
+    /assets\/js\/audio-engine\.js/.test(html));
 });
 
 console.log('\n5. SCRIPT HYGIENE');
@@ -217,11 +217,13 @@ SCRIPTS.forEach(function (rel) {
 var sound = text('assets/js/arcade-sound.js');
 check('arcade-sound.js starts disabled', /var enabled = false;/.test(sound));
 check('arcade-sound.js refuses to fire while disabled', /if \(!enabled\) \{ return; \}/.test(sound));
-check('arcade-sound.js does not preload the click', /audio\.preload = 'none';/.test(sound));
-check('arcade-sound.js keeps the click quiet', /audio\.volume = 0\.22;/.test(sound));
-check('arcade-sound.js throttles repeated presses', /lastTick < 90/.test(sound));
-check('arcade-sound.js stops when the page is left',
-  /pagehide/.test(sound) && /audio\.pause\(\)/.test(sound));
+check('arcade-sound.js plays a generated cue, not a recording',
+  /audio\.cue\('clique'\)/.test(sound) && !/\.mp3/.test(sound));
+check('arcade-sound.js reads the Effects channel',
+  /audio\.getLevel\('effects'\)/.test(sound));
+check('arcade-sound.js moves the Effects channel, not a private volume',
+  /audio\.setLevel\('effects'/.test(sound) && !/\.volume\s*=/.test(sound));
+check('arcade-sound.js stops when the page is left', /pagehide/.test(sound));
 
 var mediaScript = text('assets/js/media-player.js');
 check('media-player.js builds no hidden player', !/new\s+Audio\s*\(/.test(mediaScript));
@@ -236,8 +238,10 @@ console.log('\n6. ARCADE SOUND WIRING');
     var html = text(page);
     check(page + ' loads the interface-sound module',
       /arcade-sound\.js/.test(html));
-    check(page + ' names the click file it uses',
-      /data-click-src="[^"]*interface-click\.mp3"/.test(html));
+    check(page + ' names no recorded click file',
+      !/interface-click\.mp3/.test(html));
+    check(page + ' loads the generated audio engine',
+      /assets\/js\/audio-engine\.js/.test(html));
     check(page + ' offers a sound slot for the toggle',
       /data-sound-slot/.test(html));
   });

@@ -134,14 +134,15 @@ check('one video element is created per page',
 check('it pauses when the tab is hidden', /visibilitychange/.test(ambienceCode));
 check('it pauses when the page is left', /pagehide/.test(ambienceCode));
 check('it reports a blocked autoplay instead of failing silently',
-  /blocked = true/.test(ambienceCode));
+  /status = 'blocked'/.test(ambienceCode));
 check('reduced motion is read from the media query',
   /prefers-reduced-motion: reduce/.test(ambienceCode));
 check('reduced motion disables transitions in CSS',
   /@media \(prefers-reduced-motion:reduce\)\{[\s\S]*transition:none/.test(cssCode));
 check('a room video pauses the wash so two never run at once',
   /pauseForOther/.test(ambienceCode) &&
-  /addEventListener\('play'/.test(controllerCode));
+  /addEventListener\('play'/.test(ambienceCode) &&
+  /\}, true\)/.test(ambienceCode));
 
 /* ---------------- 5. the controller ---------------- */
 
@@ -152,19 +153,21 @@ check('the expanded panel is a labelled group',
   /aria-label', 'Sound and video'/.test(controllerCode));
 check('controls are real switches', /setAttribute\('role', 'switch'\)/.test(controllerCode));
 check('audio levels are real range inputs',
-  /range\.type = 'range'/.test(controllerCode));
+  /\.type = 'range'/.test(controllerCode));
 check('master audio, music, effects, ambience and video are all present',
-  /Master audio/.test(controllerCode) &&
+  /All sound/.test(controllerCode) &&
   /id: 'music'/.test(controllerCode) &&
   /id: 'effects'/.test(controllerCode) &&
   /id: 'ambience'/.test(controllerCode) &&
   /Background video/.test(controllerCode));
 check('a channel the room lacks is marked absent, not fake',
-  /is-absent/.test(controllerCode) && /range\.disabled = true/.test(controllerCode));
+  /is-absent/.test(controllerCode) && /Not here/.test(controllerCode) &&
+  /disabled = !/.test(controllerCode));
 check('master audio is a mute, not a play control',
-  /var master = true/.test(controllerCode) && /master \? /.test(controllerCode));
+  /setMaster\(/.test(controllerCode) && !/audio\.play\(/.test(controllerCode));
 check('Escape closes the panel and returns focus',
-  /event\.key === 'Escape'/.test(controllerCode) && /closePanel\(true\)/.test(controllerCode));
+  /event\.key !== 'Escape'/.test(controllerCode) &&
+  /collapse\(true\)/.test(controllerCode) && /compact\.focus\(\)/.test(controllerCode));
 check('the pill has a visible focus ring',
   /\.mixer__compact:focus-visible[\s\S]*?outline:2px solid/.test(cssCode));
 check('touch targets reach 44px',
