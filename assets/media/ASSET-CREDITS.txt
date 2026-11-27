@@ -1,0 +1,226 @@
+================================================================================
+THE WRONG SCRIPT - MEDIA ASSET CREDITS AND LICENSING
+================================================================================
+
+Phase:        10 (controlled media integration)
+Date:         27 November 2026
+Repository:   Wednesday-Evening/the-wrong-script
+Branch:       appjet
+
+--------------------------------------------------------------------------------
+READ THIS FIRST - WHAT IS AND IS NOT ESTABLISHED
+--------------------------------------------------------------------------------
+
+Every asset below was supplied by the project owner, who uploaded the six files
+to the repository root in commit ee977d0 ("Add files via upload"). The owner
+authorised their integration into five rooms in Phase 10.
+
+That is the entire rights basis this project has. It is an owner's statement,
+not a verified licence. Nothing in this file should be read as confirmation that
+any asset is cleared for publication.
+
+  Established:      the files exist, are intact, and are playable; the owner
+                    supplied them and authorised this integration.
+
+  NOT established:  who made each asset, where it was obtained, under what
+                    licence it is distributed, whether attribution is required,
+                    whether commercial or public use is permitted.
+
+Contributor names are NOT recorded here as fact. The three audio files carry
+studio-style names inside their original filenames (sigmamusicart,
+audiovisuaiseu, universfield), which is consistent with the naming used by some
+stock-audio libraries, but that is an inference from a filename and this project
+will not state it as a credit. No contributor name has been invented or guessed
+into the records below.
+
+--------------------------------------------------------------------------------
+OWNER ACTION REQUIRED BEFORE ANY PUBLIC OR PRODUCTION LAUNCH
+--------------------------------------------------------------------------------
+
+For each of the six assets, confirm and record:
+
+  1. The original source page (URL or library listing).
+  2. The creator or contributor, if the licence requires a named credit.
+  3. The exact licence name and version, and whether it permits this use.
+  4. Whether attribution must be displayed to visitors, and in what form.
+  5. Whether the asset may be used commercially, if that is ever intended.
+
+Until that is done, treat all six as unverified for public release. They are
+integrated in this branch on the owner's instruction and must not be described
+anywhere as "licensed", "royalty-free" or "cleared".
+
+If any asset turns out to be unusable, remove its reference from the page that
+uses it (section "INTENDED PLACEMENT" below) and leave the file in place. The
+rooms are written so that removing a media reference degrades to a working page:
+the video blocks are poster-first and user-started, and every audio element is
+optional and off by default. No room depends on any asset to function.
+
+--------------------------------------------------------------------------------
+1. VIDEO
+--------------------------------------------------------------------------------
+
+1.1  assets/media/video/lighthouse.mp4
+
+  Original upload:  video-01-lighthouse-720p.mp4 (repository root, preserved)
+  Bytes:            1,586,732
+  Format:           MP4 container, H.264 video, no audio stream
+  Video:            1280 x 720, 5.77 seconds, loops
+  Poster:           assets/media/video/lighthouse.jpg (generated from frame
+                    at 00:00:01 of this file by the project, not a separate
+                    supplied asset)
+  Intended placement: The Ninth Bell, above the scene text, as a silent loop
+  Source page:      NOT RECORDED - owner upload
+  Creator:          NOT ESTABLISHED
+  Licence:          NOT VERIFIED - owner to confirm
+  Attribution:      UNKNOWN - owner to confirm whether a credit is required
+  Suitability:      No people, no dialogue, no audio. Sampled frame inspected;
+                    not a full review of every frame.
+
+1.2  assets/media/video/abstract-motion.mp4
+
+  Original upload:  video-02-abstract-motion-720p.mp4 (repository root,
+                    preserved)
+  Bytes:            4,493,169
+  Format:           MP4 container, H.264 video, no audio stream
+  Video:            1280 x 720, 10.00 seconds, loops
+  Poster:           assets/media/video/abstract-motion.jpg (generated from
+                    frame at 00:00:01 of this file)
+  Intended placement: Lobby, inside the introduction panel, replacing the
+                    decorative "reel" block
+  Source page:      NOT RECORDED - owner upload
+  Creator:          NOT ESTABLISHED
+  Licence:          NOT VERIFIED - owner to confirm
+  Attribution:      UNKNOWN - owner to confirm
+  Suitability:      Abstract motion, no people, no dialogue, no audio. Sampled
+                    frame inspected; not a full review of every frame.
+
+1.3  assets/media/video/library.mp4
+
+  Original upload:  video-03-library-720p.mp4 (repository root, preserved)
+  Bytes:            982,652
+  Format:           MP4 container, H.264 video WITH an AAC stereo audio track
+                    (48 kHz)
+  Video:            1280 x 720, 14.02 seconds, loops
+  Poster:           assets/media/video/library.jpg (generated from frame at
+                    00:00:01 of this file)
+  Intended placement: The Returns Hatch, above the scene text, as a silent loop
+  Note:             This is the only video with an audio track. It is played
+                    muted, and the markup carries the muted attribute so no
+                    browser can start it with sound.
+  Source page:      NOT RECORDED - owner upload
+  Creator:          NOT ESTABLISHED
+  Licence:          NOT VERIFIED - owner to confirm
+  Attribution:      UNKNOWN - owner to confirm
+  Suitability:      Sampled frame inspected; the embedded audio track was not
+                    reviewed.
+
+--------------------------------------------------------------------------------
+2. AUDIO
+--------------------------------------------------------------------------------
+
+2.1  assets/media/audio/cinematic-piano.mp3
+
+  Original upload:  sigmamusicart-cinematic-documentary-piano-162733 (repository
+                    root, preserved; supplied WITHOUT a file extension)
+  Bytes:            4,337,580
+  Format:           MPEG-1 Layer III, 44.1 kHz, stereo
+  Duration:         2 minutes 15.5 seconds, loops
+  Intended placement: The Gallery, "Cue 07: The Door Opens Twice" exhibit panel
+                    only. It is labelled there as supplied atmosphere, NOT as a
+                    recording of that cue.
+  Source page:      NOT RECORDED - owner upload
+  Creator:          NOT ESTABLISHED - the original filename contains
+                    "sigmamusicart", which is not recorded here as a credit
+  Licence:          NOT VERIFIED - owner to confirm
+  Attribution:      UNKNOWN - owner to confirm
+  Suitability:      Instrumental piano. Not reviewed in full; no vocal content
+                    identified from the file itself.
+
+2.2  assets/media/audio/ocean-waves.mp3
+
+  Original upload:  audiovisuaiseu-ocean-waves-sound-02-321572 (repository root,
+                    preserved; supplied WITHOUT a file extension)
+  Bytes:            3,332,352
+  Format:           MPEG-1 Layer III, 48 kHz, stereo
+  Duration:         1 minute 44.1 seconds, loops
+  Intended placement: The Ninth Bell only, as optional background sea. Off by
+                    default; never started automatically.
+  Source page:      NOT RECORDED - owner upload
+  Creator:          NOT ESTABLISHED - the original filename contains
+                    "audiovisuaiseu", not recorded here as a credit
+  Licence:          NOT VERIFIED - owner to confirm
+  Attribution:      UNKNOWN - owner to confirm
+  Suitability:      Ambient sea recording. Not reviewed in full.
+
+2.3  assets/media/audio/interface-click.mp3
+
+  Original upload:  universfield-soft-interface-click-126517 (repository root,
+                    preserved; supplied WITHOUT a file extension)
+  Bytes:            45,975
+  Format:           MPEG-1 Layer III, 44.1 kHz, stereo
+  Duration:         1.44 seconds, single hit, not looped
+  Intended placement: The Arcade only - the Arcade library page, SIGNAL PATH and
+                    Lamplight - as one quiet click on a deliberate press. The
+                    sound is OFF until the visitor turns it on.
+  Source page:      NOT RECORDED - owner upload
+  Creator:          NOT ESTABLISHED - the original filename contains
+                    "universfield", not recorded here as a credit
+  Licence:          NOT VERIFIED - owner to confirm
+  Attribution:      UNKNOWN - owner to confirm
+  Suitability:      A short interface click. No content concern identified.
+
+--------------------------------------------------------------------------------
+3. WHAT THIS PROJECT GENERATED ITSELF
+--------------------------------------------------------------------------------
+
+The three poster images were extracted from the owner's own video files by the
+project, using ffmpeg, at one frame per clip. They contain nothing that is not
+already in the corresponding video and carry the same unresolved licence status.
+
+  assets/media/video/lighthouse.jpg
+  assets/media/video/abstract-motion.jpg
+  assets/media/video/library.jpg
+
+No other media asset was added in Phase 10. No stock image, icon, font or sound
+was downloaded, hotlinked or bundled from an external service.
+
+--------------------------------------------------------------------------------
+4. ORIGINAL UPLOADS - PRESERVED, NOT REPLACED
+--------------------------------------------------------------------------------
+
+The six files the owner uploaded remain in the repository root, unchanged and
+byte-identical to the copies in assets/media/. They were copied, never moved,
+renamed or re-encoded. Removing them is a separate owner decision, and nothing
+in the application references the root copies.
+
+  video-01-lighthouse-720p.mp4                          1,586,732
+  video-02-abstract-motion-720p.mp4                     4,493,169
+  video-03-library-720p.mp4                               982,652
+  sigmamusicart-cinematic-documentary-piano-162733      4,337,580
+  audiovisuaiseu-ocean-waves-sound-02-321572            3,332,352
+  universfield-soft-interface-click-126517                 45,975
+
+No asset was re-encoded, cropped, stretched or compressed in this phase. The
+copies are bit-identical to the uploads; only the filename changed.
+
+--------------------------------------------------------------------------------
+5. TEEN-AUDIENCE SUITABILITY - HONEST STATUS
+--------------------------------------------------------------------------------
+
+The authorisation requires content suitable for a broad teen audience. What was
+actually done:
+
+  - File metadata was inspected for all six assets.
+  - One frame was sampled from each video to produce its poster and was viewed.
+  - The three audio files were identified by container, codec and duration.
+
+What was NOT done: a full viewing of all three videos, a full listening pass of
+the two long audio files, or a frame-by-frame review of any clip. No content
+concern was identified in what was inspected, and none of the material is
+violent, sexual, hateful or otherwise obviously unsuitable. This is a sampling
+result, not a certification, and the owner is the final judge of suitability for
+the audience they intend.
+
+================================================================================
+END OF CREDITS
+================================================================================
