@@ -1,0 +1,377 @@
+================================================================================
+THE WRONG SCRIPT
+VISUAL REFERENCE PACK EXTRACTION
+Asset preparation report
+================================================================================
+
+Task:             Visual reference pack extraction (preparation only)
+Status:           COMPLETE - awaiting owner review
+Date:             27 November 2026
+Repository:       Wednesday-Evening/the-wrong-script
+Branch:           appjet
+Starting HEAD:    4c7c49cd2da39a907582d88fe8bd17feccfcde32
+                  "Add files via upload" (the archive upload commit)
+Extraction commit: a440c30ddedc9d52e9cf757c137553be23971300
+                  "AppJet agent update" - the nine extracted files only
+Final HEAD:       Created by the report commit that follows this file, so this
+                  report cannot contain its own hash. The exact final commit is
+                  recorded in the completion message.
+Working tree:     Clean at the start. Clean after extraction. The only pending
+                  change when this report was written was this report file.
+Deployment:       NONE. No hosting, domain, DNS or environment change.
+Implementation:   NONE. No room background, layout, style, script, controller,
+                  story, game or film change was made or started.
+
+--------------------------------------------------------------------------------
+1. WHAT WAS AUTHORISED, AND WHAT WAS NOT
+--------------------------------------------------------------------------------
+
+Authorised: locate the uploaded archive, inspect it, extract it unmodified into
+assets/media/room-identity-references/, verify the extracted files, write this
+report, and commit the extracted assets and this report to appjet.
+
+Not authorised and not done: no room-by-room visual identity implementation, no
+HTML/CSS/JavaScript change, no media controller change, no room layout or
+navigation change, no story/game/content change, no storage key or saved-progress
+change, no /film/ change, no dependency, no framework, no deployment, no merge to
+main. The Room-by-Room Visual Identity stage has not been started.
+
+--------------------------------------------------------------------------------
+2. INITIAL REPOSITORY STATE
+--------------------------------------------------------------------------------
+
+  Branch                          appjet
+  Starting HEAD                   4c7c49cd2da39a907582d88fe8bd17feccfcde32
+  Starting working tree           clean (git status --porcelain produced no
+                                  entries)
+  Archive present in root         yes, tracked by git
+  Destination directory           did not exist before this task
+
+Recent history at the start of the task:
+
+  a440c30 was created later by this task (section 4)
+  4c7c49c Add files via upload            <- starting HEAD, the ZIP upload
+  1b68c88 Add visual-direction refinement handover report
+  3e52c81 Edit tools/verify-creator-studio-ui.cjs
+
+--------------------------------------------------------------------------------
+3. THE ARCHIVE
+--------------------------------------------------------------------------------
+
+  Filename     THE_WRONG_SCRIPT_Room_Identity_Visual_Reference_Pack.zip
+  Location     repository root
+  Size         24,986,810 bytes (23.83 MiB)
+  SHA-256      170cbd0216bc9278b60d47eb917c688a9aaadd5d74d62889c58687cb2472da55
+  Tracked      yes, committed in 4c7c49c
+  Contents     9 entries: 8 PNG images, 1 TXT
+  Uncompressed 25,175,069 bytes (24.01 MiB)
+
+3.1 ARCHIVE AUDIT, PERFORMED BEFORE EXTRACTION
+
+  Check                                     Result
+  ----------------------------------------  ----------------------------------
+  Entry count                               9
+  File-type breakdown                       8 png, 1 txt
+  Subdirectories in archive                 none (flat archive)
+  Duplicate entry names                     0
+  Absolute paths (leading /)                0
+  Parent traversal (../) or ~ entries       0
+  Other suspicious entries                  none (no executables, scripts,
+                                            symlinks or nested archives)
+  Integrity test (unzip -t)                 "No errors detected in compressed
+                                            data" - all 9 entries tested OK
+
+The archive was therefore accepted as safe to extract, and no other file was
+substituted for it.
+
+--------------------------------------------------------------------------------
+4. EXTRACTION
+--------------------------------------------------------------------------------
+
+  Command          unzip -n "$ZIP" -d assets/media/room-identity-references
+  Mode             -n (never overwrite an existing file)
+  Destination      assets/media/room-identity-references/
+  Conflicts        none - the destination directory did not exist, so no file
+                   was overwritten and nothing had to be reported in advance
+  Files outside
+  destination      none; the archive is flat, so every entry landed directly in
+                   the authorised directory
+  Original ZIP     preserved at the repository root, unmodified and still
+                   tracked by git
+
+The extraction was recorded in the repository as commit
+a440c30ddedc9d52e9cf757c137553be23971300 ("AppJet agent update"), whose diff is
+exactly the nine extracted files (8 binary PNG additions plus the 18-line text
+file, 18 insertions). No other path appears in that commit.
+
+Note on provenance of that commit: it was recorded automatically by the workspace
+as part of this session rather than by an explicit commit command. It is stated
+here so the audit trail is exact; its content was verified with
+`git show --stat` (section 6.3).
+
+--------------------------------------------------------------------------------
+5. EXTRACTED INVENTORY
+--------------------------------------------------------------------------------
+
+All paths are relative to assets/media/room-identity-references/.
+
+  #   File                                                    Bytes      Dimensions
+  --  ------------------------------------------------------  ---------  ----------
+  01  01_room_identity_board_with_media_controller.png        2,859,025  1672 x 941
+  02  02_eleven_room_environment_reference_board.png         3,334,788  1672 x 941
+  03  03_lobby_interface_mood_reference.png                  2,782,800  1672 x 941
+  04  04_lobby_environment_reference.png                     3,378,000  1672 x 941
+  05  05_cosmic_environment_alternate.png                    3,384,544  1672 x 941
+  06  06_cosmic_environment_night.png                        3,142,202  1672 x 941
+  07  07_cosmic_portal_environment.png                       3,203,210  1672 x 941
+  08  08_visual_universe_overview.png                        3,088,847  1672 x 941
+      README-USAGE.txt                                           1,653  text (18 lines,
+                                                                        UTF-8, long
+                                                                        lines)
+
+  Total      9 files, 25,175,069 bytes - identical to the archive's uncompressed
+             total.
+
+Image format, from `file`: every PNG is "PNG image data, 1672 x 941, 8-bit/color
+RGB, non-interlaced". ImageMagick reports colourspace sRGB for all eight. The
+pack is internally consistent: one board size, one colourspace, no mixed formats.
+
+5.1 PER-FILE SHA-256 (extracted files, as committed)
+
+  4cb063896b2a1dae8506df0dfc72fd80e582c67f690b22879ef537b958df842d  01_room_identity_board_with_media_controller.png
+  df2addfc174684a3de4dceb16ed20c0ecf7358278ed51b91dc0441671de60b97  02_eleven_room_environment_reference_board.png
+  c10f7f38d548d68a3f822580d38ff19f04a353c04ea9f3dfef3c68f1a8efafbc  03_lobby_interface_mood_reference.png
+  ad489455ea0628c61c9e970d4744723b5ffeaf62b94c30b6e9480e0a1a65c9ec  04_lobby_environment_reference.png
+  2c939e670d6ad7698f97a127877a5438881862a49af4fb89ddd8f5f735e98ffe  05_cosmic_environment_alternate.png
+  9910b42e7754ecb5de7139835032399a3f7754802185a47e562f342c6fdb20c0  06_cosmic_environment_night.png
+  4d31c0f50c07a6b66a43cf85a079daaf004c8f6b3327074afcf220d9dddc923f  07_cosmic_portal_environment.png
+  97e99a6801d39ee79ba248683650f31596d69fff060ccddc037c4314fc493b49  08_visual_universe_overview.png
+  af0d2184aa31bd698bedaf9ac6b0b9341cb90453e62d078ff350e1afb19edde2  README-USAGE.txt
+
+These hashes are recorded so the upcoming implementation stage can detect any
+accidental alteration of the reference pack.
+
+--------------------------------------------------------------------------------
+6. INTEGRITY VERIFICATION
+--------------------------------------------------------------------------------
+
+6.1 EVERY IMAGE OPENS
+
+  Method: ImageMagick `identify` was run over all eight PNGs; it decodes each
+  image and reports geometry, size and colourspace. All eight decoded
+  successfully with no warnings, and `file` independently confirmed valid PNG
+  headers on each.
+
+  Result: 8 of 8 images open successfully. 0 corrupt, 0 truncated.
+
+6.2 EXTRACTED BYTES MATCH THE ARCHIVE
+
+  Method: for each of the nine entries, the archive member was streamed with
+  `unzip -p` and hashed, then compared with the SHA-256 of the extracted file on
+  disk.
+
+  Result: 9 of 9 MATCH. No file is missing, and no extracted file differs from
+  its archive member. Total extracted size equals the archive's stated
+  uncompressed total (25,175,069 bytes).
+
+6.3 THE ORIGINAL ZIP IS UNCHANGED
+
+  Method: SHA-256 of the archive was taken before extraction and again after
+  extraction and verification.
+
+  Result: identical both times -
+  170cbd0216bc9278b60d47eb917c688a9aaadd5d74d62889c58687cb2472da55. The archive
+  remains in the repository root and remains tracked by git.
+
+6.4 NO APPLICATION FILE WAS TOUCHED
+
+  Method: `git show --stat HEAD` and `git status --porcelain -uall`.
+
+  Result: the extraction commit contains only the nine files under
+  assets/media/room-identity-references/. The working tree is clean. No HTML,
+  CSS, JavaScript, data, test, README, film, story, game or configuration file
+  appears in the change. The pre-existing contents of assets/media/
+  (ASSET-CREDITS.txt, audio/, video/) were not modified.
+
+--------------------------------------------------------------------------------
+7. WHAT EACH REFERENCE IMAGE ACTUALLY IS
+--------------------------------------------------------------------------------
+
+The pack's own README-USAGE.txt states that these are concept and reference
+images, that the boards contain multiple scenes in a single image, and that they
+must not be treated as finished room backgrounds. Each image was inspected to
+classify it accurately rather than trusting filenames alone.
+
+  01  MULTI-PANEL BOARD + INTERFACE MOCKUP
+      12 panels in one image. A floating pill-shaped media controller is shown
+      at the top centre (waveform, title, pause, volume slider, expand icon).
+      Baked-in labels appear under panels (for example LOBBY, STORIES, ARCADE,
+      GALLERY, SOCIAL ROOM) plus a title treatment. It is a design reference for
+      a room hub with the controller in place, not a usable background.
+
+  02  MULTI-PANEL COLLAGE BOARD
+      12 panels in a 4 x 3 grid of room and environment concepts. The only
+      baked-in text observed is the word "ARCHIVE" in one panel. Concept art for
+      room atmosphere, not eleven separate background files.
+
+  03  INTERFACE MOCKUP (menu screen over background art)
+      Illustrative UI is baked into the image: the title, a "Playing" status
+      strip, a navigation bar (HOME, STORIES, GAMES, GALLERY, SETTINGS), a
+      tagline and "Enter the Lobby" button, a pull quote, "Online | v1.0.0", and
+      Sound/Video toggles. This is a mood reference for interface character.
+      Its labels, navigation, claims and controls must not be reproduced in the
+      product, as the pack README explicitly requires.
+
+  04  SINGLE ENVIRONMENT ARTWORK
+      One cosmic portal plaza scene: reflective floor, lounge with armillary
+      sphere, lanterns, archway and staircase into a swirling portal, floating
+      islands and a starry sky. No text or UI baked in.
+
+  05  SINGLE ENVIRONMENT ARTWORK
+      One cosmic terrace scene with a lone figure, floating island castles,
+      waterfalls, galaxy and moon. No text or UI baked in.
+
+  06  SINGLE ENVIRONMENT ARTWORK
+      One night cosmic scene: portal at the top of a stone staircase, runic
+      floor, crystals, glowing tree, castle on a floating island. No text or UI
+      baked in.
+
+  07  SINGLE ENVIRONMENT ARTWORK
+      One portal scene with archway vortex, runic plaza, armillary sphere,
+      castle and floating islands. No readable text; markings are geometric
+      symbols.
+
+  08  MULTI-PANEL COLLAGE BOARD
+      12 panels: 11 panels labelled with room names (The Lobby, Stories, The
+      Ninth Bell, Returns Hatch, Arcade, Signal Path, Lamplight, Gallery, Social
+      Room, Archive, Creator Studio) plus a title card. An overview board of the
+      universe's intended atmospheres.
+
+  README-USAGE.txt
+      The pack's own usage notes: what each image is for, the instruction not to
+      use a whole collage as a live room background, not to reproduce baked-in
+      UI or labels, to produce a new separate text-free image per verified room,
+      to keep content and the controller as live HTML/CSS, and a note that image
+      generation does not establish third-party media rights.
+
+Summary of classification: 2 interface mockups/boards with baked-in UI (01, 03),
+3 multi-panel collage boards (01, 02, 08 - 01 counted once above), 5 single
+artworks (04, 05, 06, 07, and no others). No image in this pack is a finished,
+text-free background for a single room.
+
+--------------------------------------------------------------------------------
+8. CONFLICTS, LIMITATIONS AND OPEN ITEMS
+--------------------------------------------------------------------------------
+
+  L1  These are reference boards, not production backgrounds.
+      Eight PNGs exist for eleven intended room identities, and the two fullest
+      boards each hold 12 panels inside one image. Producing per-room backgrounds
+      requires new, separate, text-free artwork. Nothing in this pack can be
+      used as-is as a room background, and no such use has been made.
+
+  L2  Baked-in text and UI must not be reproduced.
+      Images 01, 02, 03 and 08 contain generated labels, navigation or controls.
+      The pack README forbids reproducing them in the product. Any future
+      implementation must supply its own real text and its own live controller.
+
+  L3  Media rights and provenance remain unverified.
+      The pack carries no creator, source, licence or attribution metadata, and
+      its README states that image generation does not by itself establish
+      third-party media rights. No asset here should be described as cleared,
+      licensed or royalty-free. Before any of this artwork influences published
+      imagery, the owner should confirm that the generated images are original
+      to this project and record provenance. This is an open restriction carried
+      forward, not something this extraction could resolve.
+
+  L4  The intended room list needs mapping to real routes before implementation.
+      The README lists eleven room identities. The live project's route set
+      includes /film/ (the protected original production), which is not among
+      those eleven, so the mapping from identity to route is a decision for the
+      next stage. No route was changed here.
+
+  L5  Verification depth.
+      Integrity was verified by archive test, per-file stream comparison and
+      image decoding. Deeper checks (pixel-level comparison against a second
+      source, EXIF/metadata audit, colour-profile analysis) were not performed
+      because no independent second copy exists to compare against and the files
+      are byte-identical to the archive as supplied.
+
+  L6  No visual judgement is implied.
+      Classifying an image as a board, mockup or single artwork is a structural
+      observation from inspection. It is not an approval of the artwork's design
+      quality, and no accessibility or suitability assessment of the imagery was
+      performed.
+
+--------------------------------------------------------------------------------
+9. EXACT FILES CHANGED
+--------------------------------------------------------------------------------
+
+ADDED (10)
+
+  assets/media/room-identity-references/01_room_identity_board_with_media_controller.png
+  assets/media/room-identity-references/02_eleven_room_environment_reference_board.png
+  assets/media/room-identity-references/03_lobby_interface_mood_reference.png
+  assets/media/room-identity-references/04_lobby_environment_reference.png
+  assets/media/room-identity-references/05_cosmic_environment_alternate.png
+  assets/media/room-identity-references/06_cosmic_environment_night.png
+  assets/media/room-identity-references/07_cosmic_portal_environment.png
+  assets/media/room-identity-references/08_visual_universe_overview.png
+  assets/media/room-identity-references/README-USAGE.txt
+  reports/ROOM-IDENTITY-ASSET-EXTRACTION.txt   (this report)
+
+  The first nine were committed in a440c30. This report is committed separately.
+
+MODIFIED (0)
+
+  None.
+
+DELETED / MOVED / RENAMED (0)
+
+  None. In particular the original archive
+  THE_WRONG_SCRIPT_Room_Identity_Visual_Reference_Pack.zip is preserved
+  unmodified at the repository root.
+
+INTENTIONALLY UNTOUCHED
+
+  All HTML, CSS and JavaScript; the media controller; every room page and
+  layout; navigation; stories and games; gallery, social room, archive and
+  creator studio content; all storage keys and saved progress; assets/media/
+  ASSET-CREDITS.txt, audio/ and video/; and the protected film/ directory.
+
+--------------------------------------------------------------------------------
+10. CONFIRMATIONS
+--------------------------------------------------------------------------------
+
+  - The archive was found at the expected path, was valid, and was the only file
+    used. No substitute was taken.
+  - Extraction stayed inside assets/media/room-identity-references/. No entry
+    escaped the destination and no existing file was overwritten.
+  - All nine extracted files are byte-identical to their archive members, and
+    all eight images open successfully.
+  - The original ZIP is preserved in the repository root with an unchanged
+    SHA-256 and remains tracked by git.
+  - No application file, route, style, script, data file, storage key or save
+    format was created, modified, moved or deleted.
+  - No room background was implemented, no controller was changed, and the
+    Room-by-Room Visual Identity stage was not started.
+  - No dependency, framework, backend or network service was introduced.
+  - No deployment, hosting, domain, DNS or environment change occurred, and
+    nothing was merged into main.
+  - Phase and scope boundaries held: this task produced reference assets and this
+    report only.
+
+--------------------------------------------------------------------------------
+11. RECOMMENDED NEXT STEP (NOT STARTED)
+--------------------------------------------------------------------------------
+
+Owner review of this extraction. If it is accepted, the Room-by-Room Visual
+Identity stage can begin with the pack available at
+assets/media/room-identity-references/, subject to three decisions that stage
+must make first: how the eleven intended identities map onto the live routes,
+how per-room text-free artwork will be produced rather than reusing collages, and
+how provenance for generated imagery will be recorded. None of those decisions
+has been taken here.
+
+================================================================================
+EXTRACTION STATUS: COMPLETE - AWAITING OWNER REVIEW
+================================================================================
