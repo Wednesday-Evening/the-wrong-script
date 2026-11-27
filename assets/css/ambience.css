@@ -1,0 +1,496 @@
+/* =====================================================================
+   THE WRONG SCRIPT - room atmosphere and the floating media controller
+   ---------------------------------------------------------------------
+   Two things live here:
+
+     1. .ambience  - a fixed, full-viewport video wash that sits behind
+        every page. One layer per page, never two. It is pointer-events:
+        none, so it can never take a click away from navigation, a story
+        choice or a game control.
+     2. .mixer     - the one floating pill shared by every room: a compact
+        room/playback readout that expands into sound and video controls.
+
+   House rules encoded here:
+
+     - The wash is always dark enough to read on. The scrim sits between
+       the video and the page, and the per-room tint sits on top of that,
+       so headings, cards and buttons keep their contrast.
+     - Nothing is stretched: the video and its poster use object-fit:
+       cover, and the poster is painted underneath the video so a slow or
+       blocked file still shows an image.
+     - No transition survives a prefers-reduced-motion request.
+     - The pill is bottom-right on wide screens and bottom-centre on
+       narrow ones, clear of the sticky header and inside the safe area.
+   ===================================================================== */
+
+/* ---------- per-room identity ----------
+   Each room gets a tint pair and an accent. The accent is used by the
+   controller so the pill belongs to the room it is standing in. */
+
+.ambience,
+body[data-room]{
+  --amb-a:rgba(52,110,190,.38);
+  --amb-b:rgba(120,72,210,.24);
+  --amb-accent:#c8a45c;
+}
+
+body[data-room="lobby"]{
+  --amb-a:rgba(46,104,196,.42);
+  --amb-b:rgba(126,74,214,.28);
+  --amb-accent:#8fc4ff;
+}
+
+body[data-room="stories"]{
+  --amb-a:rgba(36,84,86,.42);
+  --amb-b:rgba(96,74,40,.30);
+  --amb-accent:#9ecfc7;
+}
+
+body[data-room="ninth-bell"]{
+  --amb-a:rgba(26,64,92,.50);
+  --amb-b:rgba(10,26,34,.52);
+  --amb-accent:#9ecfc7;
+}
+
+body[data-room="returns-hatch"]{
+  --amb-a:rgba(118,74,28,.42);
+  --amb-b:rgba(48,32,18,.48);
+  --amb-accent:#d9a45c;
+}
+
+body[data-room="arcade"]{
+  --amb-a:rgba(36,120,96,.34);
+  --amb-b:rgba(150,44,164,.30);
+  --amb-accent:#8fd07a;
+}
+
+body[data-room="signal-path"]{
+  --amb-a:rgba(28,110,120,.34);
+  --amb-b:rgba(52,140,72,.30);
+  --amb-accent:#8fd07a;
+}
+
+body[data-room="lamplight"]{
+  --amb-a:rgba(118,86,30,.36);
+  --amb-b:rgba(22,52,64,.44);
+  --amb-accent:#e0b96a;
+}
+
+body[data-room="gallery"]{
+  --amb-a:rgba(132,108,70,.30);
+  --amb-b:rgba(58,66,92,.34);
+  --amb-accent:#d8c39a;
+}
+
+body[data-room="social-room"]{
+  --amb-a:rgba(112,86,52,.32);
+  --amb-b:rgba(46,52,60,.40);
+  --amb-accent:#c9a978;
+}
+
+body[data-room="archive"]{
+  --amb-a:rgba(60,70,92,.40);
+  --amb-b:rgba(34,36,44,.46);
+  --amb-accent:#a9b3c4;
+}
+
+body[data-room="creator-studio"]{
+  --amb-a:rgba(48,84,132,.40);
+  --amb-b:rgba(22,30,48,.44);
+  --amb-accent:#9dbfe4;
+}
+
+/* ---------- the wash ---------- */
+
+.ambience{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  overflow:hidden;
+  pointer-events:none;
+  background:#07070a;
+}
+
+.ambience__frame{
+  position:absolute;
+  inset:0;
+  background-position:50% 42%;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+
+.ambience__video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:50% 42%;
+  opacity:0;
+  transition:opacity .8s ease;
+  border:0;
+}
+
+.ambience__video.is-live{
+  opacity:.9;
+}
+
+.ambience__tint{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(120% 90% at 16% 6%, var(--amb-a) 0%, transparent 62%),
+    radial-gradient(110% 80% at 88% 94%, var(--amb-b) 0%, transparent 60%);
+}
+
+.ambience__scrim{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(140% 120% at 50% 38%, rgba(6,6,8,.14) 0%, rgba(6,6,8,.52) 58%, rgba(5,5,7,.84) 100%),
+    linear-gradient(180deg,
+      rgba(6,6,8,.88) 0%,
+      rgba(6,6,8,.46) 22%,
+      rgba(6,6,8,.34) 52%,
+      rgba(6,6,8,.74) 84%,
+      rgba(6,6,8,.93) 100%);
+}
+
+/* A hairline at the very top keeps the sticky header readable even when
+   the video happens to be bright there. */
+.ambience::after{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:96px;
+  background:linear-gradient(180deg, rgba(6,6,8,.55), transparent);
+}
+
+/* ---------- the floating controller ---------- */
+
+.mixer{
+  position:fixed;
+  right:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  z-index:70;
+  width:min(320px, calc(100vw - 32px));
+  font:13px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--parch,#e8ddcb);
+  -webkit-font-smoothing:antialiased;
+}
+
+.mixer__compact{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-height:44px;
+  margin:0;
+  padding:7px 12px;
+  font:inherit;
+  color:inherit;
+  text-align:left;
+  background:rgba(10,10,13,.82);
+  border:1px solid rgba(232,221,203,.18);
+  border-radius:999px;
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+  cursor:pointer;
+}
+
+.mixer__compact:hover{
+  border-color:rgba(232,221,203,.34);
+}
+
+.mixer__pulse{
+  flex:0 0 auto;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--amb-accent,#c8a45c);
+  box-shadow:0 0 0 3px rgba(200,164,92,.14);
+  opacity:.55;
+}
+
+.mixer.is-playing .mixer__pulse{
+  opacity:1;
+}
+
+.mixer__text{
+  flex:1 1 auto;
+  min-width:0;
+  display:grid;
+  gap:1px;
+}
+
+.mixer__room{
+  display:block;
+  font-size:9.5px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--amb-accent,#c8a45c);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.mixer__status{
+  display:block;
+  font-size:11.5px;
+  line-height:1.3;
+  color:var(--parch-soft,#cbbfa8);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.mixer__wave{
+  flex:0 0 auto;
+  display:flex;
+  align-items:flex-end;
+  gap:2px;
+  height:16px;
+}
+
+.mixer__wave i{
+  display:block;
+  width:2px;
+  height:5px;
+  border-radius:1px;
+  background:var(--amb-accent,#c8a45c);
+  opacity:.5;
+}
+
+.mixer.is-playing .mixer__wave i{
+  opacity:.9;
+  animation:mixer-wave 1.1s ease-in-out infinite;
+}
+
+.mixer.is-playing .mixer__wave i:nth-child(2){animation-delay:.16s}
+.mixer.is-playing .mixer__wave i:nth-child(3){animation-delay:.32s}
+
+@keyframes mixer-wave{
+  0%,100%{height:5px}
+  50%{height:15px}
+}
+
+.mixer__chev{
+  flex:0 0 auto;
+  width:9px;
+  height:9px;
+  margin-right:2px;
+  border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg) translate(-2px,-2px);
+  opacity:.7;
+}
+
+.mixer__compact[aria-expanded="true"] .mixer__chev{
+  transform:rotate(-135deg) translate(-2px,-2px);
+}
+
+/* ---------- expanded panel ---------- */
+
+.mixer__panel{
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 10px);
+  width:100%;
+  max-height:min(70vh, 520px);
+  overflow-y:auto;
+  padding:14px 14px 16px;
+  background:rgba(9,9,12,.94);
+  border:1px solid rgba(232,221,203,.2);
+  border-radius:18px;
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  box-shadow:0 18px 44px rgba(0,0,0,.55);
+}
+
+.mixer__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 0 10px;
+}
+
+.mixer__title{
+  margin:0;
+  font-size:9.5px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--amb-accent,#c8a45c);
+}
+
+.mixer__close{
+  min-width:44px;
+  min-height:44px;
+  margin:-8px -8px -8px 0;
+  padding:0;
+  font:inherit;
+  font-size:18px;
+  line-height:1;
+  color:var(--parch-soft,#cbbfa8);
+  background:transparent;
+  border:0;
+  border-radius:999px;
+  cursor:pointer;
+}
+
+.mixer__close:hover{
+  color:#fff;
+}
+
+.mixer__row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:9px 0;
+  border-top:1px solid rgba(232,221,203,.1);
+}
+
+.mixer__row--slider{
+  grid-template-columns:1fr;
+  gap:4px;
+}
+
+.mixer__rowhead{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.mixer__name{
+  font-size:12px;
+  letter-spacing:.02em;
+  color:var(--parch,#e8ddcb);
+}
+
+.mixer__val{
+  font-size:11px;
+  font-variant-numeric:tabular-nums;
+  color:var(--parch-soft,#cbbfa8);
+}
+
+.mixer__row.is-absent .mixer__name,
+.mixer__row.is-absent .mixer__val{
+  color:var(--muted,#8f8371);
+}
+
+.mixer__row.is-absent .mixer__name::after{
+  content:" - not in this room";
+  font-size:10.5px;
+  letter-spacing:.04em;
+}
+
+.mixer__switch{
+  position:relative;
+  min-width:52px;
+  min-height:44px;
+  padding:0;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(232,221,203,.22);
+  border-radius:999px;
+  cursor:pointer;
+}
+
+.mixer__switch::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:5px;
+  width:20px;
+  height:20px;
+  margin-top:-10px;
+  border-radius:50%;
+  background:var(--parch-soft,#cbbfa8);
+  transition:left .18s ease, background .18s ease;
+}
+
+.mixer__switch[aria-checked="true"]{
+  background:rgba(200,164,92,.2);
+  border-color:var(--amb-accent,#c8a45c);
+}
+
+.mixer__switch[aria-checked="true"]::after{
+  left:calc(100% - 25px);
+  background:var(--amb-accent,#c8a45c);
+}
+
+.mixer__switch[disabled]{
+  opacity:.45;
+  cursor:default;
+}
+
+.mixer__range{
+  width:100%;
+  min-height:44px;
+  margin:0;
+  accent-color:var(--amb-accent,#c8a45c);
+  background:transparent;
+}
+
+.mixer__range[disabled]{
+  opacity:.45;
+}
+
+.mixer__note{
+  margin:10px 0 0;
+  font-size:10.5px;
+  line-height:1.5;
+  color:var(--muted,#8f8371);
+}
+
+/* focus: one visible ring for every control in the pill */
+
+.mixer__compact:focus-visible,
+.mixer__close:focus-visible,
+.mixer__switch:focus-visible,
+.mixer__range:focus-visible{
+  outline:2px solid var(--amb-accent,#c8a45c);
+  outline-offset:3px;
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width:560px){
+  .mixer{
+    left:12px;
+    right:12px;
+    width:auto;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  }
+
+  .mixer__panel{
+    right:0;
+    left:0;
+    width:auto;
+    border-radius:16px;
+  }
+
+  .ambience__video{
+    object-position:50% 38%;
+  }
+}
+
+/* ---------- motion ---------- */
+
+@media (prefers-reduced-motion:reduce){
+  .ambience__video,
+  .mixer__compact,
+  .mixer__switch::after,
+  .mixer__chev,
+  .mixer__panel{
+    transition:none!important;
+    animation:none!important;
+  }
+
+  .mixer.is-playing .mixer__wave i{
+    animation:none!important;
+    height:9px;
+  }
+}
