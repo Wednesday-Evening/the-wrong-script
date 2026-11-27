@@ -90,6 +90,13 @@
       <p class="panel-credit" id="exhibit-credit"></p>
       <p class="panel-note" id="exhibit-note"></p>
 
+      <div class="media-audio" id="exhibit-audio" data-media-audio-block hidden>
+        <button class="media-toggle" id="exhibit-audio-toggle" type="button" data-audio-toggle
+                data-label-off="Play the piano" data-label-on="Pause the piano">Play the piano</button>
+        <audio id="exhibit-audio-el" data-media-audio preload="none" loop></audio>
+        <p class="media-note" id="exhibit-audio-note"></p>
+      </div>
+
       <div class="panel-actions">
         <button class="btn btn-ghost" id="exhibit-close" type="button">Back to the Gallery</button>
       </div>

@@ -188,9 +188,19 @@ check('no Gallery file fetches or opens a network request',
 check('no Gallery file references an external host',
   !/(?:src|href)\s*=\s*"(?:https?:)?\/\//i.test(joined));
 
-check('the Gallery ships no audio element, player or autoplay',
-  !/<audio\b/i.test(joined) && !/\bautoplay\s*=/i.test(joined) &&
-  !/\bnew\s+Audio\s*\(/.test(joined) && !/\.play\s*\(\s*\)/.test(joined));
+check('the Gallery ships no autoplay attribute',
+  !/\bautoplay\s*=/i.test(joined));
+
+check('the Gallery creates no audio programmatically',
+  !/\bnew\s+Audio\s*\(/.test(joined));
+
+/* Phase 10 replaced the old "no audio at all" assertion. One exhibit may now
+   offer the owner-supplied piano, so the guarantee is not silence but
+   inertness: the element must not preload and a labelled control must sit
+   beside it. Playback itself is exercised in the browser run. */
+check('any Gallery audio is inert until a visible control starts it',
+  !/<audio\b/i.test(joined) ||
+  (/<audio[^>]+preload="none"/i.test(joined) && /data-audio-toggle/.test(joined)));
 
 check('the Gallery has no upload, account or publish control',
   !/<input[^>]+type="file"|type="password"|contenteditable/i.test(joined));

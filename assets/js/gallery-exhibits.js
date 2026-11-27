@@ -211,11 +211,11 @@ window.GALLERY_EXHIBITS = [
     title: 'Cue 07: The Door Opens Twice',
     category: 'music',
     kind: 'score',
-    medium: 'Written cue and score sketch, no audio',
+    medium: 'Written cue and score sketch, with supplied piano atmosphere',
     collection: 'Opening set',
     blurb: 'A two-minute cue described rather than recorded: three instruments, one repeated figure, and a door that opens twice.',
     body: [
-      'Nothing in this exhibit plays. There is no recording, no audio file and no player, because the project does not have an original recording of this cue yet, and a stock track with this project\u2019s name on it would be somebody else\u2019s work wearing the wrong label. What exists is the writing and the score sketch above.',
+      'There is still no recording of this cue. A supplied piano can be started below, but it is atmosphere for the room, not this piece. The project has no original recording of the cue yet, and a stock track with this project\u2019s name on it would be somebody else\u2019s work wearing the wrong label. What exists is the writing and the score sketch above.',
       'The cue is for the moment a door opens, closes, and opens again. Tempo 52, quietly, in A minor. Three instruments: a single sustained cello note held through all of it, a piano playing the same four-note figure fourteen times, and one struck bell at the two moments the door moves.',
       'The figure is D, E, F, E. It rises by a step, falls back, and never resolves, which is the point: the cue is not allowed to finish the thought. On the second opening the piano drops out entirely and only the cello and the bell remain, so the room sounds emptier after the door has been used than before it was.',
       'A recording would need three players and a quiet room. Until that exists, this is the honest version: the intention, written down.'
@@ -227,6 +227,12 @@ window.GALLERY_EXHIBITS = [
       width: 800,
       height: 420
     },
-    note: 'Score sketch only. No audio is embedded, and nothing autoplays anywhere in the Gallery.'
+    audio: {
+      src: '../assets/media/audio/cinematic-piano.mp3',
+      label: 'Play the piano',
+      labelOn: 'Pause the piano',
+      note: 'Supplied piano, 2 min 15 s, loops. Owner-uploaded; licence not yet verified (see assets/media/ASSET-CREDITS.txt). Atmosphere for the room, not a recording of Cue 07.'
+    },
+    note: 'Score sketch for the cue itself. The piano below is a separate supplied recording, not a recording of Cue 07. Nothing autoplays anywhere in the Gallery.'
   }
 ];

@@ -78,6 +78,16 @@
     if (!id || !title || !byCategory[category]) { return; }
     if (byId[id]) { return; }
 
+    var audio = null;
+    if (exhibit.audio && typeof exhibit.audio === 'object' && text(exhibit.audio.src).trim()) {
+      audio = {
+        src: text(exhibit.audio.src).trim(),
+        label: text(exhibit.audio.label).trim() || 'Play',
+        labelOn: text(exhibit.audio.labelOn).trim() || 'Pause',
+        note: text(exhibit.audio.note).trim()
+      };
+    }
+
     var media = null;
     if (exhibit.media && typeof exhibit.media === 'object' && text(exhibit.media.src).trim()) {
       media = {
@@ -100,7 +110,8 @@
       body: Array.isArray(exhibit.body) ? exhibit.body.filter(function (line) { return typeof line === 'string' && line.length; }) : [],
       credit: text(exhibit.credit),
       note: text(exhibit.note),
-      media: media
+      media: media,
+    audio: audio
     };
 
     exhibits.push(entry);
@@ -126,6 +137,13 @@
   var panelBodyEl = document.querySelector('#exhibit-body');
   var panelCreditEl = document.querySelector('#exhibit-credit');
   var panelNoteEl = document.querySelector('#exhibit-note');
+  /* Phase 10: the panel may carry one user-started recording. The element
+     exists in the markup but stays hidden and without a src until an exhibit
+     that offers audio is opened. */
+  var audioBlockEl = document.querySelector('#exhibit-audio');
+  var audioBtnEl = document.querySelector('#exhibit-audio-toggle');
+  var audioNoteEl = document.querySelector('#exhibit-audio-note');
+  var audioEl = document.querySelector('#exhibit-audio-el');
   var panelCloseEl = document.querySelector('#exhibit-close');
   var panelInnerEl = panelEl ? panelEl.querySelector('.panel-inner') : null;
 
@@ -349,6 +367,23 @@
     panelNoteEl.textContent = exhibit.note;
     panelNoteEl.hidden = !exhibit.note;
 
+    if (exhibit.audio && audioBlockEl) {
+      audioBlockEl.hidden = false;
+      audioBtnEl.setAttribute('data-label-off', exhibit.audio.label);
+      audioBtnEl.setAttribute('data-label-on', exhibit.audio.labelOn);
+      audioNoteEl.textContent = exhibit.audio.note;
+      audioNoteEl.hidden = !exhibit.audio.note;
+      if (audioEl.getAttribute('src') !== exhibit.audio.src) {
+        audioEl.pause();
+        audioEl.setAttribute('src', exhibit.audio.src);
+      }
+      audioBtnEl.textContent = audioEl.paused ? exhibit.audio.label : exhibit.audio.labelOn;
+    } else if (audioBlockEl) {
+      audioBlockEl.hidden = true;
+      audioEl.pause();
+      audioEl.removeAttribute('src');
+    }
+
     panelEl.hidden = false;
 
     if (focusHeading) {
@@ -361,6 +396,10 @@
     var wasOpen = openId;
     openId = null;
     panelEl.hidden = true;
+
+    /* Leaving the panel stops the room's audio: nothing keeps playing behind a
+       closed exhibit. */
+    if (audioEl) { audioEl.pause(); }
 
     if (wasOpen) {
       lastFocusedId = wasOpen;
