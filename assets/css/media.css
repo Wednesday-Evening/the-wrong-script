@@ -1,0 +1,132 @@
+/* =====================================================================
+   THE WRONG SCRIPT - shared media presentation
+   ---------------------------------------------------------------------
+   Used by the rooms that carry one of the owner-supplied media files:
+   the Lobby, The Ninth Bell, The Returns Hatch and The Gallery.
+
+   House rules encoded here:
+
+     1. Nothing moves or sounds on its own. Every video starts as its
+        poster and every audio file starts paused, so there is no autoplay
+        anywhere and no surprise sound.
+     2. The controls are ordinary buttons, so they are reachable by Tab,
+        operable by Enter and Space, and announce their own state.
+     3. No fixed pixel widths. Media fills its column and keeps its own
+        aspect ratio, so nothing is stretched.
+     4. No transition survives a prefers-reduced-motion request.
+   ===================================================================== */
+
+.media-figure{
+  position:relative;
+  margin:0;
+  border:1px solid var(--rule,#2a2422);
+  border-radius:6px;
+  background:#070706;
+  overflow:hidden;
+}
+
+.media-figure .media-video{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:46vh;
+  aspect-ratio:16/9;
+  object-fit:contain;
+  background:#070706;
+}
+
+.media-bar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-top:1px solid var(--rule,#2a2422);
+  background:rgba(255,255,255,.02);
+}
+
+.media-toggle{
+  min-height:44px;
+  min-width:44px;
+  padding:0 14px;
+  font:inherit;
+  font-size:10.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--parch,#e8e0d2);
+  background:transparent;
+  border:1px solid var(--rule,#2a2422);
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.media-toggle:hover{
+  border-color:var(--gold-dim,#8a6f3a);
+  color:#fff;
+}
+
+.media-toggle:focus-visible{
+  outline:2px solid var(--gold,#c8a45c);
+  outline-offset:3px;
+}
+
+.media-toggle[aria-pressed="true"]{
+  border-color:var(--gold,#c8a45c);
+  color:var(--gold,#c8a45c);
+}
+
+.media-toggle[disabled]{
+  opacity:.55;
+  cursor:default;
+}
+
+.media-note{
+  margin:0;
+  font-size:11px;
+  line-height:1.5;
+  color:var(--parch-dim,#a79c8b);
+}
+
+.media-audio{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  margin:16px 0 0;
+  padding:10px 12px;
+  border:1px solid var(--rule,#2a2422);
+  border-radius:6px;
+  background:rgba(255,255,255,.02);
+}
+
+.media-audio audio{
+  display:none;
+}
+
+.media-audio .media-note{
+  flex:1 1 220px;
+  min-width:180px;
+}
+
+.scene-media{
+  margin:0 0 22px;
+}
+
+.reel-media{
+  margin:0;
+}
+
+@media (max-width:640px){
+  .media-figure .media-video{
+    max-height:none;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .media-figure .media-video,
+  .media-toggle,
+  .media-audio{
+    transition:none!important;
+    animation:none!important;
+  }
+}
