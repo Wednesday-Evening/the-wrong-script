@@ -252,9 +252,14 @@ async function main() {
     });
 
     await check('the page offers no form or upload control', async () => {
-      const controls = await page.locator('form, input, textarea, select').count();
+      /* The site-wide media pill is present on every room and is not a Studio
+         control, so it is excluded here. The intent is unchanged: the Studio
+         itself must offer no account, upload or submission control. */
+      const controls = await page.$$eval('form, input, textarea, select',
+        (els) => els.filter((e) => !e.closest('[data-mixer]')).length);
       ok(controls === 0, 'found ' + controls + ' form controls');
-      const buttons = await page.locator('button').count();
+      const buttons = await page.$$eval('button',
+        (els) => els.filter((e) => !e.closest('[data-mixer]')).length);
       ok(buttons === 1, 'expected 1 button (nav toggle), found ' + buttons);
       const buttonName = (await page.locator('button').first().innerText()).toLowerCase();
       ok(buttonName.indexOf('menu') !== -1, 'the only button is "' + buttonName + '"');
