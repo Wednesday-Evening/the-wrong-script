@@ -255,7 +255,7 @@ classify it accurately rather than trusting filenames alone.
       generation does not establish third-party media rights.
 
 Summary of classification: 2 interface mockups/boards with baked-in UI (01, 03),
-3 multi-panel collage boards (01, 02, 08 - 01 counted once above), 5 single
+3 multi-panel collage boards (01, 02, 08 - 01 counted once above), 4 single
 artworks (04, 05, 06, 07, and no others). No image in this pack is a finished,
 text-free background for a single room.
 
