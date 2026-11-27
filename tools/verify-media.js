@@ -142,14 +142,31 @@ PAGES.forEach(function (page) {
   var click = html.match(/data-click-src="([^"]+)"/);
   if (click) { refs.push(click[1]); }
 
-  check(page + ' references at least one media file', refs.length > 0,
-    refs.length + ' reference(s)');
+  if (page === 'gallery/index.html') {
+    /* The Gallery's recording is named in its exhibit data rather than in the
+       page, so section 3b resolves that reference instead. */
+    check(page + ' carries the audio block the exhibit data fills in',
+      /data-media-audio-block/.test(html) && /data-audio-toggle/.test(html));
+  } else {
+    check(page + ' references at least one media file', refs.length > 0,
+      refs.length + ' reference(s)');
+  }
 
   refs.forEach(function (ref) {
     var resolved = path.normalize(path.join(dir, ref));
     check(page + ' -> ' + ref + ' exists', exists(resolved), resolved);
   });
 });
+
+console.log('\n3b. GALLERY EXHIBIT AUDIO REFERENCE');
+
+var galleryData = text('assets/js/gallery-exhibits.js');
+var galleryRef = (galleryData.match(/src:\s*'(\.\.\/assets\/media\/[^']+)'/) || [])[1];
+check('gallery-exhibits.js names one media file', !!galleryRef, galleryRef || 'none');
+if (galleryRef) {
+  var galleryResolved = path.normalize(path.join('gallery', galleryRef));
+  check('the exhibit audio path resolves on disk', exists(galleryResolved), galleryResolved);
+}
 
 console.log('\n4. INERT BY DEFAULT');
 
@@ -192,8 +209,25 @@ SCRIPTS.forEach(function (rel) {
   var src = text(rel);
   check(rel + ' touches no storage', !/localStorage|sessionStorage|indexedDB|document\.cookie/.test(src));
   check(rel + ' names no save key', !/['"]tws['"]|wrong-script\./.test(src));
-  check(rel + ' creates no audio programmatically', !/new\s+Audio\s*\(/.test(src));
 });
+
+/* The Arcade click is the one script allowed to build a player, because it
+   needs a single tiny sound that is not in the page markup. Its limits are
+   asserted directly rather than banning the constructor. */
+var sound = text('assets/js/arcade-sound.js');
+check('arcade-sound.js starts disabled', /var enabled = false;/.test(sound));
+check('arcade-sound.js refuses to fire while disabled', /if \(!enabled\) \{ return; \}/.test(sound));
+check('arcade-sound.js does not preload the click', /audio\.preload = 'none';/.test(sound));
+check('arcade-sound.js keeps the click quiet', /audio\.volume = 0\.22;/.test(sound));
+check('arcade-sound.js throttles repeated presses', /lastTick < 90/.test(sound));
+check('arcade-sound.js stops when the page is left',
+  /pagehide/.test(sound) && /audio\.pause\(\)/.test(sound));
+
+var mediaScript = text('assets/js/media-player.js');
+check('media-player.js builds no hidden player', !/new\s+Audio\s*\(/.test(mediaScript));
+check('media-player.js keeps one stream at a time', /function pauseAudios/.test(mediaScript));
+check('media-player.js stops playback when the page is left',
+  /pagehide/.test(mediaScript) && /pauseAudios\(null\)/.test(mediaScript));
 
 console.log('\n6. ARCADE SOUND WIRING');
 
