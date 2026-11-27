@@ -218,7 +218,8 @@ var sound = text('assets/js/arcade-sound.js');
 check('arcade-sound.js starts disabled', /var enabled = false;/.test(sound));
 check('arcade-sound.js refuses to fire while disabled', /if \(!enabled\) \{ return; \}/.test(sound));
 check('arcade-sound.js plays a generated cue, not a recording',
-  /audio\.cue\('clique'\)/.test(sound) && !/\.mp3/.test(sound));
+  /audio\.cue\('clique'\)/.test(sound) && !/new Audio/.test(sound) &&
+  !/\.mp3['"]/.test(sound));
 check('arcade-sound.js reads the Effects channel',
   /audio\.getLevel\('effects'\)/.test(sound));
 check('arcade-sound.js moves the Effects channel, not a private volume',
