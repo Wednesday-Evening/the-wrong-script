@@ -125,9 +125,11 @@ optional and off by default. No room depends on any asset to function.
   Bytes:            4,337,580
   Format:           MPEG-1 Layer III, 44.1 kHz, stereo
   Duration:         2 minutes 15.5 seconds, loops
-  Intended placement: The Gallery, "Cue 07: The Door Opens Twice" exhibit panel
-                    only. It is labelled there as supplied atmosphere, NOT as a
-                    recording of that cue.
+  Intended placement: NONE - NOT PLAYED. Phase 10 placed it in the Gallery's
+                    "Cue 07" panel; the visual-direction refinement withdrew
+                    that control because the licence is unresolved. The Gallery
+                    now generates its own atmosphere. The file is preserved and
+                    unreferenced by the application.
   Source page:      NOT RECORDED - owner upload
   Creator:          NOT ESTABLISHED - the original filename contains
                     "sigmamusicart", which is not recorded here as a credit
@@ -143,8 +145,10 @@ optional and off by default. No room depends on any asset to function.
   Bytes:            3,332,352
   Format:           MPEG-1 Layer III, 48 kHz, stereo
   Duration:         1 minute 44.1 seconds, loops
-  Intended placement: The Ninth Bell only, as optional background sea. Off by
-                    default; never started automatically.
+  Intended placement: NONE - NOT PLAYED. It was wired to The Ninth Bell as
+                    optional sea in Phase 10 and withdrawn for the same licence
+                    reason. The Ninth Bell now generates its own sea bed. The
+                    file is preserved and unreferenced by the application.
   Source page:      NOT RECORDED - owner upload
   Creator:          NOT ESTABLISHED - the original filename contains
                     "audiovisuaiseu", not recorded here as a credit
@@ -159,9 +163,10 @@ optional and off by default. No room depends on any asset to function.
   Bytes:            45,975
   Format:           MPEG-1 Layer III, 44.1 kHz, stereo
   Duration:         1.44 seconds, single hit, not looped
-  Intended placement: The Arcade only - the Arcade library page, SIGNAL PATH and
-                    Lamplight - as one quiet click on a deliberate press. The
-                    sound is OFF until the visitor turns it on.
+  Intended placement: NONE - NOT PLAYED. It was the Arcade's press click in
+                    Phase 10 and was withdrawn for the same licence reason. The
+                    Arcade now generates its click in the browser. The file is
+                    preserved and unreferenced by the application.
   Source page:      NOT RECORDED - owner upload
   Creator:          NOT ESTABLISHED - the original filename contains
                     "universfield", not recorded here as a credit
@@ -172,6 +177,18 @@ optional and off by default. No room depends on any asset to function.
 --------------------------------------------------------------------------------
 3. WHAT THIS PROJECT GENERATED ITSELF
 --------------------------------------------------------------------------------
+
+PHASE 10 -> VISUAL DIRECTION REFINEMENT: the three recordings in section 2 are
+no longer played anywhere. Their licence could not be established, so the
+application stopped referencing them and every room's audio is now generated in
+the browser with the Web Audio API from the project's own oscillators and noise
+buffers. Nothing in assets/js/audio-engine.js, assets/js/ambience.js or
+assets/js/arcade-sound.js loads a recorded audio file.
+
+That is a deliberate restriction, not a licensing conclusion: the files remain
+preserved on disk and in assets/media/audio/ exactly as supplied, ready to be
+restored to service the moment the owner can record a source and licence for
+each one.
 
 The three poster images were extracted from the owner's own video files by the
 project, using ffmpeg, at one frame per clip. They contain nothing that is not
